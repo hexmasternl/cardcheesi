@@ -2,6 +2,8 @@ import { Component, inject, computed } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { RulesLanguageService } from '../rules-language.service';
 
+export type { Lang } from '../rules-language.service';
+
 interface Chapter {
   path: string;
   en: string;
