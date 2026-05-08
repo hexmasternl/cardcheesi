@@ -30,5 +30,5 @@
 
 ## 7. Verification
 
-- [ ] 7.1 Run `ng build` from `src/App` — no errors
-- [ ] 7.2 Run `ng test` — all tests pass
+- [x] 7.1 Run `ng build` from `src/App` — no errors
+- [x] 7.2 Run `ng test` — all tests pass

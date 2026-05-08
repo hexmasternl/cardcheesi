@@ -1,4 +1,19 @@
 <div class="chapter">
-  <h1 class="chapter__title">{{ lang() === 'en' ? 'Gameplay' : 'Spelverloop' }}</h1>
-  <p class="chapter__intro">{{ lang() === 'en' ? 'Coming soon.' : 'Binnenkort beschikbaar.' }}</p>
+  <h1 class="chapter__title">{{ content[lang()].title }}</h1>
+  <p class="chapter__intro">{{ content[lang()].intro }}</p>
+
+  @for (s of content[lang()].sections; track s.heading) {
+    <div class="section-card">
+      <h2 class="section-card__heading">{{ s.heading }}</h2>
+      <p class="section-card__body">{{ s.body }}</p>
+      <ul class="section-card__list">
+        @for (item of s.list; track item) {
+          <li>{{ item }}</li>
+        }
+      </ul>
+      @if (s.callout) {
+        <div class="callout">{{ s.callout }}</div>
+      }
+    </div>
+  }
 </div>

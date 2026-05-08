@@ -1,4 +1,27 @@
 <div class="chapter">
-  <h1 class="chapter__title">{{ lang() === 'en' ? 'Cards' : 'Kaarten' }}</h1>
-  <p class="chapter__intro">{{ lang() === 'en' ? 'Coming soon.' : 'Binnenkort beschikbaar.' }}</p>
+  <h1 class="chapter__title">{{ content[lang()].title }}</h1>
+  <p class="chapter__intro">{{ content[lang()].intro }}</p>
+
+  <h2 class="section-card__heading" style="margin-bottom:1rem">{{ content[lang()].specialHeading }}</h2>
+
+  @for (card of content[lang()].specials; track card.label) {
+    <div class="card-pill card-pill--special">
+      <div class="card-pill__label">{{ card.label }}</div>
+      <div class="card-pill__body">
+        <strong>{{ card.name }}</strong>
+        <p>{{ card.effect }}</p>
+      </div>
+    </div>
+  }
+
+  <h2 class="section-card__heading" style="margin: 2rem 0 1rem">{{ content[lang()].numberedHeading }}</h2>
+
+  @for (card of content[lang()].numbered; track card.label) {
+    <div class="card-pill card-pill--numbered">
+      <div class="card-pill__label">{{ card.label }}</div>
+      <div class="card-pill__body">
+        <p>{{ card.effect }}</p>
+      </div>
+    </div>
+  }
 </div>
