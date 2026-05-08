@@ -54,6 +54,40 @@ ng test --testFile src/app/app.spec.ts  # run a single test file
 - Every service project must call `builder.AddServiceDefaults()` and `app.MapDefaultEndpoints()` — these are provided by `CardCheesi.Aspire.ServiceDefaults` and wire up OpenTelemetry, health checks, and service discovery.
 - Tests use **xUnit**; `<Using Include="Xunit" />` is declared globally in the test project so `[Fact]`/`[Theory]` attributes need no import.
 
+#### C# Code Guidelines
+
+All C# code **must comply with the [HexMaster Code Guidelines MCP](hexmaster-design-guidelines)**. Before writing or reviewing C# code, consult the guidelines via the `hexmaster-design-guidelines` MCP tools:
+
+- `list_docs` — browse all available guidelines, ADRs, and recommendations
+- `get_doc` — retrieve a specific guideline by ID
+
+Key guidelines in effect for this project:
+
+| Guideline | ID |
+|-----------|-----|
+| Adopt .NET 10 as target framework | `0001-adopt-dotnet-10` |
+| Modular monolith project structure | `0002-modular-monolith-structure` |
+| Use .NET Aspire for ASP.NET services | `0003-recommend-aspire-for-aspnet-projects` |
+| CQRS for ASP.NET API projects | `0004-cqrs-recommendation-for-aspnet-api` |
+| Minimal APIs over controllers | `0005-minimal-apis-over-controllers` |
+| Vertical Slice Architecture | `0007-vertical-slice-architecture` |
+| OpenTelemetry for observability | `0008-adopt-opentelemetry-for-observability` |
+| Unit testing with xUnit, Moq, and Bogus | `unit-testing-xunit-moq-bogus` |
+
+#### Code Coverage
+
+All C# code must maintain **≥ 80% unit test coverage** for Core and Server projects. This is enforced via `coverlet.collector`. When adding or modifying C# code, ensure the coverage threshold is met:
+
+```bash
+# Collect coverage and verify threshold
+dotnet test src/card-cheesi.slnx --collect:"XPlat Code Coverage" \
+  /p:Threshold=80 /p:ThresholdType=line /p:ThresholdStat=total
+```
+
+- Use **Moq** for mocking interfaces and collaborators.
+- Use **Bogus** to generate realistic test data; use deterministic seeds when asserting on generated values.
+- Encapsulate test object creation in factory classes under `Tests/Factories/`.
+
 ### Angular
 
 - Use **standalone components** (no NgModules). Every component, directive, or pipe declares its own `imports` array.
