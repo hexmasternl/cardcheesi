@@ -33,7 +33,7 @@
     <div class="hero__content">
       <div class="hero__badge">
         <span class="badge-dot"></span>
-        Card Game · 4 Players · 2 Teams
+        {{ 'landing.hero.badge' | translate }}
       </div>
 
       <h1 class="hero__title">
@@ -41,19 +41,18 @@
       </h1>
 
       <p class="hero__tagline">
-        The classic Parcheesi board game — reimagined with the thrill of playing cards.<br>
-        No dice. Pure strategy.
+        {{ 'landing.hero.tagline' | translate }}
       </p>
 
       <div class="hero__actions">
         <p-button
-          label="Play Now"
+          [label]="'landing.hero.playBtn' | translate"
           icon="pi pi-play"
           size="large"
           styleClass="hero-btn-primary"
         />
         <p-button
-          label="Learn the Rules"
+          [label]="'landing.hero.rulesBtn' | translate"
           icon="pi pi-book"
           size="large"
           [outlined]="true"
@@ -64,22 +63,22 @@
       <div class="hero__stats">
         <div class="stat">
           <span class="stat__value">4</span>
-          <span class="stat__label">Players</span>
+          <span class="stat__label">{{ 'landing.hero.stats.players' | translate }}</span>
         </div>
         <div class="stat-divider"></div>
         <div class="stat">
           <span class="stat__value">2</span>
-          <span class="stat__label">Teams</span>
+          <span class="stat__label">{{ 'landing.hero.stats.teams' | translate }}</span>
         </div>
         <div class="stat-divider"></div>
         <div class="stat">
           <span class="stat__value">64</span>
-          <span class="stat__label">Spaces</span>
+          <span class="stat__label">{{ 'landing.hero.stats.spaces' | translate }}</span>
         </div>
         <div class="stat-divider"></div>
         <div class="stat">
           <span class="stat__value">13</span>
-          <span class="stat__label">Card Types</span>
+          <span class="stat__label">{{ 'landing.hero.stats.cardTypes' | translate }}</span>
         </div>
       </div>
     </div>
@@ -96,19 +95,18 @@
   <!-- ══════════════════════════ FEATURES ══════════════════════════ -->
   <section class="features">
     <div class="section-inner">
-      <div class="section-label">Game Highlights</div>
+      <div class="section-label">{{ 'landing.features.label' | translate }}</div>
       <h2 class="section-title">
-        Why you'll love
-        <span class="t-primary">Card</span><span class="t-secondary">Cheesi</span>
+        {{ 'landing.features.title' | translate }}
       </h2>
 
       <div class="feature-grid">
-        @for (f of features; track f.title) {
+        @for (f of features; track f.key) {
           <div class="feature-card">
             <div class="feature-card__glow"></div>
             <div class="feature-card__icon">{{ f.suit }}</div>
-            <h3 class="feature-card__title">{{ f.title }}</h3>
-            <p class="feature-card__desc">{{ f.description }}</p>
+            <h3 class="feature-card__title">{{ 'landing.features.' + f.key + '.title' | translate }}</h3>
+            <p class="feature-card__desc">{{ 'landing.features.' + f.key + '.description' | translate }}</p>
           </div>
         }
       </div>
@@ -119,17 +117,17 @@
   <!-- ══════════════════════════ HOW TO PLAY ══════════════════════════ -->
   <section class="how-to-play">
     <div class="section-inner">
-      <div class="section-label light">How It Works</div>
+      <div class="section-label light">{{ 'landing.howToPlay.label' | translate }}</div>
       <h2 class="section-title light">
-        Get started in <span class="t-accent">four easy steps</span>
+        {{ 'landing.howToPlay.title' | translate }}
       </h2>
 
       <div class="steps-grid">
-        @for (s of steps; track s.num) {
+        @for (s of steps; track s.key) {
           <div class="step-card">
             <div class="step-card__num">{{ s.num }}</div>
-            <h3 class="step-card__title">{{ s.title }}</h3>
-            <p class="step-card__desc">{{ s.desc }}</p>
+            <h3 class="step-card__title">{{ 'landing.howToPlay.' + s.key + '.title' | translate }}</h3>
+            <p class="step-card__desc">{{ 'landing.howToPlay.' + s.key + '.desc' | translate }}</p>
           </div>
         }
       </div>
@@ -140,61 +138,21 @@
   <!-- ══════════════════════════ CARD MECHANICS ══════════════════════════ -->
   <section class="card-mechanics">
     <div class="section-inner">
-      <div class="section-label">Card Reference</div>
+      <div class="section-label">{{ 'landing.cardMechanics.label' | translate }}</div>
       <h2 class="section-title">
-        Every card has a <span class="t-primary">purpose</span>
+        {{ 'landing.cardMechanics.title' | translate }}
       </h2>
 
       <div class="mechanics-grid">
-        <div class="mechanic-pill mechanic-pill--primary">
-          <span class="pill-icon">🂡</span>
-          <div>
-            <strong>Ace</strong>
-            <span>Enter play <em>or</em> move +1</span>
+        @for (m of cardMechanics; track m.key) {
+          <div class="mechanic-pill" [class]="'mechanic-pill ' + m.pillClass">
+            <span class="pill-icon">{{ m.icon }}</span>
+            <div>
+              <strong>{{ 'landing.cardMechanics.' + m.key + '.label' | translate }}</strong>
+              <span>{{ 'landing.cardMechanics.' + m.key + '.effect' | translate }}</span>
+            </div>
           </div>
-        </div>
-        <div class="mechanic-pill mechanic-pill--primary">
-          <span class="pill-icon">🂮</span>
-          <div>
-            <strong>King</strong>
-            <span>Enter play</span>
-          </div>
-        </div>
-        <div class="mechanic-pill mechanic-pill--secondary">
-          <span class="pill-icon">🂭</span>
-          <div>
-            <strong>Queen</strong>
-            <span>Move +12</span>
-          </div>
-        </div>
-        <div class="mechanic-pill mechanic-pill--secondary">
-          <span class="pill-icon">🂫</span>
-          <div>
-            <strong>Jack</strong>
-            <span>Swap two pawns</span>
-          </div>
-        </div>
-        <div class="mechanic-pill mechanic-pill--accent">
-          <span class="pill-icon">🂧</span>
-          <div>
-            <strong>Seven</strong>
-            <span>Split across ≤2 pawns</span>
-          </div>
-        </div>
-        <div class="mechanic-pill mechanic-pill--accent">
-          <span class="pill-icon">🂤</span>
-          <div>
-            <strong>Four</strong>
-            <span>Move −4 (backwards!)</span>
-          </div>
-        </div>
-        <div class="mechanic-pill mechanic-pill--neutral">
-          <span class="pill-icon">🃟</span>
-          <div>
-            <strong>2 – 10</strong>
-            <span>Move forward by face value</span>
-          </div>
-        </div>
+        }
       </div>
     </div>
   </section>
@@ -210,12 +168,11 @@
     <div class="cta-content">
       <div class="cta-suits" aria-hidden="true">♠ ♥ ♦ ♣</div>
       <h2 class="cta-title">
-        Ready to play<br>
-        <span class="t-primary">Card</span><span class="t-secondary-light">Cheesi</span>?
+        {{ 'landing.cta.title' | translate }}
       </h2>
-      <p class="cta-sub">Gather your friends, shuffle the deck, and let the race begin.</p>
+      <p class="cta-sub">{{ 'landing.cta.sub' | translate }}</p>
       <p-button
-        label="Start Playing"
+        [label]="'landing.cta.btn' | translate"
         icon="pi pi-play"
         size="large"
         styleClass="cta-btn"

@@ -1,0 +1,175 @@
+// Shared styles for every chapter component
+$primary:   #009ccc;
+$secondary: #0052cc;
+
+:host {
+  display: block;
+}
+
+.chapter {
+  animation: fadeIn 0.25s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.chapter__title {
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  color: #1a2a40;
+  margin: 0 0 0.5rem;
+  line-height: 1.1;
+}
+
+.chapter__intro {
+  font-family: 'Quicksand', sans-serif;
+  font-size: 1.05rem;
+  color: #4a5a70;
+  line-height: 1.75;
+  margin: 0 0 2.5rem;
+  max-width: 680px;
+}
+
+// Section cards
+.section-card {
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid rgba(0, 156, 204, 0.12);
+  padding: 1.75rem 2rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+}
+
+.section-card__heading {
+  font-size: 1.15rem;
+  color: $primary;
+  margin: 0 0 0.75rem;
+  letter-spacing: 0.02em;
+}
+
+.section-card__body {
+  font-family: 'Quicksand', sans-serif;
+  font-size: 0.97rem;
+  color: #3a4a60;
+  line-height: 1.75;
+  margin: 0 0 1rem;
+}
+
+.section-card__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+
+  li {
+    font-family: 'Quicksand', sans-serif;
+    font-size: 0.93rem;
+    color: #3a4a60;
+    padding: 0.45rem 0.75rem;
+    background: rgba(0, 156, 204, 0.05);
+    border-left: 3px solid $primary;
+    border-radius: 0 8px 8px 0;
+    line-height: 1.5;
+  }
+}
+
+// Tables
+.rules-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Quicksand', sans-serif;
+  font-size: 0.93rem;
+  margin: 0.5rem 0;
+
+  th {
+    background: rgba(0, 156, 204, 0.1);
+    color: $primary;
+    font-weight: 700;
+    padding: 0.6rem 1rem;
+    text-align: left;
+    font-size: 0.82rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+  }
+
+  td {
+    padding: 0.6rem 1rem;
+    color: #3a4a60;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  }
+
+  tr:last-child td { border-bottom: none; }
+  tr:nth-child(even) td { background: rgba(0, 0, 0, 0.02); }
+}
+
+// Card pills (for card effects)
+.card-pill {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  background: #fff;
+  border: 1px solid rgba(0, 156, 204, 0.15);
+  border-radius: 14px;
+  padding: 1.1rem 1.4rem;
+  margin-bottom: 0.85rem;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.04);
+  transition: border-color 0.2s, box-shadow 0.2s;
+
+  &:hover {
+    border-color: rgba(0, 156, 204, 0.35);
+    box-shadow: 0 4px 16px rgba(0, 156, 204, 0.1);
+  }
+
+  &__label {
+    font-family: 'Luckiest Guy', cursive;
+    font-size: 1.3rem;
+    color: $primary;
+    min-width: 56px;
+    line-height: 1.1;
+  }
+
+  &__body {
+    flex: 1;
+
+    strong {
+      font-family: 'Quicksand', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #1a2a40;
+      display: block;
+      margin-bottom: 0.2rem;
+    }
+
+    p {
+      font-family: 'Quicksand', sans-serif;
+      font-size: 0.9rem;
+      color: #4a5a70;
+      line-height: 1.65;
+      margin: 0;
+    }
+  }
+
+  &--special { border-left: 3px solid $primary; }
+  &--numbered { border-left: 3px solid rgba(0, 82, 204, 0.5); }
+}
+
+// Rule callout box
+.callout {
+  background: rgba(0, 156, 204, 0.07);
+  border: 1px solid rgba(0, 156, 204, 0.25);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  margin-top: 1rem;
+  font-family: 'Quicksand', sans-serif;
+  font-size: 0.9rem;
+  color: #2a3a52;
+  line-height: 1.65;
+
+  &--warning {
+    background: rgba(255, 165, 0, 0.07);
+    border-color: rgba(255, 165, 0, 0.3);
+  }
+}

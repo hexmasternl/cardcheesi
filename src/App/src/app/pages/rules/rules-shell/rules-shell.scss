@@ -1,0 +1,158 @@
+$primary:    #009ccc;
+$secondary:  #0052cc;
+$sidebar-bg: #0b1e3a;
+$sidebar-w:  260px;
+
+// ── Layout ───────────────────────────────────────────────────────────────────
+.rules-layout {
+  display: flex;
+  min-height: 100dvh;
+  background: #f4f8ff;
+}
+
+// ── Sidebar ──────────────────────────────────────────────────────────────────
+.rules-sidebar {
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  width: $sidebar-w;
+  flex-shrink: 0;
+  background: $sidebar-bg;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem 1.25rem 2rem;
+  overflow-y: auto;
+
+  @media (max-width: 700px) {
+    position: fixed;
+    z-index: 100;
+    transform: translateX(-100%);
+    // Mobile sidebar hidden by default; could be toggled by a future hamburger
+  }
+}
+
+.rules-sidebar__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: rgba(255, 255, 255, 0.5);
+  font-family: 'Quicksand', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  margin-bottom: 2rem;
+  transition: color 0.2s;
+
+  &:hover { color: #fff; }
+
+  .pi { font-size: 0.8rem; }
+}
+
+.rules-sidebar__brand {
+  font-family: 'Luckiest Guy', cursive;
+  font-size: 1.6rem;
+  letter-spacing: 0.03em;
+  margin-bottom: 0.25rem;
+  line-height: 1;
+
+  .brand-card   { color: $primary; }
+  .brand-cheesi { color: $secondary; }
+}
+
+.rules-sidebar__title {
+  font-family: 'Quicksand', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.35);
+  margin: 0 0 1.5rem;
+}
+
+// ── Chapter nav ──────────────────────────────────────────────────────────────
+.rules-sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.chapter-link {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.65rem 0.9rem;
+  border-radius: 10px;
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.6);
+  font-family: 'Quicksand', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: background 0.18s, color 0.18s;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.07);
+    color: #fff;
+  }
+
+  &--active {
+    background: rgba(0, 156, 204, 0.18);
+    color: $primary;
+
+    &:hover { background: rgba(0, 156, 204, 0.24); }
+  }
+
+  &__icon { font-size: 1.1rem; line-height: 1; }
+  &__label { line-height: 1; }
+}
+
+// ── Language toggle ──────────────────────────────────────────────────────────
+.rules-sidebar__lang {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 2rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.lang-btn {
+  flex: 1;
+  padding: 0.45rem 0;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.45);
+  font-family: 'Quicksand', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s, border-color 0.18s;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.07);
+    color: #fff;
+  }
+
+  &--active {
+    background: $primary;
+    border-color: $primary;
+    color: #fff;
+  }
+}
+
+// ── Content area ─────────────────────────────────────────────────────────────
+.rules-content {
+  flex: 1;
+  min-width: 0;
+  padding: 3rem 3.5rem;
+  max-width: 860px;
+
+  @media (max-width: 900px) { padding: 2rem 1.5rem; }
+
+  // Mobile: full width since sidebar is hidden
+  @media (max-width: 700px) {
+    padding: 2rem 1.25rem;
+    max-width: 100%;
+  }
+}

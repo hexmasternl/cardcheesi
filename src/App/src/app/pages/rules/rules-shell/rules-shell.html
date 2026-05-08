@@ -1,0 +1,52 @@
+<div class="rules-layout">
+
+  <!-- ── Sidebar ─────────────────────────────────────────── -->
+  <aside class="rules-sidebar">
+    <a class="rules-sidebar__back" routerLink="/">
+      <span class="pi pi-arrow-left"></span>
+      <span class="back-label">{{ lang() === 'en' ? 'Back' : 'Terug' }}</span>
+    </a>
+
+    <div class="rules-sidebar__brand">
+      <span class="brand-card">Card</span><span class="brand-cheesi">Cheesi</span>
+    </div>
+
+    <h2 class="rules-sidebar__title">{{ heading() }}</h2>
+
+    <nav class="rules-sidebar__nav" aria-label="Rules chapters">
+      @for (ch of chapters; track ch.path) {
+        <a
+          class="chapter-link"
+          [routerLink]="ch.path"
+          routerLinkActive="chapter-link--active"
+        >
+          <span class="chapter-link__icon">{{ ch.icon }}</span>
+          <span class="chapter-link__label">
+            {{ lang() === 'en' ? ch.en : ch.nl }}
+          </span>
+        </a>
+      }
+    </nav>
+
+    <div class="rules-sidebar__lang">
+      <button
+        class="lang-btn"
+        [class.lang-btn--active]="lang() === 'en'"
+        (click)="lang.set('en')"
+        aria-label="Switch to English"
+      >EN</button>
+      <button
+        class="lang-btn"
+        [class.lang-btn--active]="lang() === 'nl'"
+        (click)="lang.set('nl')"
+        aria-label="Schakel naar Nederlands"
+      >NL</button>
+    </div>
+  </aside>
+
+  <!-- ── Content ─────────────────────────────────────────── -->
+  <main class="rules-content">
+    <router-outlet />
+  </main>
+
+</div>

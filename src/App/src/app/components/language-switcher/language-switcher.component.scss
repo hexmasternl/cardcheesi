@@ -1,0 +1,36 @@
+@use 'variables' as *;
+
+.lang-switcher {
+  display: flex;
+  align-items: center;
+  gap: $cc-space-xs;
+  padding: $cc-space-xs $cc-space-sm;
+}
+
+.lang-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: $cc-font-body;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: rgba(255 255 255 / 0.6);
+  padding: $cc-space-xs $cc-space-sm;
+  border-radius: $cc-radius-sm;
+  transition: color 0.2s ease, background-color 0.2s ease;
+
+  &:hover {
+    color: rgba(255 255 255 / 0.9);
+  }
+
+  &--active {
+    color: #fff;
+    background-color: rgba(255 255 255 / 0.15);
+  }
+}
+
+.lang-divider {
+  color: rgba(255 255 255 / 0.3);
+  font-size: 0.75rem;
+}

@@ -1,0 +1,15 @@
+<div class="lang-switcher" role="group" aria-label="Language selector">
+  <button
+    class="lang-btn"
+    [class.lang-btn--active]="languageService.currentLang() === 'en'"
+    (click)="setLang('en')"
+    aria-label="Switch to English"
+  >EN</button>
+  <span class="lang-divider" aria-hidden="true">|</span>
+  <button
+    class="lang-btn"
+    [class.lang-btn--active]="languageService.currentLang() === 'nl'"
+    (click)="setLang('nl')"
+    aria-label="Switch to Dutch"
+  >NL</button>
+</div>
