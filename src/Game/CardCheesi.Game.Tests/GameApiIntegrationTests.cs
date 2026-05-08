@@ -1,12 +1,12 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
-using CardCheesi.Game.Abstractions;
+using CardCheesi.Game.Abstractions.DomainModels;
+using CardCheesi.Game.DomainModels;
 using CardCheesi.Game.Persistence;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace CardCheesi.Game.Tests;
 
@@ -21,6 +21,33 @@ public class GameApiIntegrationTests : IClassFixture<GameApiIntegrationTests.Fac
     {
         _factory = factory;
         _client = factory.CreateClient();
+    }
+
+    [Fact]
+    public async Task GetGame_ExistingCode_ReturnsGameState()
+    {
+        // Create a game first
+        var createResponse = await _client.PostAsJsonAsync("/games", new { playerName = "Eve" });
+        var createBody = await createResponse.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
+        var gameCode = createBody.GetProperty("gameCode").GetString()!;
+
+        // Fetch it by code
+        var response = await _client.GetAsync($"/games/{gameCode}");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var state = await response.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
+        Assert.Equal(gameCode, state.GetProperty("gameCode").GetString());
+        // GameStatus.Waiting = 0 (serialized as integer by default)
+        Assert.Equal((int)GameStatus.Waiting, state.GetProperty("status").GetInt32());
+    }
+
+    [Fact]
+    public async Task GetGame_NonExistentCode_Returns404()
+    {
+        var response = await _client.GetAsync("/games/ZZZZZZ");
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
     [Fact]

@@ -1,5 +1,5 @@
 using System.Text.Json;
-using CardCheesi.Game.Abstractions;
+using CardCheesi.Game.DomainModels;
 using Microsoft.EntityFrameworkCore;
 
 namespace CardCheesi.Game.Persistence;

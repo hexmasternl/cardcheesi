@@ -1,4 +1,5 @@
-using CardCheesi.Game.Abstractions;
+using CardCheesi.Game.Abstractions.DomainModels;
+using CardCheesi.Game.DomainModels;
 using CardCheesi.Game.Persistence;
 using Microsoft.EntityFrameworkCore;
 

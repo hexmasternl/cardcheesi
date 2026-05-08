@@ -1,6 +1,7 @@
 using CardCheesi.Game;
-using CardCheesi.Game.Abstractions;
+using CardCheesi.Game.Abstractions.DomainModels;
 using CardCheesi.Game.Api;
+using CardCheesi.Game.DomainModels;
 using CardCheesi.Game.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -47,6 +48,12 @@ app.MapPost("/games", async (CreateGameRequest request, IGameRepository repo, Ca
     return Results.Problem("Could not generate a unique game code. Please try again.", statusCode: 503);
 }).WithName("CreateGame");
 
+app.MapGet("/games/{code}", async (string code, IGameRepository repo, CancellationToken ct) =>
+{
+    var game = await repo.GetByCodeAsync(code, ct);
+    return game is null ? Results.NotFound() : Results.Ok(game);
+}).WithName("GetGame");
+
 app.MapPost("/games/{code}/join", async (string code, JoinGameRequest request, IGameRepository repo, CancellationToken ct) =>
 {
     var game = await repo.GetByCodeAsync(code, ct);
@@ -59,8 +66,7 @@ app.MapPost("/games/{code}/join", async (string code, JoinGameRequest request, I
         Name: request.PlayerName,
         Pawns: []);
 
-    var updatedPlayers = game.Players.Append(newPlayer).ToList().AsReadOnly();
-    var updatedGame = game with { Players = updatedPlayers };
+    var updatedGame = game.AddPlayer(newPlayer);
 
     await repo.SaveAsync(updatedGame, ct);
     return Results.Ok(new { gameId = updatedGame.Id, playerId, gameCode = updatedGame.GameCode });

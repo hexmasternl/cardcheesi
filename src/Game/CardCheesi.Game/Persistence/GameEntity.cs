@@ -1,4 +1,4 @@
-using CardCheesi.Game.Abstractions;
+using CardCheesi.Game.DomainModels;
 
 namespace CardCheesi.Game.Persistence;
 
