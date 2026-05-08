@@ -10,12 +10,12 @@
 
 ## 3. Chapter Components
 
-- [ ] 3.1 Create `rules-overview` component with full EN+NL content (game concept, teams, pawns, win condition)
-- [ ] 3.2 Create `rules-board` component with full EN+NL content (64 positions, home positions table, finish area)
-- [ ] 3.3 Create `rules-pawns` component with full EN+NL content (entering play, protection, hitting, finish area, swap restrictions)
-- [ ] 3.4 Create `rules-cards` component with full EN+NL content (all card types and effects)
-- [ ] 3.5 Create `rules-gameplay` component with full EN+NL content (dealing rounds, turn order, play/discard, teammate pawns)
+- [x] 3.1 Create `rules-overview` component with full EN+NL content (game concept, teams, pawns, win condition)
+- [x] 3.2 Create `rules-board` component with full EN+NL content (64 positions, home positions table, finish area)
+- [x] 3.3 Create `rules-pawns` component with full EN+NL content (entering play, protection, hitting, finish area, swap restrictions)
+- [x] 3.4 Create `rules-cards` component with full EN+NL content (all card types and effects)
+- [x] 3.5 Create `rules-gameplay` component with full EN+NL content (dealing rounds, turn order, play/discard, teammate pawns)
 
 ## 4. Landing Page
 
-- [ ] 4.1 Add `RouterLink` import to `LandingPage` component and wire `[routerLink]="['/rules']"` to the "Learn the Rules" button
+- [x] 4.1 Add `RouterLink` import to `LandingPage` component and wire `[routerLink]="['/rules']"` to the "Learn the Rules" button

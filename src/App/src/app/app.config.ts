@@ -18,7 +18,7 @@ export const appConfig: ApplicationConfig = {
     importProvidersFrom(
       TranslateModule.forRoot({ defaultLanguage: 'en' })
     ),
-    ...provideTranslateHttpLoader({ prefix: './assets/i18n/', suffix: '.json' }),
+    ...provideTranslateHttpLoader({ prefix: './i18n/', suffix: '.json' }),
     providePrimeNG({
       theme: {
         preset: CardCheesiTheme,

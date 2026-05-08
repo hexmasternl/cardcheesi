@@ -14,11 +14,12 @@ The player may choose **one** of the following:
 
 ### Four
 - **Reverse** one pawn already in play by **4 positions** (move backward).
+- Like all moves, a pawn moving backward cannot pass a protected pawn.
 
 ### Seven
 The player may choose **one** of the following:
 - Move **one pawn** 7 positions forward.
-- **Split** the 7 positions across **at most two pawns** (e.g., 3 + 4, 1 + 6, etc.). Both partial moves must be valid.
+- **Split** the 7 positions across **at most two pawns** (e.g., 3 + 4, 1 + 6, etc.). Partial moves (including moves that enter the finish area mid-split) are allowed.
 
 ### Jack
 - **Swap** the board positions of **two pawns**.

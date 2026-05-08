@@ -30,22 +30,17 @@ export class RulesCards {
         {
           label: '4',
           name: 'Four',
-          effect: 'Move backward 4. A Four must be played to move a pawn exactly 4 positions backward (counter-clockwise). Backward movement can bypass protected pawns.',
+          effect: 'Move backward 4. Move a pawn exactly 4 positions backward (counter-clockwise). Like all moves, backward movement cannot pass a protected pawn.',
         },
         {
           label: '7',
           name: 'Seven',
-          effect: 'Move +7, split across up to 2 pawns. The 7 steps may be distributed freely (e.g., 3+4, 1+6) across a maximum of two pawns. A pawn must land on a valid position; partial moves into the finish area are not allowed.',
+          effect: 'Move +7, optionally split across up to 2 pawns. Move one pawn 7 positions forward, or freely split the 7 steps across at most two pawns (e.g., 3+4, 1+6). Partial moves — including moves that bring a pawn into the finish area mid-split — are allowed.',
         },
         {
           label: 'J',
           name: 'Jack',
           effect: 'Swap two different-colour pawns. Choose any two active pawns on the main loop of different colours and swap their board positions. Protected pawns (of other players) and finish-area pawns cannot be swapped.',
-        },
-        {
-          label: 'Q',
-          name: 'Queen',
-          effect: 'Move +12. Move any active pawn exactly 12 positions forward.',
         },
       ],
       numbered: [
@@ -56,6 +51,7 @@ export class RulesCards {
         { label: '8',  effect: 'Move +8 forward.' },
         { label: '9',  effect: 'Move +9 forward.' },
         { label: '10', effect: 'Move +10 forward.' },
+        { label: 'Q',  effect: 'Move +12 forward.' },
       ],
     },
     nl: {
@@ -77,22 +73,17 @@ export class RulesCards {
         {
           label: '4',
           name: 'Vier',
-          effect: 'Beweeg 4 achteruit. Een Vier moet gespeeld worden om een pion precies 4 posities achteruit (tegen de klok in) te verplaatsen. Achterwaartse beweging kan beschermde pionnen passeren.',
+          effect: 'Beweeg 4 achteruit. Beweeg een pion precies 4 posities achteruit (tegen de klok in). Net als alle andere zetten kan achterwaartse beweging een beschermde pion niet passeren.',
         },
         {
           label: '7',
           name: 'Zeven',
-          effect: 'Beweeg +7, verdeeld over maximaal 2 pionnen. De 7 stappen mogen vrij verdeeld worden (bijv. 3+4, 1+6) over maximaal twee pionnen. Een pion moet op een geldige positie belanden; gedeeltelijke verplaatsingen naar de eindzone zijn niet toegestaan.',
+          effect: 'Beweeg +7, optioneel verdeeld over maximaal 2 pionnen. Beweeg één pion 7 posities naar voren, of verdeel de 7 stappen vrij over maximaal twee pionnen (bijv. 3+4, 1+6). Gedeeltelijke zetten — inclusief zetten waarbij een pion halverwege de eindzone betreedt — zijn toegestaan.',
         },
         {
           label: 'B',
           name: 'Boer',
           effect: 'Ruil twee pionnen van verschillende kleuren. Kies twee actieve pionnen op de hoofdlus van verschillende kleuren en wissel hun bordposities. Beschermde pionnen (van andere spelers) en pionnen in de eindzone kunnen niet geruild worden.',
-        },
-        {
-          label: 'V',
-          name: 'Vrouw',
-          effect: 'Beweeg +12. Beweeg een actieve pion precies 12 posities naar voren.',
         },
       ],
       numbered: [
@@ -103,6 +94,7 @@ export class RulesCards {
         { label: '8',  effect: 'Beweeg +8 naar voren.' },
         { label: '9',  effect: 'Beweeg +9 naar voren.' },
         { label: '10', effect: 'Beweeg +10 naar voren.' },
+        { label: 'V',  effect: 'Beweeg +12 naar voren.' },
       ],
     },
   };

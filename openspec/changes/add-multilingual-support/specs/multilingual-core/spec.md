@@ -1,7 +1,7 @@
 ## ADDED Requirements
 
 ### Requirement: ngx-translate wired with HTTP loader
-The app SHALL configure `@ngx-translate/core` with `@ngx-translate/http-loader` as the sole translation provider. Translation files SHALL be loaded from `src/assets/i18n/{lang}.json` via HTTP. `provideHttpClient()` SHALL be registered in `app.config.ts`.
+The app SHALL configure `@ngx-translate/core` with `@ngx-translate/http-loader` as the sole translation provider. Translation files SHALL be loaded from `public/i18n/{lang}.json` via HTTP. `provideHttpClient()` SHALL be registered in `app.config.ts`.
 
 #### Scenario: English translation file loads on startup
 - **WHEN** the application starts with no language stored in `localStorage`
