@@ -90,12 +90,132 @@ dotnet test src/card-cheesi.slnx --collect:"XPlat Code Coverage" \
 
 ### Angular
 
-- Use **standalone components** (no NgModules). Every component, directive, or pipe declares its own `imports` array.
-- Use Angular **Signals** (`signal()`, `computed()`) for reactive state — do not use `BehaviorSubject` or direct property mutation.
-- Component styles use **SCSS** (configured globally in `angular.json`).
-- PrimeNG is the UI component library. The custom theme is defined in `src/app/theme/card-cheesi.theme.ts` — it extends the **Aura** preset via `definePreset`. Modify that file to change the design token palette. The primary color is `#009ccc`.
-- **Dark mode** is toggled by adding/removing the `.dark-mode` CSS class on the document root.
-- `providePrimeNG` is configured once in `app.config.ts` — do not call it elsewhere.
+The frontend lives in `src/App/CardCheesi/` and is an **Angular 21** SPA.
+
+#### Core Patterns
+
+- Use **standalone components** (no NgModules). Every component, directive, and pipe declares its own `imports` array.
+- Use Angular **Signals** (`signal()`, `computed()`, `effect()`) for all reactive state. Do **not** use `BehaviorSubject`, `Subject`, or direct property mutation.
+- Use `input()` / `output()` signal-based APIs instead of `@Input()` / `@Output()` decorators.
+- Use `inject()` for dependency injection inside functions and constructors — avoid constructor parameter injection for new code.
+- Lazy-load feature routes; keep the root bundle lean.
+- Use `OnPush` change detection strategy on all components.
+
+#### Styling
+
+- Component styles are **SCSS only** — no plain CSS files (configured via `angular.json`).
+- Follow [ADR 0006](hexmaster-design-guidelines: `0006-centralized-frontend-styling-variables`): **never hardcode** color hex values, font names, or size values directly in component styles. All design tokens are centralized in `src/styles/_variables.scss`.
+- Import variables in component stylesheets with `@use 'variables' as *;`.
+- Dark mode is toggled by adding/removing the `.dark-mode` CSS class on the document root — never check `prefers-color-scheme` directly in components.
+
+#### PrimeNG
+
+- **PrimeNG 21** is the UI component library (`primeng`, `@primeng/themes`).
+- The custom theme is defined in `src/app/theme/card-cheesi.theme.ts` — it extends the **Aura** preset via `definePreset`. Primary color is `#009ccc`. Modify only this file to change palette tokens.
+- `providePrimeNG` is configured **once** in `app.config.ts` — do not call it elsewhere.
+- Import individual PrimeNG components into each standalone component's `imports` array (e.g., `ButtonModule`, `CardModule`).
+- Use PrimeNG design tokens for spacing, color, and typography inside theme overrides — do not override PrimeNG component CSS directly.
+- PrimeIcons are available globally via `primeicons` — use them with `<i class="pi pi-*">`.
+
+#### Testing (Angular)
+
+- Test framework is **Vitest** (configured in `angular.json`).
+- Run tests with `ng test` from `src/App/CardCheesi/`.
+- Use Angular's `TestBed` for component tests; prefer `ComponentFixture` with signal-aware change detection.
+- Mock services via `TestBed.overrideProvider` or `provideValue`.
+- Test file convention: `*.spec.ts` co-located with the component/service being tested.
+
+---
+
+### Babylon.js & 3D Game Board
+
+The 3D game board is rendered using **Babylon.js** with the **WebGPU** backend (falling back to WebGL 2). Babylon.js is a high-level 3D engine — it runs *on top of* WebGPU/WebGL, not instead of it.
+
+#### Engine Setup
+
+Always initialize the engine with `WebGPUEngine.CreateAsync()` — it auto-detects browser support and falls back gracefully:
+
+```typescript
+import { WebGPUEngine, Engine, Scene } from '@babylonjs/core';
+
+async function createEngine(canvas: HTMLCanvasElement): Promise<Engine> {
+  if (await WebGPUEngine.IsSupportedAsync) {
+    const engine = new WebGPUEngine(canvas);
+    await engine.initAsync();
+    return engine;
+  }
+  return new Engine(canvas, true); // WebGL 2 fallback
+}
+```
+
+- Always call `engine.runRenderLoop(() => scene.render())` to start the loop.
+- Always call `engine.resize()` on `window.resize`.
+- Dispose the engine and scene when the Angular component is destroyed — use `DestroyRef` and `inject(DestroyRef).onDestroy(...)`.
+
+#### Angular Integration
+
+Wrap the Babylon.js canvas in a dedicated standalone component (`GameBoardComponent`). Use `afterNextRender` to initialize the engine after the DOM is ready:
+
+```typescript
+@Component({
+  selector: 'app-game-board',
+  template: `<canvas #gameCanvas style="width:100%;height:100%"></canvas>`,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class GameBoardComponent {
+  private readonly canvasRef = viewChild.required<ElementRef<HTMLCanvasElement>>('gameCanvas');
+  private engine?: Engine;
+
+  constructor() {
+    afterNextRender(async () => {
+      this.engine = await createEngine(this.canvasRef().nativeElement);
+      // build scene ...
+    });
+    inject(DestroyRef).onDestroy(() => this.engine?.dispose());
+  }
+}
+```
+
+#### 3D Asset Format
+
+All 3D models and environments **must use glTF 2.0 (`.glb` binary format)**:
+
+- Self-contained binary (geometry + textures + materials in one file).
+- PBR materials supported natively by Babylon.js.
+- Load with `SceneLoader.ImportMeshAsync`:
+
+```typescript
+import { SceneLoader } from '@babylonjs/core';
+import '@babylonjs/loaders/glTF'; // register the glTF loader
+
+const { meshes } = await SceneLoader.ImportMeshAsync('', 'assets/models/', 'board.glb', scene);
+```
+
+- Store 3D assets in `src/assets/models/`.
+- Prefer Draco-compressed `.glb` files for production to reduce download size.
+
+#### Scene & Board Conventions
+
+- One `Scene` per game session — do not create multiple scenes.
+- Use an **`ArcRotateCamera`** to allow players to orbit the board freely. Set `lowerRadiusLimit` and `upperRadiusLimit` to keep the board in frame.
+- Light the scene with a `HemisphericLight` (ambient) and a `DirectionalLight` (shadow casting).
+- Represent board positions as named `TransformNode` anchors in the glTF model — resolve them by name at runtime: `scene.getTransformNodeByName('position_01')`.
+- Pawns are `Mesh` instances cloned from a master pawn mesh; color them via `PBRMaterial.albedoColor`.
+- Game state drives the 3D scene through Angular Signals — use `effect(() => { /* update mesh positions from signal */ })`. Never mutate game state from inside the render loop.
+
+#### Performance
+
+- Enable hardware scaling: `engine.setHardwareScalingLevel(1 / window.devicePixelRatio)`.
+- Call `mesh.freezeWorldMatrix()` on static board geometry.
+- Batch small static meshes with `Mesh.MergeMeshes()` at load time.
+- Dispose unused textures and meshes explicitly — do not rely on GC.
+- Prefer **`PBRMaterial`** over legacy `StandardMaterial` for consistent lighting.
+
+#### WebGPU Notes
+
+- WebGPU is available in Chrome 113+, Edge 113+, and recent Firefox Nightly. Always provide the WebGL 2 fallback (see Engine Setup above).
+- WebGPU compute shaders are available via `ComputeShader` in Babylon.js — use for GPU-side effects (particles, board animations).
+- Do **not** write raw WGSL shader code unless absolutely necessary — prefer Babylon.js **NodeMaterial** for custom shaders.
 
 ## Game Domain
 
