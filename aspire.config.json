@@ -1,5 +1,6 @@
 {
   "appHost": {
-    "path": "src/Aspire/CardCheesi.Aspire.AppHost/CardCheesi.Aspire.AppHost.csproj"
+    "path": "src/Aspire/CardCheesi.Aspire.AppHost/CardCheesi.Aspire.AppHost.csproj",
+    "language": "csharp"
   }
 }
