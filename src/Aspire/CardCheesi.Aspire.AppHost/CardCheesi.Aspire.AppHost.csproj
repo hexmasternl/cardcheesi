@@ -12,4 +12,9 @@
     <ProjectReference Include="..\..\Game\CardCheesi.Game.Api\CardCheesi.Game.Api.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="9.3.0" />
+  </ItemGroup>
+
 </Project>
+
