@@ -2,7 +2,7 @@ import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/
 import { provideRouter } from '@angular/router';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
-import Aura from '@primeuix/themes/aura';
+import CardCheesiTheme from './theme/card-cheesi.theme';
 
 import { routes } from './app.routes';
 
@@ -13,8 +13,11 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync(),
     providePrimeNG({
       theme: {
-        preset: Aura
-      }
+        preset: CardCheesiTheme,
+        options: {
+          darkModeSelector: '.dark-mode',
+        },
+      },
     })
   ]
 };
