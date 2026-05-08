@@ -1,0 +1,68 @@
+{
+  "landing": {
+    "hero": {
+      "badge": "Card Game · 4 Players · 2 Teams",
+      "tagline": "The classic Parcheesi board game — reimagined with the thrill of playing cards. No dice. Pure strategy.",
+      "playBtn": "Play Now",
+      "rulesBtn": "Learn the Rules",
+      "stats": {
+        "players": "Players",
+        "teams": "Teams",
+        "spaces": "Spaces",
+        "cardTypes": "Card Types"
+      }
+    },
+    "features": {
+      "label": "Game Highlights",
+      "title": "Why you'll love CardCheesi",
+      "teams": {
+        "title": "4 Players, 2 Teams",
+        "description": "Partner up and coordinate your moves. Team A plays P1 & P3, Team B plays P2 & P4. Strategy runs deep."
+      },
+      "cards": {
+        "title": "Cards Decide Everything",
+        "description": "Aces & Kings enter pawns. Sevens split across two pawns. Jacks let you swap. Every card opens new possibilities."
+      },
+      "win": {
+        "title": "Win as a Team",
+        "description": "Race all 8 of your team's pawns into the finish area before the other team does. Two win — or none do."
+      }
+    },
+    "howToPlay": {
+      "label": "How It Works",
+      "title": "Get started in four easy steps",
+      "deal": {
+        "title": "Deal the Cards",
+        "desc": "Cards are dealt in three rounds: 5, 4, then 4. The dealer rotates after each full set of rounds."
+      },
+      "enter": {
+        "title": "Enter the Board",
+        "desc": "Play an Ace or King to bring a pawn from reserve onto your home position."
+      },
+      "race": {
+        "title": "Race Forward",
+        "desc": "Move your pawns around the 64-space board using your cards. Special cards unlock special moves."
+      },
+      "finish": {
+        "title": "Finish Together",
+        "desc": "Guide all 4 of your pawns — and help your teammate do the same. First team done wins!"
+      }
+    },
+    "cardMechanics": {
+      "label": "Card Reference",
+      "title": "Every card has a purpose",
+      "ace": { "label": "Ace", "effect": "Enter play or move +1" },
+      "king": { "label": "King", "effect": "Enter play" },
+      "queen": { "label": "Queen", "effect": "Move +12" },
+      "jack": { "label": "Jack", "effect": "Swap two pawns" },
+      "seven": { "label": "Seven", "effect": "Split across ≤2 pawns" },
+      "four": { "label": "Four", "effect": "Move −4 (backwards!)" },
+      "twoToTen": { "label": "2 – 10", "effect": "Move forward by face value" }
+    },
+    "cta": {
+      "title": "Ready to play CardCheesi?",
+      "sub": "Gather your friends, shuffle the deck, and let the race begin.",
+      "btn": "Start Playing"
+    }
+  }
+}

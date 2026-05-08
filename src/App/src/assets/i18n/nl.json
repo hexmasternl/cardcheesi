@@ -1,0 +1,68 @@
+{
+  "landing": {
+    "hero": {
+      "badge": "Kaartspel · 4 Spelers · 2 Teams",
+      "tagline": "Het klassieke Parcheesi-bordspel — opnieuw uitgevonden met de spanning van speelkaarten. Geen dobbelstenen. Pure strategie.",
+      "playBtn": "Speel Nu",
+      "rulesBtn": "Leer de Regels",
+      "stats": {
+        "players": "Spelers",
+        "teams": "Teams",
+        "spaces": "Vakjes",
+        "cardTypes": "Kaarttypen"
+      }
+    },
+    "features": {
+      "label": "Hoogtepunten",
+      "title": "Waarom je CardCheesi geweldig vindt",
+      "teams": {
+        "title": "4 Spelers, 2 Teams",
+        "description": "Werk samen en coördineer je zetten. Team A speelt P1 & P3, Team B speelt P2 & P4. Strategie tot in de puntjes."
+      },
+      "cards": {
+        "title": "Kaarten Bepalen Alles",
+        "description": "Azen en Koningen brengen pionnen in het spel. Zevens verdeel je over twee pionnen. Boeren laten je ruilen. Elke kaart opent nieuwe mogelijkheden."
+      },
+      "win": {
+        "title": "Win als Team",
+        "description": "Breng alle 8 pionnen van je team naar het eindgebied voor het andere team. Twee winnen — of niemand."
+      }
+    },
+    "howToPlay": {
+      "label": "Zo Werkt Het",
+      "title": "Begin in vier eenvoudige stappen",
+      "deal": {
+        "title": "Deel de Kaarten",
+        "desc": "Kaarten worden in drie rondes gedeeld: 5, 4 en dan 4. De dealer roteert na elke volledige reeks rondes."
+      },
+      "enter": {
+        "title": "Betred het Bord",
+        "desc": "Speel een Aas of Koning om een pion vanuit de reserve naar je startpositie te brengen."
+      },
+      "race": {
+        "title": "Race Vooruit",
+        "desc": "Beweeg je pionnen over het bord van 64 vakjes met je kaarten. Speciale kaarten ontgrendelen speciale zetten."
+      },
+      "finish": {
+        "title": "Finisch Samen",
+        "desc": "Begeleid al je 4 pionnen — en help je teamgenoot hetzelfde te doen. Eerste team klaar wint!"
+      }
+    },
+    "cardMechanics": {
+      "label": "Kaartoverzicht",
+      "title": "Elke kaart heeft een doel",
+      "ace": { "label": "Aas", "effect": "Betreed het spel of zet +1" },
+      "king": { "label": "Koning", "effect": "Betreed het spel" },
+      "queen": { "label": "Koningin", "effect": "Zet +12" },
+      "jack": { "label": "Boer", "effect": "Wissel twee pionnen" },
+      "seven": { "label": "Zeven", "effect": "Verdeel over ≤2 pionnen" },
+      "four": { "label": "Vier", "effect": "Zet −4 (achteruit!)" },
+      "twoToTen": { "label": "2 – 10", "effect": "Zet vooruit met de kaartwaarde" }
+    },
+    "cta": {
+      "title": "Klaar om CardCheesi te spelen?",
+      "sub": "Verzamel je vrienden, schud het deck en laat de race beginnen.",
+      "btn": "Begin te Spelen"
+    }
+  }
+}

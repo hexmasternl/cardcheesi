@@ -1,0 +1,35 @@
+// ── CardCheesi Design Tokens ─────────────────────────────────────────────────
+// Centralised variables — import with: @use 'variables' as *;
+
+// Primary colour (matches PrimeNG theme preset)
+$cc-primary: #009ccc;
+
+// Secondary colour palette
+$cc-secondary-50:  #e6eeff;
+$cc-secondary-100: #b3caff;
+$cc-secondary-200: #80a6ff;
+$cc-secondary-300: #4d82ff;
+$cc-secondary-400: #1a5eff;
+$cc-secondary-500: #0052cc;
+$cc-secondary-600: #0044a8;
+$cc-secondary-700: #003685;
+$cc-secondary-800: #002861;
+$cc-secondary-900: #001a3d;
+
+// Typography
+$cc-font-body:     'Quicksand', sans-serif;
+$cc-font-heading:  'Luckiest Guy', cursive;
+
+// Spacing scale
+$cc-space-xs:  0.25rem;
+$cc-space-sm:  0.5rem;
+$cc-space-md:  1rem;
+$cc-space-lg:  1.5rem;
+$cc-space-xl:  2rem;
+$cc-space-2xl: 3rem;
+
+// Border radius
+$cc-radius-sm:  4px;
+$cc-radius-md:  8px;
+$cc-radius-lg:  12px;
+$cc-radius-pill: 999px;
