@@ -5,12 +5,36 @@ namespace CardCheesi.Game;
 public static class GameFactory
 {
     /// <summary>
+    /// Creates a <see cref="GameState"/> in the <see cref="GameStatus.Waiting"/> state
+    /// with a single participant (the creator). Other players join via the join endpoint.
+    /// </summary>
+    public static GameState CreateWaiting(string creatorName, string gameCode)
+    {
+        var playerId = Guid.NewGuid();
+        var creator = new Player(
+            Id: playerId,
+            Name: creatorName,
+            Pawns: CreatePawns(playerId));
+
+        return new GameState(
+            Id: Guid.NewGuid(),
+            GameCode: gameCode,
+            Status: GameStatus.Waiting,
+            Teams: Array.Empty<Team>(),
+            Players: new[] { creator },
+            Turn: null,
+            Deck: null,
+            Hands: null);
+    }
+
+    /// <summary>
     /// Creates a valid initial <see cref="GameState"/> for exactly 4 players.
     /// </summary>
     /// <param name="playerNames">Exactly 4 player names (non-null, non-empty).</param>
+    /// <param name="gameCode">6-character unique game code.</param>
     /// <param name="rng">Optional RNG; defaults to <see cref="SystemRandom.Instance"/>.</param>
     /// <exception cref="ArgumentException">Thrown when the number of player names is not exactly 4.</exception>
-    public static GameState Create(IReadOnlyList<string> playerNames, IRandom? rng = null)
+    public static GameState Create(IReadOnlyList<string> playerNames, string gameCode, IRandom? rng = null)
     {
         if (playerNames.Count != 4)
             throw new ArgumentException("Exactly 4 player names are required.", nameof(playerNames));
@@ -47,6 +71,8 @@ public static class GameFactory
 
         return new GameState(
             Id: Guid.NewGuid(),
+            GameCode: gameCode,
+            Status: GameStatus.InProgress,
             Teams: teams.AsReadOnly(),
             Players: players.AsReadOnly(),
             Turn: turnState,
@@ -66,3 +92,4 @@ public static class GameFactory
             .AsReadOnly();
     }
 }
+

@@ -1,5 +1,11 @@
+using System.Text.Json.Serialization;
+
 namespace CardCheesi.Game.Abstractions;
 
+[JsonPolymorphic(TypeDiscriminatorPropertyName = "$type")]
+[JsonDerivedType(typeof(ReserveLocation), "reserve")]
+[JsonDerivedType(typeof(BoardLocation), "board")]
+[JsonDerivedType(typeof(FinishLocation), "finish")]
 public abstract record PawnLocation;
 
 public record ReserveLocation : PawnLocation;
