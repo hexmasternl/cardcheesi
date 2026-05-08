@@ -1,0 +1,77 @@
+<div class="game-page">
+
+  <!-- Loading state -->
+  @if (loading()) {
+    <div class="game-page__overlay game-page__overlay--loading">
+      <p-progressSpinner strokeWidth="3" animationDuration="1s" />
+      <p class="game-page__loading-text">Loading game…</p>
+    </div>
+  }
+
+  <!-- Error state -->
+  @if (!loading() && error(); as err) {
+    <div class="game-page__overlay game-page__overlay--error">
+      <div class="game-page__error-card">
+        @if (err.is404) {
+          <span class="game-page__error-icon">🃏</span>
+          <h2 class="game-page__error-title">Game not found</h2>
+          <p class="game-page__error-message">{{ err.message }}</p>
+          <a routerLink="/" class="game-page__home-link">
+            <p-button label="Back to Home" icon="pi pi-home" severity="secondary" />
+          </a>
+        } @else {
+          <span class="game-page__error-icon">⚠️</span>
+          <h2 class="game-page__error-title">Something went wrong</h2>
+          <p class="game-page__error-message">{{ err.message }}</p>
+          <p-button label="Retry" icon="pi pi-refresh" (onClick)="refresh()" />
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Game content -->
+  @if (!loading() && !error() && gameState(); as game) {
+    <div class="game-page__content">
+
+      <!-- Header bar -->
+      <header class="game-page__header">
+        <a routerLink="/" class="game-page__back">
+          <i class="pi pi-arrow-left"></i>
+        </a>
+        <div class="game-page__title-group">
+          <span class="game-page__code">{{ game.gameCode }}</span>
+          <span class="game-page__status-badge">{{ statusLabel() }}</span>
+        </div>
+        <p-button
+          icon="pi pi-refresh"
+          [rounded]="true"
+          [text]="true"
+          severity="secondary"
+          (onClick)="refresh()"
+          pTooltip="Refresh"
+          tooltipPosition="left"
+        />
+      </header>
+
+      <!-- Player roster -->
+      <section class="game-page__players">
+        <h3 class="game-page__players-title">Players</h3>
+        <ul class="game-page__player-list">
+          @for (player of game.players; track player.id) {
+            <li class="game-page__player-card">
+              <span class="game-page__player-avatar">{{ playerInitials(player.name) }}</span>
+              <span class="game-page__player-name">{{ player.name }}</span>
+            </li>
+          }
+          @if (game.players.length === 0) {
+            <li class="game-page__player-card game-page__player-card--empty">
+              Waiting for players to join…
+            </li>
+          }
+        </ul>
+      </section>
+
+    </div>
+  }
+
+</div>

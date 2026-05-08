@@ -1,0 +1,85 @@
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs';
+import { ButtonModule } from 'primeng/button';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { TagModule } from 'primeng/tag';
+import { CardModule } from 'primeng/card';
+import { GameService } from './game.service';
+import { GameState, GameStatusLabel } from './game-state.model';
+
+@Component({
+  selector: 'app-game-page',
+  imports: [RouterLink, ButtonModule, ProgressSpinnerModule, TagModule, CardModule],
+  templateUrl: './game-page.html',
+  styleUrl: './game-page.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class GamePage implements OnInit {
+  private readonly route = inject(ActivatedRoute);
+  private readonly gameService = inject(GameService);
+
+  protected readonly gameCode = toSignal(
+    this.route.paramMap.pipe(map(p => p.get('gameCode') ?? '')),
+    { initialValue: '' }
+  );
+
+  protected readonly loading = signal(true);
+  protected readonly gameState = signal<GameState | null>(null);
+  protected readonly error = signal<{ is404: boolean; message: string } | null>(null);
+
+  protected readonly statusLabel = computed(() => {
+    const s = this.gameState();
+    return s ? (GameStatusLabel[s.status] ?? 'Unknown') : '';
+  });
+
+  protected readonly playerInitials = (name: string): string =>
+    name
+      .split(' ')
+      .map(w => w[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+
+  ngOnInit(): void {
+    this.fetchGame();
+  }
+
+  protected refresh(): void {
+    this.fetchGame();
+  }
+
+  private fetchGame(): void {
+    const code = this.gameCode();
+    if (!code) return;
+
+    this.loading.set(true);
+    this.error.set(null);
+
+    this.gameService.getByCode(code).subscribe({
+      next: state => {
+        this.gameState.set(state);
+        this.loading.set(false);
+      },
+      error: (err: HttpErrorResponse) => {
+        this.loading.set(false);
+        this.error.set({
+          is404: err.status === 404,
+          message:
+            err.status === 404
+              ? `No game found with code "${code}".`
+              : 'Could not load the game. Please try again.',
+        });
+      },
+    });
+  }
+}
