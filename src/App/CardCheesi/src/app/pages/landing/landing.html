@@ -1,0 +1,226 @@
+<div class="landing-page">
+
+  <!-- ══════════════════════════ HERO ══════════════════════════ -->
+  <section class="hero">
+
+    <!-- Floating background suits -->
+    <div class="bg-suits" aria-hidden="true">
+      @for (item of bgSuits; track $index) {
+        <span class="bg-suit" [class]="'bg-suit--' + item.cls">{{ item.suit }}</span>
+      }
+    </div>
+
+    <!-- Decorative card shapes -->
+    <div class="deco-cards" aria-hidden="true">
+      <div class="deco-card deco-card--1">
+        <span class="deco-card__corner deco-card__corner--tl">A♠</span>
+        <span class="deco-card__center">♠</span>
+        <span class="deco-card__corner deco-card__corner--br">A♠</span>
+      </div>
+      <div class="deco-card deco-card--2">
+        <span class="deco-card__corner deco-card__corner--tl">K♥</span>
+        <span class="deco-card__center">♥</span>
+        <span class="deco-card__corner deco-card__corner--br">K♥</span>
+      </div>
+      <div class="deco-card deco-card--3">
+        <span class="deco-card__corner deco-card__corner--tl">7♦</span>
+        <span class="deco-card__center">♦</span>
+        <span class="deco-card__corner deco-card__corner--br">7♦</span>
+      </div>
+    </div>
+
+    <!-- Hero content -->
+    <div class="hero__content">
+      <div class="hero__badge">
+        <span class="badge-dot"></span>
+        Card Game · 4 Players · 2 Teams
+      </div>
+
+      <h1 class="hero__title">
+        <span class="title--card">Card</span><span class="title--cheesi">Cheesi</span>
+      </h1>
+
+      <p class="hero__tagline">
+        The classic Parcheesi board game — reimagined with the thrill of playing cards.<br>
+        No dice. Pure strategy.
+      </p>
+
+      <div class="hero__actions">
+        <p-button
+          label="Play Now"
+          icon="pi pi-play"
+          size="large"
+          styleClass="hero-btn-primary"
+        />
+        <p-button
+          label="Learn the Rules"
+          icon="pi pi-book"
+          size="large"
+          [outlined]="true"
+          styleClass="hero-btn-outline"
+        />
+      </div>
+
+      <div class="hero__stats">
+        <div class="stat">
+          <span class="stat__value">4</span>
+          <span class="stat__label">Players</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <span class="stat__value">2</span>
+          <span class="stat__label">Teams</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <span class="stat__value">64</span>
+          <span class="stat__label">Spaces</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <span class="stat__value">13</span>
+          <span class="stat__label">Card Types</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Wave divider -->
+    <div class="hero__wave" aria-hidden="true">
+      <svg viewBox="0 0 1440 90" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0,40 C240,90 480,0 720,45 C960,90 1200,10 1440,50 L1440,90 L0,90 Z" fill="#0b1e3a"/>
+      </svg>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════ FEATURES ══════════════════════════ -->
+  <section class="features">
+    <div class="section-inner">
+      <div class="section-label">Game Highlights</div>
+      <h2 class="section-title">
+        Why you'll love
+        <span class="t-primary">Card</span><span class="t-secondary">Cheesi</span>
+      </h2>
+
+      <div class="feature-grid">
+        @for (f of features; track f.title) {
+          <div class="feature-card">
+            <div class="feature-card__glow"></div>
+            <div class="feature-card__icon">{{ f.suit }}</div>
+            <h3 class="feature-card__title">{{ f.title }}</h3>
+            <p class="feature-card__desc">{{ f.description }}</p>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════ HOW TO PLAY ══════════════════════════ -->
+  <section class="how-to-play">
+    <div class="section-inner">
+      <div class="section-label light">How It Works</div>
+      <h2 class="section-title light">
+        Get started in <span class="t-accent">four easy steps</span>
+      </h2>
+
+      <div class="steps-grid">
+        @for (s of steps; track s.num) {
+          <div class="step-card">
+            <div class="step-card__num">{{ s.num }}</div>
+            <h3 class="step-card__title">{{ s.title }}</h3>
+            <p class="step-card__desc">{{ s.desc }}</p>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════ CARD MECHANICS ══════════════════════════ -->
+  <section class="card-mechanics">
+    <div class="section-inner">
+      <div class="section-label">Card Reference</div>
+      <h2 class="section-title">
+        Every card has a <span class="t-primary">purpose</span>
+      </h2>
+
+      <div class="mechanics-grid">
+        <div class="mechanic-pill mechanic-pill--primary">
+          <span class="pill-icon">🂡</span>
+          <div>
+            <strong>Ace</strong>
+            <span>Enter play <em>or</em> move +1</span>
+          </div>
+        </div>
+        <div class="mechanic-pill mechanic-pill--primary">
+          <span class="pill-icon">🂮</span>
+          <div>
+            <strong>King</strong>
+            <span>Enter play</span>
+          </div>
+        </div>
+        <div class="mechanic-pill mechanic-pill--secondary">
+          <span class="pill-icon">🂭</span>
+          <div>
+            <strong>Queen</strong>
+            <span>Move +12</span>
+          </div>
+        </div>
+        <div class="mechanic-pill mechanic-pill--secondary">
+          <span class="pill-icon">🂫</span>
+          <div>
+            <strong>Jack</strong>
+            <span>Swap two pawns</span>
+          </div>
+        </div>
+        <div class="mechanic-pill mechanic-pill--accent">
+          <span class="pill-icon">🂧</span>
+          <div>
+            <strong>Seven</strong>
+            <span>Split across ≤2 pawns</span>
+          </div>
+        </div>
+        <div class="mechanic-pill mechanic-pill--accent">
+          <span class="pill-icon">🂤</span>
+          <div>
+            <strong>Four</strong>
+            <span>Move −4 (backwards!)</span>
+          </div>
+        </div>
+        <div class="mechanic-pill mechanic-pill--neutral">
+          <span class="pill-icon">🃟</span>
+          <div>
+            <strong>2 – 10</strong>
+            <span>Move forward by face value</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════ CTA ══════════════════════════ -->
+  <section class="cta-section">
+    <div class="cta-wave" aria-hidden="true">
+      <svg viewBox="0 0 1440 80" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0,50 C360,0 720,80 1080,30 C1260,10 1380,60 1440,40 L1440,0 L0,0 Z" fill="#f4f8ff"/>
+      </svg>
+    </div>
+    <div class="cta-content">
+      <div class="cta-suits" aria-hidden="true">♠ ♥ ♦ ♣</div>
+      <h2 class="cta-title">
+        Ready to play<br>
+        <span class="t-primary">Card</span><span class="t-secondary-light">Cheesi</span>?
+      </h2>
+      <p class="cta-sub">Gather your friends, shuffle the deck, and let the race begin.</p>
+      <p-button
+        label="Start Playing"
+        icon="pi pi-play"
+        size="large"
+        styleClass="cta-btn"
+      />
+    </div>
+  </section>
+
+</div>
