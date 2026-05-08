@@ -1,4 +1,4 @@
-namespace CardCheesi.Game.Abstractions;
+namespace CardCheesi.Game.Abstractions.DomainModels;
 
 /// <summary>Abstraction over random number generation for testability.</summary>
 public interface IRandom

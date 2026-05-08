@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace CardCheesi.Game.Abstractions;
+namespace CardCheesi.Game.Abstractions.DomainModels;
 
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "$type")]
 [JsonDerivedType(typeof(ReserveLocation), "reserve")]

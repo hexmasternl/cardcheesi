@@ -1,5 +1,7 @@
-namespace CardCheesi.Game.Abstractions;
+namespace CardCheesi.Game.Abstractions.DomainModels;
 
-public record PlayerHand(
-    Guid PlayerId,
-    IReadOnlyList<Card> Cards);
+public interface IPlayerHand
+{
+    Guid PlayerId { get; }
+    IReadOnlyList<Card> Cards { get; }
+}

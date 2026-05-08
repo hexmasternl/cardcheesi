@@ -1,10 +1,10 @@
-namespace CardCheesi.Game.Abstractions;
+namespace CardCheesi.Game.Abstractions.DomainModels;
 
-public record TurnState(
-    Guid ActivePlayerId,
-    Guid DealerId,
-    int RoundNumber)
+public interface ITurnState
 {
+    Guid ActivePlayerId { get; }
+    Guid DealerId { get; }
+    int RoundNumber { get; }
     /// <summary>Cards dealt per player this round: 5 in round 1, 4 in rounds 2 and 3.</summary>
-    public int CardsThisRound => RoundNumber == 1 ? 5 : 4;
+    int CardsThisRound { get; }
 }

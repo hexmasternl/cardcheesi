@@ -1,7 +1,9 @@
-namespace CardCheesi.Game.Abstractions;
+namespace CardCheesi.Game.Abstractions.DomainModels;
 
-public record Pawn(
-    Guid Id,
-    Guid OwnerId,
-    PawnStatus Status,
-    PawnLocation Location);
+public interface IPawn
+{
+    Guid Id { get; }
+    Guid OwnerId { get; }
+    PawnStatus Status { get; }
+    PawnLocation Location { get; }
+}

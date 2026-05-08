@@ -1,5 +1,7 @@
-namespace CardCheesi.Game.Abstractions;
+namespace CardCheesi.Game.Abstractions.DomainModels;
 
-public record Team(
-    Guid Id,
-    IReadOnlyList<Player> Players);
+public interface ITeam
+{
+    Guid Id { get; }
+    IReadOnlyList<IPlayer> Players { get; }
+}

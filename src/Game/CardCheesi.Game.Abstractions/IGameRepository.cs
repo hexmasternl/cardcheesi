@@ -1,8 +1,8 @@
-namespace CardCheesi.Game.Abstractions;
+namespace CardCheesi.Game.Abstractions.DomainModels;
 
 public interface IGameRepository
 {
-    Task SaveAsync(GameState gameState, CancellationToken cancellationToken = default);
-    Task<GameState?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
-    Task<GameState?> GetByCodeAsync(string gameCode, CancellationToken cancellationToken = default);
+    Task SaveAsync(IGameState gameState, CancellationToken cancellationToken = default);
+    Task<IGameState?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<IGameState?> GetByCodeAsync(string gameCode, CancellationToken cancellationToken = default);
 }
