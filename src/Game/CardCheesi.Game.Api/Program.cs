@@ -1,5 +1,6 @@
 using CardCheesi.Game;
 using CardCheesi.Game.Abstractions;
+using CardCheesi.Game.Api;
 using CardCheesi.Game.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,6 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.AddServiceDefaults();
 builder.AddNpgsqlDbContext<AppDbContext>("gamedb");
 builder.Services.AddScoped<IGameRepository, GameRepository>();
+builder.Services.AddHostedService<DatabaseMigrationWorker>();
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
@@ -17,12 +19,6 @@ app.MapDefaultEndpoints();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    using var scope = app.Services.CreateScope();
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    if (db.Database.IsRelational())
-        await db.Database.MigrateAsync();
-    else
-        await db.Database.EnsureCreatedAsync();
 }
 
 app.UseHttpsRedirection();
