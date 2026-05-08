@@ -1,0 +1,38 @@
+<div class="chapter">
+  <h1 class="chapter__title">{{ content[lang()].title }}</h1>
+  <p class="chapter__intro">{{ content[lang()].intro }}</p>
+
+  <div class="section-card">
+    <h2 class="section-card__heading">{{ content[lang()].homeTable.caption }}</h2>
+    <table class="rules-table">
+      <thead>
+        <tr>
+          @for (h of content[lang()].homeTable.headers; track h) {
+            <th>{{ h }}</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of content[lang()].homeTable.rows; track row[0]) {
+          <tr>
+            @for (cell of row; track $index) {
+              <td>{{ cell }}</td>
+            }
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  @for (s of content[lang()].sections; track s.heading) {
+    <div class="section-card">
+      <h2 class="section-card__heading">{{ s.heading }}</h2>
+      <p class="section-card__body">{{ s.body }}</p>
+      <ul class="section-card__list">
+        @for (item of s.list; track item) {
+          <li>{{ item }}</li>
+        }
+      </ul>
+    </div>
+  }
+</div>
