@@ -14,7 +14,8 @@ public static class RefreshTokenEndpoint
         app.MapPost("/players/refresh", HandleAsync)
             .WithName("RefreshToken")
             .Produces<RefreshTokenResponse>()
-            .ProducesProblem(StatusCodes.Status401Unauthorized);
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .WithOpenApi();
 
         return app;
     }

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="XPlat Code Coverage">
+        <Configuration>
+          <!-- Exclude EF Core migrations (generated code) -->
+          <Exclude>[CardCheesi.Game]CardCheesi.Game.Migrations.*</Exclude>
+          <!-- Exclude source-generated OpenAPI support code -->
+          <Exclude>[CardCheesi.Game.Api]Microsoft.AspNetCore.OpenApi.*,[CardCheesi.Game.Api]System.Runtime.CompilerServices.*</Exclude>
+          <!-- Exclude types attributed with GeneratedCode or CompilerGenerated -->
+          <ExcludeByAttribute>GeneratedCodeAttribute,CompilerGeneratedAttribute</ExcludeByAttribute>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>

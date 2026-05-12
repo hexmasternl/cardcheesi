@@ -15,11 +15,20 @@ using Microsoft.IdentityModel.Tokens;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
-builder.AddNpgsqlDbContext<AppDbContext>("gamedb");
+
+// Skip Npgsql registration in test environments to avoid real DB connections
+if (!builder.Environment.IsEnvironment("Testing"))
+{
+    builder.AddNpgsqlDbContext<AppDbContext>("gamedb");
+}
+
 builder.Services.AddScoped<IGameRepository, GameRepository>();
 builder.Services.AddHostedService<DatabaseMigrationWorker>();
 builder.Services.AddHostedService<PlayerCleanupService>();
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi(options =>
+{
+    options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
+});
 
 // JWT configuration
 builder.Services.AddOptions<JwtSettings>()
@@ -108,7 +117,8 @@ app.MapPost("/games", async (CreateGameRequest request, HttpContext httpContext,
   .RequireAuthorization()
   .Produces(StatusCodes.Status200OK)
   .ProducesProblem(StatusCodes.Status401Unauthorized)
-  .ProducesProblem(StatusCodes.Status503ServiceUnavailable);
+  .ProducesProblem(StatusCodes.Status503ServiceUnavailable)
+  .WithOpenApi();
 
 app.MapGet("/games/{code}", async (string code, IGameRepository repo, CancellationToken ct) =>
 {
@@ -140,7 +150,8 @@ app.MapPost("/games/{code}/join", async (string code, JoinGameRequest request, H
   .RequireAuthorization()
   .Produces(StatusCodes.Status200OK)
   .ProducesProblem(StatusCodes.Status401Unauthorized)
-  .ProducesProblem(StatusCodes.Status404NotFound);
+  .ProducesProblem(StatusCodes.Status404NotFound)
+  .WithOpenApi();
 
 app.Run();
 

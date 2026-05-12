@@ -18,7 +18,8 @@ public static class RegisterPlayerEndpoint
             .WithName("RegisterPlayer")
             .Produces<RegisterPlayerResponse>(StatusCodes.Status201Created)
             .ProducesValidationProblem()
-            .ProducesProblem(StatusCodes.Status500InternalServerError);
+            .ProducesProblem(StatusCodes.Status500InternalServerError)
+            .WithOpenApi();
 
         return app;
     }
