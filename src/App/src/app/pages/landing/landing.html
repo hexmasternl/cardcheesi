@@ -50,7 +50,7 @@
           icon="pi pi-play"
           size="large"
           styleClass="hero-btn-primary"
-          [routerLink]="['/game']"
+          (onClick)="onPlayNow()"
         />
         <p-button
           [label]="'landing.hero.rulesBtn' | translate"
@@ -178,9 +178,50 @@
         icon="pi pi-play"
         size="large"
         styleClass="cta-btn"
-        [routerLink]="['/game']"
+        (onClick)="onPlayNow()"
       />
     </div>
   </section>
 
 </div>
+
+<!-- ══════════════════════════ PLAY DIALOG ══════════════════════════ -->
+<p-dialog
+  [visible]="dialogVisible()"
+  (visibleChange)="dialogVisible.set($event)"
+  header="Join CardCheesi"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  styleClass="play-dialog"
+  [style]="{ width: '360px' }"
+>
+  <div class="play-dialog__body">
+    <p class="play-dialog__hint">Enter your display name to start playing.</p>
+
+    <input
+      pInputText
+      type="text"
+      placeholder="Your display name"
+      [ngModel]="playerName()"
+      (ngModelChange)="playerName.set($event)"
+      maxlength="50"
+      class="play-dialog__input"
+      (keydown.enter)="onRegisterAndPlay()"
+    />
+
+    @if (errorMessage()) {
+      <p class="play-dialog__error">{{ errorMessage() }}</p>
+    }
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button
+      label="Play"
+      icon="pi pi-play"
+      [loading]="isLoading()"
+      (onClick)="onRegisterAndPlay()"
+      styleClass="w-full"
+    />
+  </ng-template>
+</p-dialog>
