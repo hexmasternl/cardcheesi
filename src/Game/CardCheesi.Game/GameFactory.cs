@@ -12,10 +12,19 @@ public static class GameFactory
     public static GameState CreateWaiting(string creatorName, string gameCode)
     {
         var playerId = Guid.NewGuid();
+        return CreateWaiting(creatorName, gameCode, playerId);
+    }
+
+    /// <summary>
+    /// Creates a <see cref="GameState"/> in the <see cref="GameStatus.Waiting"/> state
+    /// with a single participant (the creator) using the provided player identity.
+    /// </summary>
+    public static GameState CreateWaiting(string creatorName, string gameCode, Guid creatorId)
+    {
         var creator = new Player(
-            Id: playerId,
+            Id: creatorId,
             Name: creatorName,
-            Pawns: CreatePawns(playerId));
+            Pawns: CreatePawns(creatorId));
 
         return new GameState(
             Id: Guid.NewGuid(),
