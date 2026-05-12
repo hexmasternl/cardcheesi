@@ -242,3 +242,28 @@ Feature changes are managed via the **OpenSpec** CLI (`openspec`) and the skills
 | Archive a completed change | `openspec-archive-change` |
 
 Active changes live in `openspec/changes/`; specs in `openspec/specs/`. The schema in use is **`spec-driven`** (see `openspec/config.yaml`).
+
+## Git Commit Convention
+
+After completing each task or logical unit of work, **always commit the changed files** using Git with a clear, descriptive commit message.
+
+### Commit message format
+
+```
+<type>(<scope>): <short imperative summary>
+
+<optional body — what changed and why, wrapped at 72 chars>
+
+Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>
+```
+
+**Types**: `feat`, `fix`, `refactor`, `test`, `docs`, `chore`, `style`, `perf`  
+**Scope**: the area of the codebase affected (e.g., `api`, `frontend`, `apphost`, `tests`, `openspec`)
+
+### Rules
+
+- Stage only the files relevant to the completed task (`git add <files>` — avoid blanket `git add .` unless all changes belong to the same logical unit).
+- Always include the `Co-authored-by` trailer exactly as shown above.
+- Keep the subject line ≤ 72 characters and in the imperative mood ("Add player registration" not "Added" or "Adding").
+- If the task closes a spec requirement or task item, mention it in the body (e.g., `Implements task 4.3 of create-new-game`).
+- Do **not** commit secrets, build artefacts (`bin/`, `obj/`, `node_modules/`, `dist/`), or migration snapshots that were not explicitly modified as part of the task.
