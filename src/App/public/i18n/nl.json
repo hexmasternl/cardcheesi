@@ -4,6 +4,7 @@
       "badge": "Kaartspel · 4 Spelers · 2 Teams",
       "tagline": "Het klassieke Parcheesi-bordspel — opnieuw uitgevonden met de spanning van speelkaarten. Geen dobbelstenen. Pure strategie.",
       "playBtn": "Speel Nu",
+      "joinBtn": "Doe Mee",
       "rulesBtn": "Leer de Regels",
       "stats": {
         "players": "Spelers",
@@ -58,6 +59,14 @@
       "seven": { "label": "Zeven", "effect": "Verdeel over ≤2 pionnen" },
       "four": { "label": "Vier", "effect": "Zet −4 (achteruit!)" },
       "twoToTen": { "label": "2 – 10", "effect": "Zet vooruit met de kaartwaarde" }
+    },
+    "joinDialog": {
+      "header": "Doe Mee aan een Spel",
+      "hint": "Voer de spelcode in die de host heeft gedeeld.",
+      "codePlaceholder": "Spelcode (bijv. ABC123)",
+      "joinBtn": "Doe Mee",
+      "invalidCode": "Voer een spelcode in.",
+      "notFound": "Spel niet gevonden. Controleer de code en probeer opnieuw."
     },
     "cta": {
       "title": "Klaar om CardCheesi te spelen?",

@@ -53,6 +53,14 @@
           (onClick)="onPlayNow()"
         />
         <p-button
+          [label]="'landing.hero.joinBtn' | translate"
+          icon="pi pi-sign-in"
+          size="large"
+          [outlined]="true"
+          styleClass="hero-btn-outline"
+          (onClick)="onJoinGame()"
+        />
+        <p-button
           [label]="'landing.hero.rulesBtn' | translate"
           icon="pi pi-book"
           size="large"
@@ -185,7 +193,46 @@
 
 </div>
 
-<!-- ══════════════════════════ PLAY DIALOG ══════════════════════════ -->
+<!-- ══════════════════════════ JOIN DIALOG ══════════════════════════ -->
+<p-dialog
+  [visible]="joinDialogVisible()"
+  (visibleChange)="joinDialogVisible.set($event)"
+  [header]="'landing.joinDialog.header' | translate"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  styleClass="play-dialog"
+  [style]="{ width: '360px' }"
+>
+  <div class="play-dialog__body">
+    <p class="play-dialog__hint">{{ 'landing.joinDialog.hint' | translate }}</p>
+
+    <input
+      pInputText
+      type="text"
+      [placeholder]="'landing.joinDialog.codePlaceholder' | translate"
+      [ngModel]="gameCode()"
+      (ngModelChange)="gameCode.set($event)"
+      maxlength="20"
+      class="play-dialog__input"
+      (keydown.enter)="onJoinWithCode()"
+    />
+
+    @if (joinErrorMessage()) {
+      <p class="play-dialog__error">{{ joinErrorMessage() | translate }}</p>
+    }
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button
+      [label]="'landing.joinDialog.joinBtn' | translate"
+      icon="pi pi-sign-in"
+      [loading]="isLoading()"
+      (onClick)="onJoinWithCode()"
+      styleClass="w-full"
+    />
+  </ng-template>
+</p-dialog>
 <p-dialog
   [visible]="dialogVisible()"
   (visibleChange)="dialogVisible.set($event)"

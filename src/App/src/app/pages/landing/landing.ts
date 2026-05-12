@@ -27,9 +27,14 @@ export class LandingPage {
   private readonly http = inject(HttpClient);
 
   protected readonly dialogVisible = signal(false);
+  protected readonly joinDialogVisible = signal(false);
   protected readonly playerName = signal('');
+  protected readonly gameCode = signal('');
   protected readonly errorMessage = signal('');
+  protected readonly joinErrorMessage = signal('');
   protected readonly isLoading = signal(false);
+
+  private pendingAction: 'play' | 'join' = 'play';
 
   protected readonly bgSuits = [
     { suit: '♠', cls: 'p' }, { suit: '♥', cls: 's' },
@@ -64,8 +69,22 @@ export class LandingPage {
   ];
 
   protected async onPlayNow(): Promise<void> {
+    this.pendingAction = 'play';
     if (this.authService.isAuthenticated()) {
       await this.createGameAndNavigate();
+    } else {
+      this.playerName.set('');
+      this.errorMessage.set('');
+      this.dialogVisible.set(true);
+    }
+  }
+
+  protected onJoinGame(): void {
+    this.pendingAction = 'join';
+    if (this.authService.isAuthenticated()) {
+      this.gameCode.set('');
+      this.joinErrorMessage.set('');
+      this.joinDialogVisible.set(true);
     } else {
       this.playerName.set('');
       this.errorMessage.set('');
@@ -89,7 +108,13 @@ export class LandingPage {
       });
       this.authService.storeToken(reg.token);
       this.dialogVisible.set(false);
-      await this.createGameAndNavigate();
+      if (this.pendingAction === 'join') {
+        this.gameCode.set('');
+        this.joinErrorMessage.set('');
+        this.joinDialogVisible.set(true);
+      } else {
+        await this.createGameAndNavigate();
+      }
     } catch (err) {
       const error = err as HttpErrorResponse;
       this.errorMessage.set(error.status === 400
@@ -98,6 +123,16 @@ export class LandingPage {
     } finally {
       this.isLoading.set(false);
     }
+  }
+
+  protected async onJoinWithCode(): Promise<void> {
+    const code = this.gameCode().trim().toUpperCase();
+    if (!code) {
+      this.joinErrorMessage.set('landing.joinDialog.invalidCode');
+      return;
+    }
+    this.joinDialogVisible.set(false);
+    await this.router.navigate(['/game', code]);
   }
 
   private async createGameAndNavigate(): Promise<void> {

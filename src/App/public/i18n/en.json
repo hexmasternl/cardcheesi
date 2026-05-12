@@ -4,6 +4,7 @@
       "badge": "Card Game · 4 Players · 2 Teams",
       "tagline": "The classic Parcheesi board game — reimagined with the thrill of playing cards. No dice. Pure strategy.",
       "playBtn": "Play Now",
+      "joinBtn": "Join Game",
       "rulesBtn": "Learn the Rules",
       "stats": {
         "players": "Players",
@@ -58,6 +59,14 @@
       "seven": { "label": "Seven", "effect": "Split across ≤2 pawns" },
       "four": { "label": "Four", "effect": "Move −4 (backwards!)" },
       "twoToTen": { "label": "2 – 10", "effect": "Move forward by face value" }
+    },
+    "joinDialog": {
+      "header": "Join a Game",
+      "hint": "Enter the game code shared by the host.",
+      "codePlaceholder": "Game code (e.g. ABC123)",
+      "joinBtn": "Join Game",
+      "invalidCode": "Please enter a game code.",
+      "notFound": "Game not found. Check the code and try again."
     },
     "cta": {
       "title": "Ready to play CardCheesi?",
