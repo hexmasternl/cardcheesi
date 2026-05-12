@@ -1,4 +1,5 @@
 <div class="presence-panel">
+  <!-- Full layout (tablet / desktop) -->
   <h4 class="presence-panel__title">Players</h4>
   <ul class="presence-panel__list">
     @for (player of store.players(); track player.playerId) {
@@ -17,4 +18,18 @@
       </li>
     }
   </ul>
+
+  <!-- Compact layout (mobile) -->
+  <div class="presence-panel__avatars">
+    @for (player of store.players(); track player.playerId) {
+      <span
+        class="presence-panel__avatar"
+        [class]="'presence-panel__avatar--' + player.status.toLowerCase()"
+        [title]="player.playerName + ' — ' + statusLabel(player.status)"
+      >{{ initials(player.playerName) }}</span>
+    }
+    @if (store.players().length === 0) {
+      <span class="presence-panel__avatar presence-panel__avatar--empty">?</span>
+    }
+  </div>
 </div>

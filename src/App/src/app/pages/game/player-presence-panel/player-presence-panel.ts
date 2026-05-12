@@ -26,6 +26,15 @@ export class PlayerPresencePanelComponent implements OnInit {
     this.store.seedPlayers(this.players());
   }
 
+  protected initials(name: string): string {
+    return name
+      .split(' ')
+      .filter(Boolean)
+      .slice(0, 2)
+      .map(w => w[0].toUpperCase())
+      .join('');
+  }
+
   protected statusSeverity(status: PlayerPresenceStatus): 'success' | 'warn' | 'danger' {
     switch (status) {
       case 'Connected':    return 'success';

@@ -1,5 +1,8 @@
 @use 'variables' as *;
 
+// Breakpoint: below this width the panel collapses to avatar circles
+$presence-mobile-bp: 480px;
+
 .presence-panel {
   position: fixed;
   top: 1rem;
@@ -59,5 +62,50 @@
   &__badge {
     flex-shrink: 0;
     font-size: 0.65rem;
+  }
+
+  // ── Compact avatar row (hidden on desktop) ──────────────────────────────────
+  &__avatars {
+    display: none;
+  }
+
+  &__avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: $cc-radius-pill;
+    background: rgba(255, 255, 255, 0.12);
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: #e8f4ff;
+    border: 2px solid transparent;
+    flex-shrink: 0;
+
+    &--connected  { border-color: $cc-color-success; }
+    &--disconnected { border-color: $cc-color-warning; }
+    &--left       { border-color: $cc-color-danger; }
+    &--empty      { border-color: rgba(#e8f4ff, 0.2); color: rgba(#e8f4ff, 0.35); }
+  }
+
+  // ── Mobile: collapse to single avatar row ──────────────────────────────────
+  @media (max-width: #{$presence-mobile-bp}) {
+    min-width: unset;
+    max-width: unset;
+    padding: $cc-space-xs $cc-space-sm;
+
+    &__title,
+    &__list {
+      display: none;
+    }
+
+    &__avatars {
+      display: flex;
+      flex-direction: row;
+      gap: $cc-space-xs;
+      align-items: center;
+    }
   }
 }
