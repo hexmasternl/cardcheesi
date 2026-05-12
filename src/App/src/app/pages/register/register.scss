@@ -1,0 +1,45 @@
+@use 'variables' as *;
+
+.register-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: $color-bg;
+}
+
+.register-card {
+  background: $color-surface;
+  border-radius: $radius-lg;
+  padding: $spacing-2xl;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: $shadow-lg;
+}
+
+.register-title {
+  font-size: $font-size-2xl;
+  font-weight: 700;
+  margin-bottom: $spacing-xs;
+  color: $color-text;
+}
+
+.register-subtitle {
+  color: $color-text-muted;
+  margin-bottom: $spacing-xl;
+}
+
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.register-input {
+  width: 100%;
+}
+
+.register-error {
+  color: $color-danger;
+  font-size: $font-size-sm;
+}

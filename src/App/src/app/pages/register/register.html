@@ -1,0 +1,30 @@
+<div class="register-page">
+  <div class="register-card">
+    <h1 class="register-title">Join CardCheesi</h1>
+    <p class="register-subtitle">Enter your display name to get started</p>
+
+    <div class="register-form">
+      <input
+        pInputText
+        type="text"
+        placeholder="Your display name"
+        [ngModel]="playerName()"
+        (ngModelChange)="playerName.set($event)"
+        maxlength="50"
+        class="register-input"
+      />
+
+      @if (errorMessage()) {
+        <p class="register-error">{{ errorMessage() }}</p>
+      }
+
+      <p-button
+        label="Play"
+        icon="pi pi-play"
+        [loading]="isLoading()"
+        (onClick)="onRegister()"
+        styleClass="w-full"
+      />
+    </div>
+  </div>
+</div>
