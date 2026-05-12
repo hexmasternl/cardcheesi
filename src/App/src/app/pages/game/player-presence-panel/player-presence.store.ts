@@ -1,6 +1,7 @@
 import { computed, effect, Injectable, signal } from '@angular/core';
 import { PlayerStatusEvent, SseService } from '../../../services/sse.service';
-import { PlayerPresenceStatus } from './player-presence-panel';
+
+export type PlayerPresenceStatus = 'Connected' | 'Disconnected' | 'Left';
 
 export interface PlayerPresenceEntry {
   playerId: string;

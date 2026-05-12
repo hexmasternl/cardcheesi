@@ -1,0 +1,20 @@
+<div class="presence-panel">
+  <h4 class="presence-panel__title">Players</h4>
+  <ul class="presence-panel__list">
+    @for (player of store.players(); track player.playerId) {
+      <li class="presence-panel__item">
+        <span class="presence-panel__name">{{ player.playerName }}</span>
+        <p-tag
+          [value]="statusLabel(player.status)"
+          [severity]="statusSeverity(player.status)"
+          class="presence-panel__badge"
+        />
+      </li>
+    }
+    @if (store.players().length === 0) {
+      <li class="presence-panel__item presence-panel__item--empty">
+        Waiting for players…
+      </li>
+    }
+  </ul>
+</div>

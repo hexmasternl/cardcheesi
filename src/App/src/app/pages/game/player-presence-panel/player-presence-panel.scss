@@ -1,0 +1,63 @@
+@use 'variables' as *;
+
+.presence-panel {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 20;
+  min-width: 180px;
+  max-width: 260px;
+  background: rgba(6, 15, 31, 0.82);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: $cc-radius-lg;
+  padding: $cc-space-sm $cc-space-md;
+  color: #e8f4ff;
+
+  &__title {
+    margin: 0 0 $cc-space-sm;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(#e8f4ff, 0.45);
+  }
+
+  &__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: $cc-space-xs;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $cc-space-sm;
+    padding: $cc-space-xs 0;
+
+    &--empty {
+      font-size: 0.8rem;
+      color: rgba(#e8f4ff, 0.4);
+      font-style: italic;
+      justify-content: center;
+    }
+  }
+
+  &__name {
+    font-size: 0.875rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__badge {
+    flex-shrink: 0;
+    font-size: 0.65rem;
+  }
+}
