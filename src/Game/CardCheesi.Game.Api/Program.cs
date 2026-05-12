@@ -131,6 +131,88 @@ app.MapGet("/games/{code}", async (string code, IGameRepository repo, Cancellati
     return game is null ? Results.NotFound() : Results.Ok(game);
 }).WithName("GetGame");
 
+app.MapGet("/games/{code}/events", async (
+    string code,
+    string? playerId,
+    IGameRepository repo,
+    ISseConnectionManager connectionManager,
+    PlayerPresenceTracker presenceTracker,
+    HttpContext httpContext,
+    CancellationToken ct) =>
+{
+    var game = await repo.GetByCodeAsync(code, ct);
+    if (game is null)
+        return Results.NotFound();
+
+    var response = httpContext.Response;
+    response.Headers.ContentType = "text/event-stream";
+    response.Headers.CacheControl = "no-cache";
+    response.Headers.Append("X-Accel-Buffering", "no");
+    response.Headers.Append("Connection", "keep-alive");
+
+    var channel = Channel.CreateUnbounded<SseEvent>(new UnboundedChannelOptions { SingleReader = true });
+    connectionManager.AddConnection(code, channel);
+
+    Guid? parsedPlayerId = Guid.TryParse(playerId, out var pid) ? pid : null;
+    string? playerName = parsedPlayerId.HasValue
+        ? game.Players.FirstOrDefault(p => p.Id == parsedPlayerId.Value)?.Name
+        : null;
+
+    if (parsedPlayerId.HasValue && playerName is not null)
+        await presenceTracker.ConnectAsync(code, parsedPlayerId.Value, playerName, ct);
+
+    // Send initial presence snapshot
+    foreach (var evt in presenceTracker.GetSnapshot(code))
+    {
+        var snapshotPayload = JsonSerializer.Serialize(new
+        {
+            playerId = evt.PlayerId.ToString(),
+            playerName = evt.PlayerName,
+            status = evt.Status.ToString(),
+        });
+        await WriteSseEventAsync(response, new SseEvent("player-status", snapshotPayload), ct);
+    }
+
+    var keepAliveTimer = new PeriodicTimer(TimeSpan.FromSeconds(15));
+    var keepAliveTask = Task.Run(async () =>
+    {
+        while (await keepAliveTimer.WaitForNextTickAsync(ct))
+        {
+            await channel.Writer.WriteAsync(new SseEvent("keep-alive", ""), ct);
+        }
+    }, ct);
+
+    try
+    {
+        await foreach (var sseEvent in channel.Reader.ReadAllAsync(ct))
+        {
+            if (sseEvent.EventType == "keep-alive")
+            {
+                await response.WriteAsync(": keep-alive\n\n", ct);
+            }
+            else
+            {
+                await WriteSseEventAsync(response, sseEvent, ct);
+            }
+            await response.Body.FlushAsync(ct);
+        }
+    }
+    catch (OperationCanceledException) { /* client disconnected */ }
+    finally
+    {
+        keepAliveTimer.Dispose();
+        connectionManager.RemoveConnection(code, channel);
+
+        if (parsedPlayerId.HasValue && playerName is not null)
+            await presenceTracker.DisconnectAsync(code, parsedPlayerId.Value);
+    }
+
+    return Results.Empty;
+}).WithName("GameEvents");
+
+static Task WriteSseEventAsync(HttpResponse response, SseEvent sseEvent, CancellationToken ct)
+    => response.WriteAsync($"event: {sseEvent.EventType}\ndata: {sseEvent.Data}\n\n", ct);
+
 app.MapPost("/games/{code}/join", async (string code, JoinGameRequest request, HttpContext httpContext, IGameRepository repo, CancellationToken ct) =>
 {
     var game = await repo.GetByCodeAsync(code, ct);
