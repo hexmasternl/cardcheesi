@@ -3,6 +3,11 @@
   <!-- 3D board background -->
   <app-game-board />
 
+  <!-- Player presence panel (always visible when game state loaded) -->
+  @if (!loading() && !error() && gameState(); as game) {
+    <app-player-presence-panel [players]="game.players" />
+  }
+
   <!-- Loading state -->
   @if (loading()) {
     <div class="game-page__overlay game-page__overlay--loading">
