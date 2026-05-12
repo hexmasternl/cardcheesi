@@ -64,5 +64,3 @@ api.MapRegisterPlayer();
 api.MapRefreshToken();
 
 app.Run();
-
-public partial class Program { }

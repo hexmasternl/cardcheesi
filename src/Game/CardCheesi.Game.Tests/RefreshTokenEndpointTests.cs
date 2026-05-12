@@ -1,7 +1,7 @@
-using CardCheesi.Game.Abstractions;
-using CardCheesi.Game.Api.Auth;
-using CardCheesi.Game.Api.Endpoints.Players;
-using CardCheesi.Game.Api.Features.RefreshToken;
+using CardCheesi.Auth;
+using CardCheesi.Core;
+using CardCheesi.Players.Api.Endpoints;
+using CardCheesi.Players.Api.Features.RefreshToken;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Moq;

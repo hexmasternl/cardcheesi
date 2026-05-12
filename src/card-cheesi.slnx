@@ -3,10 +3,19 @@
     <Project Path="Aspire/CardCheesi.Aspire.AppHost/CardCheesi.Aspire.AppHost.csproj" Id="9b35ac2a-3720-4d5c-a1c6-aefe0f1993bd" />
     <Project Path="Aspire/CardCheesi.Aspire.ServiceDefaults/CardCheesi.Aspire.ServiceDefaults.csproj" />
   </Folder>
+  <Folder Name="/Core/">
+    <Project Path="Core/CardCheesi.Core/CardCheesi.Core.csproj" />
+  </Folder>
   <Folder Name="/Game/">
     <Project Path="Game/CardCheesi.Game.Abstractions/CardCheesi.Game.Abstractions.csproj" Id="515d8d20-ea6b-4b06-9a68-4c6aea8a85ca" />
     <Project Path="Game/CardCheesi.Game.Api/CardCheesi.Game.Api.csproj" />
     <Project Path="Game/CardCheesi.Game.Tests/CardCheesi.Game.Tests.csproj" Id="1cac2cd5-d6a8-4767-b411-7cc680425157" />
     <Project Path="Game/CardCheesi.Game/CardCheesi.Game.csproj" Id="9416a017-b1ef-414e-9ce9-d497b79dfa00" />
+  </Folder>
+  <Folder Name="/Players/">
+    <Project Path="Players/CardCheesi.Players.Api/CardCheesi.Players.Api.csproj" />
+  </Folder>
+  <Folder Name="/Proxy/">
+    <Project Path="Proxy/CardCheesi.Proxy/CardCheesi.Proxy.csproj" />
   </Folder>
 </Solution>

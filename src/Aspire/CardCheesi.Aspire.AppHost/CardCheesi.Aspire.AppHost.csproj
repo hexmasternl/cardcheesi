@@ -9,13 +9,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Game\CardCheesi.Game.Api\CardCheesi.Game.Api.csproj" />
+    <PackageReference Include="Aspire.Hosting.NodeJs" Version="9.5.2" />
+    <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="13.3.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Hosting.Browsers" Version="13.3.0-preview.1.26256.5" />
-    <PackageReference Include="Aspire.Hosting.JavaScript" Version="13.3.0" />
-    <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="9.3.0" />
+    <ProjectReference Include="..\..\Game\CardCheesi.Game.Api\CardCheesi.Game.Api.csproj" />
+    <ProjectReference Include="..\..\Players\CardCheesi.Players.Api\CardCheesi.Players.Api.csproj" />
+    <ProjectReference Include="..\..\Proxy\CardCheesi.Proxy\CardCheesi.Proxy.csproj" />
   </ItemGroup>
 
 </Project>

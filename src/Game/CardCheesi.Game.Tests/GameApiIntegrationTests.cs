@@ -2,8 +2,8 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
+using CardCheesi.Auth;
 using CardCheesi.Game.Abstractions.DomainModels;
-using CardCheesi.Game.Api.Auth;
 using CardCheesi.Game.DomainModels;
 using CardCheesi.Game.Persistence;
 using Microsoft.AspNetCore.Hosting;
@@ -28,20 +28,24 @@ public class GameApiIntegrationTests : IClassFixture<GameApiIntegrationTests.Fac
 
     private HttpClient CreateClient() => _factory.CreateClient();
 
-    /// <summary>Registers a player and returns a Bearer token.</summary>
-    private async Task<string> RegisterAndGetTokenAsync(HttpClient client, string name)
+    private string GenerateTestToken(string playerName)
     {
-        var response = await client.PostAsJsonAsync("/api/players", new { name });
-        response.EnsureSuccessStatusCode();
-        var body = await response.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
-        return body.GetProperty("token").GetString()!;
+        var settings = new JwtSettings
+        {
+            SigningKey = "integration-test-signing-key-32bytes!",
+            Issuer = "cardcheesi-api",
+            Audience = "cardcheesi-api",
+            AccessTokenExpiryMinutes = 10,
+            CookieSecure = false,
+        };
+        return JwtTokenService.GenerateAccessToken(settings, Guid.NewGuid(), playerName);
     }
 
     [Fact]
     public async Task GetGame_ExistingCode_ReturnsGameState()
     {
         var client = CreateClient();
-        var token = await RegisterAndGetTokenAsync(client, "Eve");
+        var token = GenerateTestToken("Eve");
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         var createResponse = await client.PostAsJsonAsync("/api/games", new { });
@@ -70,7 +74,7 @@ public class GameApiIntegrationTests : IClassFixture<GameApiIntegrationTests.Fac
     public async Task PostGames_CreatesGameWithCorrectCodeAndState()
     {
         var client = CreateClient();
-        var token = await RegisterAndGetTokenAsync(client, "Alice");
+        var token = GenerateTestToken("Alice");
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         var response = await client.PostAsJsonAsync("/api/games", new { });
@@ -111,8 +115,8 @@ public class GameApiIntegrationTests : IClassFixture<GameApiIntegrationTests.Fac
         var creatorClient = CreateClient();
         var joinerClient = CreateClient();
 
-        var creatorToken = await RegisterAndGetTokenAsync(creatorClient, "Bob");
-        var joinerToken = await RegisterAndGetTokenAsync(joinerClient, "Carol");
+        var creatorToken = GenerateTestToken("Bob");
+        var joinerToken = GenerateTestToken("Carol");
 
         creatorClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", creatorToken);
         var createResponse = await creatorClient.PostAsJsonAsync("/api/games", new { });
@@ -138,7 +142,7 @@ public class GameApiIntegrationTests : IClassFixture<GameApiIntegrationTests.Fac
     public async Task PostJoin_NonExistentCode_Returns404()
     {
         var client = CreateClient();
-        var token = await RegisterAndGetTokenAsync(client, "Dave");
+        var token = GenerateTestToken("Dave");
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         var response = await client.PostAsJsonAsync("/api/games/XXXXXX/join", new { });
@@ -160,14 +164,13 @@ public class GameApiIntegrationTests : IClassFixture<GameApiIntegrationTests.Fac
     public async Task PostJoin_AlreadyInGame_Returns409()
     {
         var client = CreateClient();
-        var token = await RegisterAndGetTokenAsync(client, "Frank");
+        var token = GenerateTestToken("Frank");
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         var createResponse = await client.PostAsJsonAsync("/api/games", new { });
         var createBody = await createResponse.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
         var gameCode = createBody.GetProperty("gameCode").GetString()!;
 
-        // Try to join the game the player already created (i.e. is already in)
         var joinResponse = await client.PostAsJsonAsync($"/api/games/{gameCode}/join", new { });
 
         Assert.Equal(HttpStatusCode.Conflict, joinResponse.StatusCode);
@@ -176,13 +179,12 @@ public class GameApiIntegrationTests : IClassFixture<GameApiIntegrationTests.Fac
     [Fact]
     public async Task PostJoin_FullGame_Returns409()
     {
-        // Create 5 distinct clients: 1 creator + 4 joiners (4th join should fail)
         var clients = Enumerable.Range(0, 5).Select(_ => CreateClient()).ToArray();
         var names = new[] { "Player1", "Player2", "Player3", "Player4", "Player5" };
 
         for (var i = 0; i < clients.Length; i++)
         {
-            var t = await RegisterAndGetTokenAsync(clients[i], names[i]);
+            var t = GenerateTestToken(names[i]);
             clients[i].DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", t);
         }
 
@@ -190,14 +192,12 @@ public class GameApiIntegrationTests : IClassFixture<GameApiIntegrationTests.Fac
         var gameCode = (await createResponse.Content.ReadFromJsonAsync<JsonElement>(JsonOptions))
             .GetProperty("gameCode").GetString()!;
 
-        // Players 2, 3, 4 join successfully
         for (var i = 1; i <= 3; i++)
         {
             var r = await clients[i].PostAsJsonAsync($"/api/games/{gameCode}/join", new { });
             Assert.Equal(HttpStatusCode.OK, r.StatusCode);
         }
 
-        // Player 5 should be rejected — game is full
         var fullResponse = await clients[4].PostAsJsonAsync($"/api/games/{gameCode}/join", new { });
         Assert.Equal(HttpStatusCode.Conflict, fullResponse.StatusCode);
     }
@@ -214,7 +214,7 @@ public class GameApiIntegrationTests : IClassFixture<GameApiIntegrationTests.Fac
     public async Task GetGameEvents_KnownCode_ReturnsEventStream()
     {
         var client = CreateClient();
-        var token = await RegisterAndGetTokenAsync(client, "StreamTester");
+        var token = GenerateTestToken("StreamTester");
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         var createResponse = await client.PostAsJsonAsync("/api/games", new { });
@@ -252,7 +252,6 @@ public class GameApiIntegrationTests : IClassFixture<GameApiIntegrationTests.Fac
 
             builder.ConfigureServices(services =>
             {
-                // Remove any existing AppDbContext registrations to ensure clean test isolation
                 var descriptor = services.SingleOrDefault(d => d.ServiceType == typeof(DbContextOptions<AppDbContext>));
                 if (descriptor != null) services.Remove(descriptor);
 

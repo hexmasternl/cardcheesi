@@ -1,6 +1,5 @@
-using CardCheesi.Game.Abstractions;
-using CardCheesi.Game.Api.Auth;
-using CardCheesi.Game.Api.Features.RegisterPlayer;
+using CardCheesi.Auth;
+using CardCheesi.Players.Api.Features.RegisterPlayer;
 using CardCheesi.Game.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;

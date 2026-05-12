@@ -1,4 +1,4 @@
-using CardCheesi.Game.Api.Auth;
+using CardCheesi.Auth;
 using Microsoft.Extensions.Options;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;

@@ -1,5 +1,5 @@
-using CardCheesi.Game.Api.Auth;
-using CardCheesi.Game.Api.Features.RefreshToken;
+using CardCheesi.Auth;
+using CardCheesi.Players.Api.Features.RefreshToken;
 using CardCheesi.Game.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;

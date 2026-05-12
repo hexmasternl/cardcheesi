@@ -1,4 +1,4 @@
-using CardCheesi.Game.Api;
+using CardCheesi.Players.Api;
 using CardCheesi.Game.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
