@@ -1,7 +1,9 @@
 import {
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   computed,
+  DestroyRef,
   inject,
   OnInit,
   signal,
@@ -17,6 +19,10 @@ import { CardModule } from 'primeng/card';
 import { GameService } from './game.service';
 import { GameState, GameStatusLabel } from './game-state.model';
 import { GameBoardComponent } from './game-board/game-board';
+import { PlayerPresencePanelComponent } from './player-presence-panel/player-presence-panel';
+import { SseService } from '../../services/sse.service';
+
+const LOCAL_PLAYER_KEY = (gameCode: string) => `cardcheesi_player_${gameCode}`;
 
 @Component({
   selector: 'app-game-page',
@@ -27,6 +33,7 @@ import { GameBoardComponent } from './game-board/game-board';
     TagModule,
     CardModule,
     GameBoardComponent,
+    PlayerPresencePanelComponent,
   ],
   templateUrl: './game-page.html',
   styleUrl: './game-page.scss',
@@ -35,6 +42,8 @@ import { GameBoardComponent } from './game-board/game-board';
 export class GamePage implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly gameService = inject(GameService);
+  private readonly sseService = inject(SseService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly gameCode = toSignal(
     this.route.paramMap.pipe(map((p) => p.get('gameCode') ?? '')),
@@ -57,6 +66,19 @@ export class GamePage implements OnInit {
       .join('')
       .toUpperCase()
       .slice(0, 2);
+
+  constructor() {
+    afterNextRender(() => {
+      const code = this.gameCode();
+      if (!code) return;
+      const playerId = localStorage.getItem(LOCAL_PLAYER_KEY(code));
+      if (playerId) {
+        this.sseService.connect(code, playerId);
+      }
+    });
+
+    this.destroyRef.onDestroy(() => this.sseService.disconnect());
+  }
 
   ngOnInit(): void {
     this.fetchGame();
