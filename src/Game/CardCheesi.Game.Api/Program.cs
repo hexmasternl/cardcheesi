@@ -1,6 +1,9 @@
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
+using System.Threading.Channels;
 using CardCheesi.Game;
+using CardCheesi.Game.Abstractions;
 using CardCheesi.Game.Abstractions.DomainModels;
 using CardCheesi.Game.Api;
 using CardCheesi.Game.Api.Auth;
@@ -23,6 +26,8 @@ if (!builder.Environment.IsEnvironment("Testing"))
 }
 
 builder.Services.AddScoped<IGameRepository, GameRepository>();
+builder.Services.AddSingleton<ISseConnectionManager, SseConnectionManager>();
+builder.Services.AddSingleton<PlayerPresenceTracker>();
 builder.Services.AddHostedService<DatabaseMigrationWorker>();
 builder.Services.AddHostedService<PlayerCleanupService>();
 builder.Services.AddOpenApi(options =>
