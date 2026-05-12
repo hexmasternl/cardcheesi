@@ -1,7 +1,8 @@
 using CardCheesi.Auth;
 using CardCheesi.Core;
-using CardCheesi.Game.Abstractions.DataTransferObjects;
-using CardCheesi.Players.Api.Features.RegisterPlayer;
+using CardCheesi.Players.Abstractions.DataTransferObjects;
+using CardCheesi.Players.Features.RegisterPlayer;
+using CardCheesi.Players.Validators;
 using Microsoft.Extensions.Options;
 
 namespace CardCheesi.Players.Api.Endpoints;
@@ -29,7 +30,7 @@ public static class RegisterPlayerEndpoint
         IOptions<JwtSettings> jwtOptions,
         CancellationToken ct)
     {
-        var validationErrors = ValidateName(request.Name);
+        var validationErrors = PlayerNameValidator.Validate(request.Name);
         if (validationErrors is not null)
             return Results.ValidationProblem(validationErrors);
 
@@ -51,21 +52,4 @@ public static class RegisterPlayerEndpoint
         Path = "/api/players/refresh",
         MaxAge = TimeSpan.FromSeconds(2592000),
     };
-
-    internal static Dictionary<string, string[]>? ValidateName(string? name)
-    {
-        if (string.IsNullOrEmpty(name))
-            return new Dictionary<string, string[]> { ["name"] = ["Name is required."] };
-
-        if (name != name.Trim())
-            return new Dictionary<string, string[]> { ["name"] = ["Name must not have leading or trailing whitespace."] };
-
-        if (name.Any(c => c < 0x20))
-            return new Dictionary<string, string[]> { ["name"] = ["Name must not contain control characters."] };
-
-        if (name.Length > 50)
-            return new Dictionary<string, string[]> { ["name"] = [$"Name must not exceed 50 characters (was {name.Length})."] };
-
-        return null;
-    }
 }

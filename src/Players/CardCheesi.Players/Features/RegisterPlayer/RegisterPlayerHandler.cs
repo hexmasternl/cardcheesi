@@ -3,7 +3,7 @@ using CardCheesi.Core;
 using CardCheesi.Game.Persistence;
 using Microsoft.Extensions.Options;
 
-namespace CardCheesi.Players.Api.Features.RegisterPlayer;
+namespace CardCheesi.Players.Features.RegisterPlayer;
 
 public sealed class RegisterPlayerHandler : ICommandHandler<RegisterPlayerCommand, RegisterPlayerResult>
 {

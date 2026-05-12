@@ -1,10 +1,8 @@
 using CardCheesi.Auth;
-using CardCheesi.Core;
 using CardCheesi.Game.Persistence;
+using CardCheesi.Players;
 using CardCheesi.Players.Api;
 using CardCheesi.Players.Api.Endpoints;
-using CardCheesi.Players.Api.Features.RefreshToken;
-using CardCheesi.Players.Api.Features.RegisterPlayer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,11 +14,7 @@ if (!builder.Environment.IsEnvironment("Testing"))
     builder.AddNpgsqlDbContext<AppDbContext>("gamedb");
 }
 
-builder.Services.AddScoped<ICommandHandler<RegisterPlayerCommand, RegisterPlayerResult>, RegisterPlayerHandler>();
-builder.Services.AddScoped<ICommandHandler<RefreshTokenCommand, RefreshTokenResult?>, RefreshTokenHandler>();
-
-builder.Services.AddHostedService<DatabaseMigrationWorker>();
-builder.Services.AddHostedService<PlayerCleanupService>();
+builder.Services.AddPlayersModule();
 
 builder.Services.AddOpenApi(options =>
 {

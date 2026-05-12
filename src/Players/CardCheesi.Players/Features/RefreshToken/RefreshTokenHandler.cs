@@ -4,7 +4,7 @@ using CardCheesi.Game.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
-namespace CardCheesi.Players.Api.Features.RefreshToken;
+namespace CardCheesi.Players.Features.RefreshToken;
 
 public sealed class RefreshTokenHandler : ICommandHandler<RefreshTokenCommand, RefreshTokenResult?>
 {

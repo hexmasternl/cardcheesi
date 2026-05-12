@@ -16,7 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Aspire\CardCheesi.Aspire.ServiceDefaults\CardCheesi.Aspire.ServiceDefaults.csproj" />
-    <ProjectReference Include="..\..\Core\CardCheesi.Core\CardCheesi.Core.csproj" />
-    <ProjectReference Include="..\..\Game\CardCheesi.Game\CardCheesi.Game.csproj" />
+    <ProjectReference Include="..\CardCheesi.Players.Abstractions\CardCheesi.Players.Abstractions.csproj" />
+    <ProjectReference Include="..\CardCheesi.Players\CardCheesi.Players.csproj" />
   </ItemGroup>
 </Project>

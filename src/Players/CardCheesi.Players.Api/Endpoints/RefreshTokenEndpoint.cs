@@ -1,7 +1,7 @@
 using CardCheesi.Auth;
 using CardCheesi.Core;
-using CardCheesi.Game.Abstractions.DataTransferObjects;
-using CardCheesi.Players.Api.Features.RefreshToken;
+using CardCheesi.Players.Abstractions.DataTransferObjects;
+using CardCheesi.Players.Features.RefreshToken;
 using Microsoft.Extensions.Options;
 
 namespace CardCheesi.Players.Api.Endpoints;

@@ -1,4 +1,4 @@
-namespace CardCheesi.Players.Api.Features.RefreshToken;
+namespace CardCheesi.Players.Features.RefreshToken;
 
 public sealed record RefreshTokenCommand(string RawCookieValue);
 

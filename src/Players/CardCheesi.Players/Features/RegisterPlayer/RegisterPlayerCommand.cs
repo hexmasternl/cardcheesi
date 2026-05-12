@@ -1,4 +1,4 @@
-namespace CardCheesi.Players.Api.Features.RegisterPlayer;
+namespace CardCheesi.Players.Features.RegisterPlayer;
 
 public sealed record RegisterPlayerCommand(string Name);
 

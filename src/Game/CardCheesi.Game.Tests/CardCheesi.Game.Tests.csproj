@@ -25,9 +25,6 @@
   <ItemGroup>
     <ProjectReference Include="..\CardCheesi.Game\CardCheesi.Game.csproj" />
     <ProjectReference Include="..\CardCheesi.Game.Api\CardCheesi.Game.Api.csproj" />
-    <ProjectReference Include="..\..\Players\CardCheesi.Players.Api\CardCheesi.Players.Api.csproj">
-      <Aliases>PlayersApi</Aliases>
-    </ProjectReference>
   </ItemGroup>
 
 </Project>

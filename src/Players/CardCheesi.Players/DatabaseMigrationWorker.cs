@@ -1,7 +1,10 @@
 using CardCheesi.Game.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
-namespace CardCheesi.Players.Api;
+namespace CardCheesi.Players;
 
 public sealed class DatabaseMigrationWorker(
     IServiceScopeFactory scopeFactory,
