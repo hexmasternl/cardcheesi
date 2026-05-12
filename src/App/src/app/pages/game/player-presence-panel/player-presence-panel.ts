@@ -6,10 +6,8 @@ import {
   OnInit,
 } from '@angular/core';
 import { TagModule } from 'primeng/tag';
-import { PlayerPresenceStore } from './player-presence.store';
+import { PlayerPresenceStatus, PlayerPresenceStore } from './player-presence.store';
 import { GamePlayer } from '../game-state.model';
-
-export type PlayerPresenceStatus = 'Connected' | 'Disconnected' | 'Left';
 
 @Component({
   selector: 'app-player-presence-panel',
