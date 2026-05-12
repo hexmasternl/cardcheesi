@@ -5,7 +5,7 @@ using CardCheesi.Game.Abstractions.DomainModels;
 
 namespace CardCheesi.Game;
 
-public sealed class PlayerPresenceTracker
+public sealed class PlayerPresenceTracker : IPlayerPresenceTracker
 {
     private sealed record PlayerState(
         string PlayerName,

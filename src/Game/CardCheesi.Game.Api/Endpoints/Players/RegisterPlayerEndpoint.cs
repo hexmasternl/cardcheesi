@@ -1,12 +1,10 @@
+using CardCheesi.Game.Abstractions;
+using CardCheesi.Game.Abstractions.DataTransferObjects;
 using CardCheesi.Game.Api.Auth;
-using CardCheesi.Game.Persistence;
-using Microsoft.AspNetCore.Mvc;
+using CardCheesi.Game.Api.Features.RegisterPlayer;
 using Microsoft.Extensions.Options;
 
 namespace CardCheesi.Game.Api.Endpoints.Players;
-
-public record RegisterPlayerRequest(string Name);
-public record RegisterPlayerResponse(string Token);
 
 public static class RegisterPlayerEndpoint
 {
@@ -25,9 +23,9 @@ public static class RegisterPlayerEndpoint
     }
 
     internal static async Task<IResult> HandleAsync(
-        [FromBody] RegisterPlayerRequest request,
+        RegisterPlayerRequest request,
         HttpContext httpContext,
-        AppDbContext db,
+        ICommandHandler<RegisterPlayerCommand, RegisterPlayerResult> handler,
         IOptions<JwtSettings> jwtOptions,
         CancellationToken ct)
     {
@@ -35,38 +33,14 @@ public static class RegisterPlayerEndpoint
         if (validationErrors is not null)
             return Results.ValidationProblem(validationErrors);
 
-        var settings = jwtOptions.Value;
-        var now = DateTime.UtcNow;
-        var playerId = Guid.NewGuid();
+        var result = await handler.Handle(new RegisterPlayerCommand(request.Name), ct);
 
-        var player = new PlayerEntity
-        {
-            Id = playerId,
-            Name = request.Name,
-            CreatedAt = now,
-            LastSeenAt = now,
-        };
+        httpContext.Response.Cookies.Append(
+            RefreshCookieName,
+            result.RawRefreshToken,
+            BuildRefreshCookieOptions(jwtOptions.Value));
 
-        db.Players.Add(player);
-
-        var (rawToken, tokenHash) = JwtTokenService.GenerateRefreshToken();
-        var refreshToken = new RefreshTokenEntity
-        {
-            Id = Guid.NewGuid(),
-            PlayerId = playerId,
-            TokenHash = tokenHash,
-            CreatedAt = now,
-            ExpiresAt = now.AddDays(settings.RefreshTokenExpiryDays),
-        };
-
-        db.RefreshTokens.Add(refreshToken);
-        await db.SaveChangesAsync(ct);
-
-        var accessToken = JwtTokenService.GenerateAccessToken(settings, playerId, request.Name);
-
-        httpContext.Response.Cookies.Append(RefreshCookieName, rawToken, BuildRefreshCookieOptions(settings));
-
-        return Results.Created("/players", new RegisterPlayerResponse(accessToken));
+        return Results.Created("/players", new RegisterPlayerResponse(result.AccessToken));
     }
 
     internal static CookieOptions BuildRefreshCookieOptions(JwtSettings settings) => new()
@@ -95,3 +69,4 @@ public static class RegisterPlayerEndpoint
         return null;
     }
 }
+
