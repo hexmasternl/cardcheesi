@@ -6,6 +6,7 @@ using CardCheesi.Game.Persistence;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
+builder.AddCorsDefaults();
 builder.AddJwtBearerAuthentication();
 
 // Skip Npgsql registration in test environments to avoid real DB connections
@@ -50,6 +51,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 }
 
+app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 

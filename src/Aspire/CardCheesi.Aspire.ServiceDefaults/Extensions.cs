@@ -131,6 +131,24 @@ public static class Extensions
         return app;
     }
 
+    public static TBuilder AddCorsDefaults<TBuilder>(this TBuilder builder) where TBuilder : IHostApplicationBuilder
+    {
+        var allowedOrigin = builder.Configuration["Cors:AllowedOrigin"] ?? "http://localhost:4300";
+
+        builder.Services.AddCors(options =>
+        {
+            options.AddDefaultPolicy(policy =>
+            {
+                policy.WithOrigins(allowedOrigin)
+                      .AllowAnyHeader()
+                      .AllowAnyMethod()
+                      .AllowCredentials();
+            });
+        });
+
+        return builder;
+    }
+
     public static TBuilder AddJwtBearerAuthentication<TBuilder>(this TBuilder builder) where TBuilder : IHostApplicationBuilder
     {
         builder.Services.AddOptions<JwtSettings>()

@@ -18,7 +18,4 @@
     <Project Path="Players/CardCheesi.Players.Tests/CardCheesi.Players.Tests.csproj" />
     <Project Path="Players/CardCheesi.Players/CardCheesi.Players.csproj" />
   </Folder>
-  <Folder Name="/Proxy/">
-    <Project Path="Proxy/CardCheesi.Proxy/CardCheesi.Proxy.csproj" />
-  </Folder>
 </Solution>

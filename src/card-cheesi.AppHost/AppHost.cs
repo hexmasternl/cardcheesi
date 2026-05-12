@@ -5,24 +5,31 @@ var postgres = builder.AddPostgres("postgres")
 
 var gamedb = postgres.AddDatabase("gamedb");
 
+var frontend = builder.AddNpmApp("frontend", "../App", "start:aspire")
+    .WithHttpEndpoint(port: 4300, env: "PORT")
+    .WithExternalHttpEndpoints();
+
 var playersApi = builder.AddProject<Projects.CardCheesi_Players_Api>("cardcheesi-players-api")
     .WithReference(gamedb)
-    .WaitFor(gamedb);
+    .WaitFor(gamedb)
+    .WithEnvironment("Cors__AllowedOrigin", frontend.GetEndpoint("http"));
 
 var gameApi = builder.AddProject<Projects.CardCheesi_Game_Api>("cardcheesi-game-api")
     .WithReference(gamedb)
-    .WaitFor(gamedb);
+    .WaitFor(gamedb)
+    .WithEnvironment("Cors__AllowedOrigin", frontend.GetEndpoint("http"));
 
-var proxy = builder.AddProject<Projects.CardCheesi_Proxy>("cardcheesi-proxy")
-    .WithReference(playersApi)
-    .WithReference(gameApi)
+var gateway = builder.AddYarp("gateway")
+    .WithConfiguration(yarp =>
+    {
+        yarp.AddRoute("/api/players/{**catch-all}", playersApi);
+        yarp.AddRoute("/api/games/{**catch-all}", gameApi);
+    })
     .WaitFor(playersApi)
     .WaitFor(gameApi);
 
-builder.AddNpmApp("frontend", "../App", "start:aspire")
-    .WithHttpEndpoint(port: 4300, env: "PORT")
-    .WithExternalHttpEndpoints()
-    .WithEnvironment("API_URL", proxy.GetEndpoint("http"))
-    .WaitFor(proxy);
+frontend
+    .WithEnvironment("API_URL", gateway.GetEndpoint("http"))
+    .WaitFor(gateway);
 
 builder.Build().Run();
