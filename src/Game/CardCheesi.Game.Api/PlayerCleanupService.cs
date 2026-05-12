@@ -28,13 +28,36 @@ public sealed class PlayerCleanupService(
         var now = DateTime.UtcNow;
         var inactiveCutoff = now.AddDays(-31);
 
-        var expiredTokensDeleted = await db.RefreshTokens
-            .Where(t => t.ExpiresAt < now)
-            .ExecuteDeleteAsync(ct);
+        int expiredTokensDeleted;
+        int inactivePlayersDeleted;
 
-        var inactivePlayersDeleted = await db.Players
-            .Where(p => p.LastSeenAt < inactiveCutoff)
-            .ExecuteDeleteAsync(ct);
+        if (db.Database.IsRelational())
+        {
+            expiredTokensDeleted = await db.RefreshTokens
+                .Where(t => t.ExpiresAt < now)
+                .ExecuteDeleteAsync(ct);
+
+            inactivePlayersDeleted = await db.Players
+                .Where(p => p.LastSeenAt < inactiveCutoff)
+                .ExecuteDeleteAsync(ct);
+        }
+        else
+        {
+            // Fallback for non-relational providers (e.g., InMemory in tests)
+            var expiredTokens = await db.RefreshTokens
+                .Where(t => t.ExpiresAt < now)
+                .ToListAsync(ct);
+            db.RefreshTokens.RemoveRange(expiredTokens);
+            expiredTokensDeleted = expiredTokens.Count;
+
+            var inactivePlayers = await db.Players
+                .Where(p => p.LastSeenAt < inactiveCutoff)
+                .ToListAsync(ct);
+            db.Players.RemoveRange(inactivePlayers);
+            inactivePlayersDeleted = inactivePlayers.Count;
+
+            await db.SaveChangesAsync(ct);
+        }
 
         logger.LogInformation(
             "Player cleanup complete: {PlayersDeleted} player(s) and {TokensDeleted} token(s) removed.",

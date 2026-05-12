@@ -20,8 +20,7 @@ public class PlayerCleanupServiceTests
     private static PlayerCleanupService CreateService(AppDbContext db)
     {
         var services = new ServiceCollection();
-        services.AddSingleton(db);
-        services.AddScoped<AppDbContext>(sp => sp.GetRequiredService<AppDbContext>());
+        services.AddSingleton<AppDbContext>(db);
         var serviceProvider = services.BuildServiceProvider();
 
         var config = new ConfigurationBuilder().Build();
