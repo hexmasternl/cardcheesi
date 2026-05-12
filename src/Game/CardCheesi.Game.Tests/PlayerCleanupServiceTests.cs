@@ -1,4 +1,5 @@
-using CardCheesi.Players.Api;
+extern alias PlayersApi;
+using PlayersApi::CardCheesi.Players.Api;
 using CardCheesi.Game.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;

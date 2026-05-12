@@ -1,7 +1,8 @@
+extern alias PlayersApi;
 using CardCheesi.Auth;
 using CardCheesi.Core;
-using CardCheesi.Players.Api.Endpoints;
-using CardCheesi.Players.Api.Features.RefreshToken;
+using PlayersApi::CardCheesi.Players.Api.Endpoints;
+using PlayersApi::CardCheesi.Players.Api.Features.RefreshToken;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Moq;
