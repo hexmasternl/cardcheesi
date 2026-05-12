@@ -10,13 +10,17 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     return next(req);
   }
 
+  // Refresh endpoint authenticates via HttpOnly cookie only — never add a Bearer token
+  if (req.url.includes('/players/refresh')) {
+    return next(req.clone({ withCredentials: true }));
+  }
+
   const token = authService.accessToken();
   const apiReq = buildApiRequest(req, token);
 
   return next(apiReq).pipe(
     catchError((error: HttpErrorResponse) => {
-      const isRefreshEndpoint = req.url.includes('/players/refresh');
-      if (error.status === 401 && token && !isRefreshEndpoint) {
+      if (error.status === 401) {
         return from(authService.refreshToken()).pipe(
           switchMap(newToken => {
             if (!newToken) return throwError(() => error);
