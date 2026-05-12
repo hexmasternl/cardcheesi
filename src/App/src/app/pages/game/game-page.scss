@@ -86,6 +86,13 @@ $accent:        #00d4aa;
   flex-direction: column;
   min-height: 100dvh;
   padding: 0;
+  pointer-events: none; // let clicks/drags pass through to the 3D canvas below
+}
+
+// Re-enable pointer events on UI elements within the overlay
+.game-page__header,
+.game-page__players {
+  pointer-events: auto;
 }
 
 // ── Header bar ────────────────────────────────────────────────────────────────
