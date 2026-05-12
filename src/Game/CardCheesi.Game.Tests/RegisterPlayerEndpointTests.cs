@@ -1,22 +1,16 @@
+using CardCheesi.Game.Abstractions;
+using CardCheesi.Game.Abstractions.DataTransferObjects;
 using CardCheesi.Game.Api.Auth;
 using CardCheesi.Game.Api.Endpoints.Players;
-using CardCheesi.Game.Persistence;
+using CardCheesi.Game.Api.Features.RegisterPlayer;
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Moq;
 
 namespace CardCheesi.Game.Tests;
 
 public class RegisterPlayerEndpointTests
 {
-    private static AppDbContext CreateDb()
-    {
-        var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
-        return new AppDbContext(options);
-    }
-
     private static IOptions<JwtSettings> CreateJwtOptions() =>
         Options.Create(new JwtSettings
         {
@@ -36,32 +30,34 @@ public class RegisterPlayerEndpointTests
     [Fact]
     public async Task HandleAsync_ValidName_Returns201WithToken()
     {
-        await using var db = CreateDb();
+        var handler = new Mock<ICommandHandler<RegisterPlayerCommand, RegisterPlayerResult>>();
+        handler.Setup(h => h.Handle(It.IsAny<RegisterPlayerCommand>(), It.IsAny<CancellationToken>()))
+               .ReturnsAsync(new RegisterPlayerResult("access-token", "raw-refresh-token"));
+
         var httpContext = CreateHttpContext();
         var request = new RegisterPlayerRequest("Alice");
 
         var result = await RegisterPlayerEndpoint.HandleAsync(
-            request, httpContext, db, CreateJwtOptions(), CancellationToken.None);
+            request, httpContext, handler.Object, CreateJwtOptions(), CancellationToken.None);
 
-        var created = Assert.IsAssignableFrom<IResult>(result);
-        Assert.NotNull(created);
-        Assert.Equal(1, await db.Players.CountAsync());
-        Assert.Equal(1, await db.RefreshTokens.CountAsync());
-        Assert.True(httpContext.Response.Cookies is not null);
+        Assert.NotNull(result);
+        handler.Verify(h => h.Handle(It.Is<RegisterPlayerCommand>(c => c.Name == "Alice"), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
-    public async Task HandleAsync_ValidName_SetsCookieAndReturnsJwt()
+    public async Task HandleAsync_ValidName_SetsCookieOnResponse()
     {
-        await using var db = CreateDb();
+        var handler = new Mock<ICommandHandler<RegisterPlayerCommand, RegisterPlayerResult>>();
+        handler.Setup(h => h.Handle(It.IsAny<RegisterPlayerCommand>(), It.IsAny<CancellationToken>()))
+               .ReturnsAsync(new RegisterPlayerResult("access-token", "raw-refresh-token"));
+
         var httpContext = CreateHttpContext();
         var request = new RegisterPlayerRequest("Bob");
 
         await RegisterPlayerEndpoint.HandleAsync(
-            request, httpContext, db, CreateJwtOptions(), CancellationToken.None);
+            request, httpContext, handler.Object, CreateJwtOptions(), CancellationToken.None);
 
-        var player = await db.Players.FirstAsync();
-        Assert.Equal("Bob", player.Name);
+        handler.Verify(h => h.Handle(It.Is<RegisterPlayerCommand>(c => c.Name == "Bob"), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Theory]
@@ -125,16 +121,16 @@ public class RegisterPlayerEndpointTests
     }
 
     [Fact]
-    public async Task HandleAsync_EmptyName_Returns400()
+    public async Task HandleAsync_EmptyName_DoesNotCallHandler()
     {
-        await using var db = CreateDb();
+        var handler = new Mock<ICommandHandler<RegisterPlayerCommand, RegisterPlayerResult>>();
         var httpContext = CreateHttpContext();
         var request = new RegisterPlayerRequest(string.Empty);
 
-        var result = await RegisterPlayerEndpoint.HandleAsync(
-            request, httpContext, db, CreateJwtOptions(), CancellationToken.None);
+        await RegisterPlayerEndpoint.HandleAsync(
+            request, httpContext, handler.Object, CreateJwtOptions(), CancellationToken.None);
 
-        // Should not have saved anything
-        Assert.Equal(0, await db.Players.CountAsync());
+        handler.Verify(h => h.Handle(It.IsAny<RegisterPlayerCommand>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 }
+
