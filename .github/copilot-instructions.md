@@ -37,6 +37,18 @@ dotnet test src/Game/CardCheesi.Game.Tests --filter "FullyQualifiedName~<TestNam
 dotnet run --project src/card-cheesi.AppHost
 ```
 
+### Aspire: Applying Backend Changes at Runtime
+
+When the Aspire AppHost is already running, **do not stop it to build the backend**. Instead, use the Aspire MCP `execute_resource_command` tool with command `rebuild` on the affected resource. This compiles the project and restarts the resource in-place without disrupting other services.
+
+**Rule**: After modifying any .NET backend file (any project under `src/Game/` or `src/Aspire/`), check whether the Aspire AppHost is running via `aspire-list_resources`. If it is running, trigger a rebuild of the affected resource immediately:
+
+```
+aspire-execute_resource_command(resourceName: "<resource-name>", commandName: "rebuild")
+```
+
+The resource name for the API is typically `api-*` (check `aspire-list_resources` for the exact name). Wait for the rebuild to confirm `Build succeeded` before considering the change deployed.
+
 ### Angular (run from `src/App/CardCheesi/`)
 
 ```bash
