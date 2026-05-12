@@ -12,6 +12,7 @@ var api = builder.AddProject<Projects.CardCheesi_Game_Api>("api")
 builder.AddNpmApp("frontend", "../App", "start:aspire")
     .WithHttpEndpoint(port: 4300, env: "PORT")
     .WithExternalHttpEndpoints()
+    .WithEnvironment("API_URL", api.GetEndpoint("http"))
     .WaitFor(api);
 
 builder.Build().Run();
