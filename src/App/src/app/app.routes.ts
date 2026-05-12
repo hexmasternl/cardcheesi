@@ -1,6 +1,13 @@
 import { Routes } from '@angular/router';
+import { authGuard, guestGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
+  {
+    path: 'register',
+    loadComponent: () =>
+      import('./pages/register/register').then(m => m.RegisterPage),
+    canActivate: [guestGuard],
+  },
   {
     path: '',
     loadComponent: () =>
@@ -10,11 +17,13 @@ export const routes: Routes = [
     path: 'game',
     loadComponent: () =>
       import('./pages/game/game-page').then(m => m.GamePage),
+    canActivate: [authGuard],
   },
   {
     path: 'game/:gameCode',
     loadComponent: () =>
       import('./pages/game/game-page').then(m => m.GamePage),
+    canActivate: [authGuard],
   },
   {
     path: 'rules',
