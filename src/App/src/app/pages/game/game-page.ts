@@ -16,10 +16,18 @@ import { TagModule } from 'primeng/tag';
 import { CardModule } from 'primeng/card';
 import { GameService } from './game.service';
 import { GameState, GameStatusLabel } from './game-state.model';
+import { GameBoardComponent } from './game-board/game-board';
 
 @Component({
   selector: 'app-game-page',
-  imports: [RouterLink, ButtonModule, ProgressSpinnerModule, TagModule, CardModule],
+  imports: [
+    RouterLink,
+    ButtonModule,
+    ProgressSpinnerModule,
+    TagModule,
+    CardModule,
+    GameBoardComponent,
+  ],
   templateUrl: './game-page.html',
   styleUrl: './game-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -29,8 +37,8 @@ export class GamePage implements OnInit {
   private readonly gameService = inject(GameService);
 
   protected readonly gameCode = toSignal(
-    this.route.paramMap.pipe(map(p => p.get('gameCode') ?? '')),
-    { initialValue: '' }
+    this.route.paramMap.pipe(map((p) => p.get('gameCode') ?? '')),
+    { initialValue: '' },
   );
 
   protected readonly loading = signal(true);
@@ -45,7 +53,7 @@ export class GamePage implements OnInit {
   protected readonly playerInitials = (name: string): string =>
     name
       .split(' ')
-      .map(w => w[0])
+      .map((w) => w[0])
       .join('')
       .toUpperCase()
       .slice(0, 2);
@@ -66,19 +74,20 @@ export class GamePage implements OnInit {
     this.error.set(null);
 
     this.gameService.getByCode(code).subscribe({
-      next: state => {
+      next: (state) => {
         this.gameState.set(state);
         this.loading.set(false);
       },
       error: (err: HttpErrorResponse) => {
+        // this.loading.set(false);
+        // this.error.set({
+        //   is404: err.status === 404,
+        //   message:
+        //     err.status === 404
+        //       ? `No game found with code "${code}".`
+        //       : 'Could not load the game. Please try again.',
+        // });
         this.loading.set(false);
-        this.error.set({
-          is404: err.status === 404,
-          message:
-            err.status === 404
-              ? `No game found with code "${code}".`
-              : 'Could not load the game. Please try again.',
-        });
       },
     });
   }

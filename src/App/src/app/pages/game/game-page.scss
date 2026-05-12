@@ -20,9 +20,7 @@ $accent:        #00d4aa;
   position: relative;
   min-height: 100dvh;
   width: 100%;
-  background:
-    url('/assets/board-render.svg') center center / cover no-repeat,
-    $darker-bg;
+  background: $darker-bg;
   overflow: hidden;
   font-family: var(--font-family, 'Poppins', sans-serif);
   color: #e8f4ff;

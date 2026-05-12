@@ -7,6 +7,11 @@ export const routes: Routes = [
       import('./pages/landing/landing').then(m => m.LandingPage),
   },
   {
+    path: 'game',
+    loadComponent: () =>
+      import('./pages/game/game-page').then(m => m.GamePage),
+  },
+  {
     path: 'game/:gameCode',
     loadComponent: () =>
       import('./pages/game/game-page').then(m => m.GamePage),
