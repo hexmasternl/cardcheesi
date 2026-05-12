@@ -99,9 +99,10 @@ app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapRegisterPlayer();
-app.MapRefreshToken();
-app.MapGameEndpoints();
+var api = app.MapGroup("/api");
+api.MapRegisterPlayer();
+api.MapRefreshToken();
+api.MapGameEndpoints();
 
 app.Run();
 

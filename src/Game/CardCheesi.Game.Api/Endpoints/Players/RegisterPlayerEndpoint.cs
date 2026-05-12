@@ -48,7 +48,7 @@ public static class RegisterPlayerEndpoint
         HttpOnly = true,
         Secure = settings.CookieSecure,
         SameSite = SameSiteMode.Strict,
-        Path = "/players/refresh",
+        Path = "/api/players/refresh",
         MaxAge = TimeSpan.FromSeconds(2592000),
     };
 
