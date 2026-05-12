@@ -207,15 +207,28 @@
   <div class="play-dialog__body">
     <p class="play-dialog__hint">{{ 'landing.joinDialog.hint' | translate }}</p>
 
+    @if (!isAuthenticated()) {
+      <input
+        pInputText
+        type="text"
+        [placeholder]="'landing.joinDialog.namePlaceholder' | translate"
+        [ngModel]="joinPlayerName()"
+        (ngModelChange)="joinPlayerName.set($event)"
+        maxlength="50"
+        class="play-dialog__input"
+        (keydown.enter)="onSubmitJoin()"
+      />
+    }
+
     <input
       pInputText
       type="text"
       [placeholder]="'landing.joinDialog.codePlaceholder' | translate"
       [ngModel]="gameCode()"
-      (ngModelChange)="gameCode.set($event)"
-      maxlength="20"
+      (ngModelChange)="gameCode.set($event.toUpperCase())"
+      maxlength="6"
       class="play-dialog__input"
-      (keydown.enter)="onJoinWithCode()"
+      (keydown.enter)="onSubmitJoin()"
     />
 
     @if (joinErrorMessage()) {
@@ -227,8 +240,8 @@
     <p-button
       [label]="'landing.joinDialog.joinBtn' | translate"
       icon="pi pi-sign-in"
-      [loading]="isLoading()"
-      (onClick)="onJoinWithCode()"
+      [loading]="joinLoading()"
+      (onClick)="onSubmitJoin()"
       styleClass="w-full"
     />
   </ng-template>

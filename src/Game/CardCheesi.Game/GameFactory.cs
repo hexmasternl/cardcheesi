@@ -90,6 +90,12 @@ public static class GameFactory
             Hands: hands.AsReadOnly());
     }
 
+    /// <summary>
+    /// Creates a <see cref="Player"/> with four pawns in the <see cref="PawnStatus.Reserve"/> state.
+    /// </summary>
+    public static Player CreatePlayer(Guid playerId, string name)
+        => new(Id: playerId, Name: name, Pawns: CreatePawns(playerId));
+
     private static IReadOnlyList<Pawn> CreatePawns(Guid ownerId)
     {
         return Enumerable.Range(0, 4)

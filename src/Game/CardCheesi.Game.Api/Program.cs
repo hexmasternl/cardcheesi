@@ -132,16 +132,22 @@ app.MapPost("/games/{code}/join", async (string code, JoinGameRequest request, H
     if (game is null)
         return Results.NotFound(new { error = $"Game with code '{code}' not found." });
 
+    if (game.Status != GameStatus.Waiting)
+        return Results.Conflict(new { error = "Game is not accepting new players." });
+
+    if (game.Players.Count >= 4)
+        return Results.Conflict(new { error = "Game is already full." });
+
     var playerId = Guid.Parse(httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)
                               ?? httpContext.User.FindFirstValue("sub")!);
+
+    if (game.Players.Any(p => p.Id == playerId))
+        return Results.Conflict(new { error = "You have already joined this game." });
+
     var playerName = httpContext.User.FindFirstValue(ClaimTypes.Name)
                      ?? httpContext.User.FindFirstValue("name")!;
 
-    var newPlayer = new Player(
-        Id: playerId,
-        Name: playerName,
-        Pawns: []);
-
+    var newPlayer = GameFactory.CreatePlayer(playerId, playerName);
     var updatedGame = game.AddPlayer(newPlayer);
 
     await repo.SaveAsync(updatedGame, ct);
@@ -151,6 +157,7 @@ app.MapPost("/games/{code}/join", async (string code, JoinGameRequest request, H
   .Produces(StatusCodes.Status200OK)
   .ProducesProblem(StatusCodes.Status401Unauthorized)
   .ProducesProblem(StatusCodes.Status404NotFound)
+  .ProducesProblem(StatusCodes.Status409Conflict)
   .WithOpenApi();
 
 app.Run();

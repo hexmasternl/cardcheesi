@@ -63,10 +63,14 @@
     "joinDialog": {
       "header": "Join a Game",
       "hint": "Enter the game code shared by the host.",
+      "namePlaceholder": "Your display name",
       "codePlaceholder": "Game code (e.g. ABC123)",
       "joinBtn": "Join Game",
+      "invalidName": "Please enter a display name.",
       "invalidCode": "Please enter a game code.",
-      "notFound": "Game not found. Check the code and try again."
+      "notFound": "Game not found. Check the code and try again.",
+      "notJoinable": "This game is full or has already started.",
+      "serverError": "Something went wrong. Please try again."
     },
     "cta": {
       "title": "Ready to play CardCheesi?",

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
@@ -26,15 +26,19 @@ export class LandingPage {
   private readonly router = inject(Router);
   private readonly http = inject(HttpClient);
 
+  // Play Now dialog
   protected readonly dialogVisible = signal(false);
-  protected readonly joinDialogVisible = signal(false);
   protected readonly playerName = signal('');
-  protected readonly gameCode = signal('');
   protected readonly errorMessage = signal('');
-  protected readonly joinErrorMessage = signal('');
   protected readonly isLoading = signal(false);
 
-  private pendingAction: 'play' | 'join' = 'play';
+  // Join Game dialog (single dialog: name field shown when not authenticated)
+  protected readonly joinDialogVisible = signal(false);
+  protected readonly joinPlayerName = signal('');
+  protected readonly gameCode = signal('');
+  protected readonly joinErrorMessage = signal('');
+  protected readonly joinLoading = signal(false);
+  protected readonly isAuthenticated = computed(() => this.authService.isAuthenticated());
 
   protected readonly bgSuits = [
     { suit: '♠', cls: 'p' }, { suit: '♥', cls: 's' },
@@ -69,7 +73,6 @@ export class LandingPage {
   ];
 
   protected async onPlayNow(): Promise<void> {
-    this.pendingAction = 'play';
     if (this.authService.isAuthenticated()) {
       await this.createGameAndNavigate();
     } else {
@@ -80,16 +83,10 @@ export class LandingPage {
   }
 
   protected onJoinGame(): void {
-    this.pendingAction = 'join';
-    if (this.authService.isAuthenticated()) {
-      this.gameCode.set('');
-      this.joinErrorMessage.set('');
-      this.joinDialogVisible.set(true);
-    } else {
-      this.playerName.set('');
-      this.errorMessage.set('');
-      this.dialogVisible.set(true);
-    }
+    this.joinPlayerName.set('');
+    this.gameCode.set('');
+    this.joinErrorMessage.set('');
+    this.joinDialogVisible.set(true);
   }
 
   protected async onRegisterAndPlay(): Promise<void> {
@@ -108,13 +105,7 @@ export class LandingPage {
       });
       this.authService.storeToken(reg.token);
       this.dialogVisible.set(false);
-      if (this.pendingAction === 'join') {
-        this.gameCode.set('');
-        this.joinErrorMessage.set('');
-        this.joinDialogVisible.set(true);
-      } else {
-        await this.createGameAndNavigate();
-      }
+      await this.createGameAndNavigate();
     } catch (err) {
       const error = err as HttpErrorResponse;
       this.errorMessage.set(error.status === 400
@@ -125,14 +116,48 @@ export class LandingPage {
     }
   }
 
-  protected async onJoinWithCode(): Promise<void> {
+  protected async onSubmitJoin(): Promise<void> {
     const code = this.gameCode().trim().toUpperCase();
     if (!code) {
       this.joinErrorMessage.set('landing.joinDialog.invalidCode');
       return;
     }
-    this.joinDialogVisible.set(false);
-    await this.router.navigate(['/game', code]);
+
+    this.joinLoading.set(true);
+    this.joinErrorMessage.set('');
+
+    try {
+      // Register if not yet authenticated
+      if (!this.authService.isAuthenticated()) {
+        const name = this.joinPlayerName().trim();
+        if (!name) {
+          this.joinErrorMessage.set('landing.joinDialog.invalidName');
+          this.joinLoading.set(false);
+          return;
+        }
+        const reg = await new Promise<RegisterResponse>((resolve, reject) => {
+          this.http.post<RegisterResponse>('/api/players', { name }).subscribe({ next: resolve, error: reject });
+        });
+        this.authService.storeToken(reg.token);
+      }
+
+      await this.gameService.joinGame(code);
+      this.joinDialogVisible.set(false);
+      await this.router.navigate(['/game', code]);
+    } catch (err) {
+      const error = err as HttpErrorResponse;
+      if (error.status === 404) {
+        this.joinErrorMessage.set('landing.joinDialog.notFound');
+      } else if (error.status === 409) {
+        this.joinErrorMessage.set('landing.joinDialog.notJoinable');
+      } else if (error.status === 400) {
+        this.joinErrorMessage.set('landing.joinDialog.invalidName');
+      } else {
+        this.joinErrorMessage.set('landing.joinDialog.serverError');
+      }
+    } finally {
+      this.joinLoading.set(false);
+    }
   }
 
   private async createGameAndNavigate(): Promise<void> {

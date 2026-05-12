@@ -156,6 +156,52 @@ public class GameApiIntegrationTests : IClassFixture<GameApiIntegrationTests.Fac
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
 
+    [Fact]
+    public async Task PostJoin_AlreadyInGame_Returns409()
+    {
+        var client = CreateClient();
+        var token = await RegisterAndGetTokenAsync(client, "Frank");
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        var createResponse = await client.PostAsJsonAsync("/games", new { });
+        var createBody = await createResponse.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
+        var gameCode = createBody.GetProperty("gameCode").GetString()!;
+
+        // Try to join the game the player already created (i.e. is already in)
+        var joinResponse = await client.PostAsJsonAsync($"/games/{gameCode}/join", new { });
+
+        Assert.Equal(HttpStatusCode.Conflict, joinResponse.StatusCode);
+    }
+
+    [Fact]
+    public async Task PostJoin_FullGame_Returns409()
+    {
+        // Create 5 distinct clients: 1 creator + 4 joiners (4th join should fail)
+        var clients = Enumerable.Range(0, 5).Select(_ => CreateClient()).ToArray();
+        var names = new[] { "Player1", "Player2", "Player3", "Player4", "Player5" };
+
+        for (var i = 0; i < clients.Length; i++)
+        {
+            var t = await RegisterAndGetTokenAsync(clients[i], names[i]);
+            clients[i].DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", t);
+        }
+
+        var createResponse = await clients[0].PostAsJsonAsync("/games", new { });
+        var gameCode = (await createResponse.Content.ReadFromJsonAsync<JsonElement>(JsonOptions))
+            .GetProperty("gameCode").GetString()!;
+
+        // Players 2, 3, 4 join successfully
+        for (var i = 1; i <= 3; i++)
+        {
+            var r = await clients[i].PostAsJsonAsync($"/games/{gameCode}/join", new { });
+            Assert.Equal(HttpStatusCode.OK, r.StatusCode);
+        }
+
+        // Player 5 should be rejected — game is full
+        var fullResponse = await clients[4].PostAsJsonAsync($"/games/{gameCode}/join", new { });
+        Assert.Equal(HttpStatusCode.Conflict, fullResponse.StatusCode);
+    }
+
     public class Factory : WebApplicationFactory<Program>
     {
         private readonly InMemoryDatabaseRoot _dbRoot = new();

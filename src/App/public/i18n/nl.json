@@ -63,10 +63,14 @@
     "joinDialog": {
       "header": "Doe Mee aan een Spel",
       "hint": "Voer de spelcode in die de host heeft gedeeld.",
+      "namePlaceholder": "Jouw weergavenaam",
       "codePlaceholder": "Spelcode (bijv. ABC123)",
       "joinBtn": "Doe Mee",
+      "invalidName": "Voer een weergavenaam in.",
       "invalidCode": "Voer een spelcode in.",
-      "notFound": "Spel niet gevonden. Controleer de code en probeer opnieuw."
+      "notFound": "Spel niet gevonden. Controleer de code en probeer opnieuw.",
+      "notJoinable": "Dit spel is vol of al gestart.",
+      "serverError": "Er is iets misgegaan. Probeer opnieuw."
     },
     "cta": {
       "title": "Klaar om CardCheesi te spelen?",
