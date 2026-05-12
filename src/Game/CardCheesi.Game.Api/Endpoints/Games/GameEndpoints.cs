@@ -26,7 +26,10 @@ public static class GameEndpoints
 
         group.MapGet("/{code}", GetGame)
             .WithName("GetGame")
+            .RequireAuthorization()
             .Produces<GameDto>()
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status403Forbidden)
             .Produces(StatusCodes.Status404NotFound)
             .WithOpenApi();
 
@@ -68,11 +71,21 @@ public static class GameEndpoints
 
     private static async Task<IResult> GetGame(
         string code,
+        HttpContext httpContext,
         IQueryHandler<GetGameQuery, GameDto?> handler,
         CancellationToken ct)
     {
-        var result = await handler.Handle(new GetGameQuery(code), ct);
-        return result is null ? Results.NotFound() : Results.Ok(result);
+        var playerId = Guid.Parse(httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)
+                                  ?? httpContext.User.FindFirstValue("sub")!);
+        try
+        {
+            var result = await handler.Handle(new GetGameQuery(code, playerId), ct);
+            return result is null ? Results.NotFound() : Results.Ok(result);
+        }
+        catch (ForbiddenException)
+        {
+            return Results.Forbid();
+        }
     }
 
     private static async Task<IResult> GetGameEvents(
@@ -84,7 +97,19 @@ public static class GameEndpoints
         HttpContext httpContext,
         CancellationToken ct)
     {
-        var game = await gameHandler.Handle(new GetGameQuery(code), ct);
+        if (!Guid.TryParse(playerId, out var parsedPlayerId))
+            return Results.Unauthorized();
+
+        GameDto? game;
+        try
+        {
+            game = await gameHandler.Handle(new GetGameQuery(code, parsedPlayerId), ct);
+        }
+        catch (ForbiddenException)
+        {
+            return Results.Forbid();
+        }
+
         if (game is null)
             return Results.NotFound();
 
@@ -97,13 +122,10 @@ public static class GameEndpoints
         var channel = Channel.CreateUnbounded<SseEvent>(new UnboundedChannelOptions { SingleReader = true });
         connectionManager.AddConnection(code, channel);
 
-        Guid? parsedPlayerId = Guid.TryParse(playerId, out var pid) ? pid : null;
-        string? playerName = parsedPlayerId.HasValue
-            ? game.Players.FirstOrDefault(p => p.Id == parsedPlayerId.Value)?.Name
-            : null;
+        string? playerName = game.Players.FirstOrDefault(p => p.Id == parsedPlayerId)?.Name;
 
-        if (parsedPlayerId.HasValue && playerName is not null)
-            await presenceTracker.ConnectAsync(code, parsedPlayerId.Value, playerName, ct);
+        if (parsedPlayerId != Guid.Empty && playerName is not null)
+            await presenceTracker.ConnectAsync(code, parsedPlayerId, playerName, ct);
 
         foreach (var evt in presenceTracker.GetSnapshot(code))
         {
@@ -141,8 +163,8 @@ public static class GameEndpoints
             keepAliveTimer.Dispose();
             connectionManager.RemoveConnection(code, channel);
 
-            if (parsedPlayerId.HasValue && playerName is not null)
-                await presenceTracker.DisconnectAsync(code, parsedPlayerId.Value);
+            if (parsedPlayerId != Guid.Empty && playerName is not null)
+                await presenceTracker.DisconnectAsync(code, parsedPlayerId);
         }
 
         return Results.Empty;

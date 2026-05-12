@@ -29,7 +29,11 @@ public class GameApiIntegrationTests : IClassFixture<GameApiIntegrationTests.Fac
     private HttpClient CreateClient() => _factory.CreateClient();
 
     private string GenerateTestToken(string playerName)
+        => GenerateTestToken(playerName, out _);
+
+    private string GenerateTestToken(string playerName, out Guid playerId)
     {
+        playerId = Guid.NewGuid();
         var settings = new JwtSettings
         {
             SigningKey = "integration-test-signing-key-32bytes!",
@@ -38,7 +42,7 @@ public class GameApiIntegrationTests : IClassFixture<GameApiIntegrationTests.Fac
             AccessTokenExpiryMinutes = 10,
             CookieSecure = false,
         };
-        return JwtTokenService.GenerateAccessToken(settings, Guid.NewGuid(), playerName);
+        return JwtTokenService.GenerateAccessToken(settings, playerId, playerName);
     }
 
     [Fact]
@@ -62,9 +66,41 @@ public class GameApiIntegrationTests : IClassFixture<GameApiIntegrationTests.Fac
     }
 
     [Fact]
+    public async Task GetGame_PlayerNotInGame_Returns403()
+    {
+        var creatorClient = CreateClient();
+        var otherClient = CreateClient();
+
+        var creatorToken = GenerateTestToken("Creator");
+        var otherToken = GenerateTestToken("Outsider");
+
+        creatorClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", creatorToken);
+        var createResponse = await creatorClient.PostAsJsonAsync("/api/games", new { });
+        var createBody = await createResponse.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
+        var gameCode = createBody.GetProperty("gameCode").GetString()!;
+
+        otherClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", otherToken);
+        var response = await otherClient.GetAsync($"/api/games/{gameCode}");
+
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task GetGame_WithoutToken_Returns401()
+    {
+        var client = CreateClient();
+        var response = await client.GetAsync("/api/games/AABBCC");
+
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
     public async Task GetGame_NonExistentCode_Returns404()
     {
         var client = CreateClient();
+        var token = GenerateTestToken("Ghost");
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
         var response = await client.GetAsync("/api/games/ZZZZZZ");
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
@@ -206,7 +242,8 @@ public class GameApiIntegrationTests : IClassFixture<GameApiIntegrationTests.Fac
     public async Task GetGameEvents_UnknownCode_Returns404()
     {
         var client = CreateClient();
-        var response = await client.GetAsync("/api/games/ZZZZZZ/events");
+        var playerId = Guid.NewGuid();
+        var response = await client.GetAsync($"/api/games/ZZZZZZ/events?playerId={playerId}");
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
@@ -214,7 +251,7 @@ public class GameApiIntegrationTests : IClassFixture<GameApiIntegrationTests.Fac
     public async Task GetGameEvents_KnownCode_ReturnsEventStream()
     {
         var client = CreateClient();
-        var token = GenerateTestToken("StreamTester");
+        var token = GenerateTestToken("StreamTester", out var playerId);
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         var createResponse = await client.PostAsJsonAsync("/api/games", new { });
@@ -223,7 +260,7 @@ public class GameApiIntegrationTests : IClassFixture<GameApiIntegrationTests.Fac
 
         using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(3));
         using var response = await client.GetAsync(
-            $"/api/games/{gameCode}/events",
+            $"/api/games/{gameCode}/events?playerId={playerId}",
             HttpCompletionOption.ResponseHeadersRead,
             cts.Token);
 

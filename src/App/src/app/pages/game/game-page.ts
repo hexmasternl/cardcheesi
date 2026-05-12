@@ -101,15 +101,16 @@ export class GamePage implements OnInit {
         this.loading.set(false);
       },
       error: (err: HttpErrorResponse) => {
-        // this.loading.set(false);
-        // this.error.set({
-        //   is404: err.status === 404,
-        //   message:
-        //     err.status === 404
-        //       ? `No game found with code "${code}".`
-        //       : 'Could not load the game. Please try again.',
-        // });
         this.loading.set(false);
+        this.error.set({
+          is404: err.status === 404,
+          message:
+            err.status === 404
+              ? `No game found with code "${code}".`
+              : err.status === 403
+                ? 'You are not a player in this game.'
+                : 'Could not load the game. Please try again.',
+        });
       },
     });
   }

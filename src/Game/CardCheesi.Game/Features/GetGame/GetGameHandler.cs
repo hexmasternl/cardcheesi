@@ -14,7 +14,12 @@ public sealed class GetGameHandler : IQueryHandler<GetGameQuery, GameDto?>
     public async Task<GameDto?> Handle(GetGameQuery query, CancellationToken ct)
     {
         var game = await _repo.GetByCodeAsync(query.GameCode, ct);
-        return game is null ? null : MapToDto(game);
+        if (game is null) return null;
+
+        if (game.Players.All(p => p.Id != query.RequestingPlayerId))
+            throw new ForbiddenException("You are not a player in this game.");
+
+        return MapToDto(game);
     }
 
     private static GameDto MapToDto(IGameState game)
