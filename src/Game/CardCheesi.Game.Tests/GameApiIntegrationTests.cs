@@ -202,6 +202,35 @@ public class GameApiIntegrationTests : IClassFixture<GameApiIntegrationTests.Fac
         Assert.Equal(HttpStatusCode.Conflict, fullResponse.StatusCode);
     }
 
+    [Fact]
+    public async Task GetGameEvents_UnknownCode_Returns404()
+    {
+        var client = CreateClient();
+        var response = await client.GetAsync("/games/ZZZZZZ/events");
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task GetGameEvents_KnownCode_ReturnsEventStream()
+    {
+        var client = CreateClient();
+        var token = await RegisterAndGetTokenAsync(client, "StreamTester");
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        var createResponse = await client.PostAsJsonAsync("/games", new { });
+        var createBody = await createResponse.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
+        var gameCode = createBody.GetProperty("gameCode").GetString()!;
+
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(3));
+        using var response = await client.GetAsync(
+            $"/games/{gameCode}/events",
+            HttpCompletionOption.ResponseHeadersRead,
+            cts.Token);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal("text/event-stream", response.Content.Headers.ContentType?.MediaType);
+    }
+
     public class Factory : WebApplicationFactory<Program>
     {
         private readonly InMemoryDatabaseRoot _dbRoot = new();
