@@ -4,7 +4,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 
-namespace CardCheesi.Game.Api.Auth;
+namespace CardCheesi.Auth;
 
 public static class JwtTokenService
 {

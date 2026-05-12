@@ -1,7 +1,7 @@
 using System.Text;
 using Microsoft.Extensions.Options;
 
-namespace CardCheesi.Game.Api.Auth;
+namespace CardCheesi.Auth;
 
 public sealed class JwtSettingsValidator : IValidateOptions<JwtSettings>
 {

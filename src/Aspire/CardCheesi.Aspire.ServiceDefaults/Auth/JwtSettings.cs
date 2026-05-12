@@ -1,4 +1,4 @@
-namespace CardCheesi.Game.Api.Auth;
+namespace CardCheesi.Auth;
 
 public sealed class JwtSettings
 {

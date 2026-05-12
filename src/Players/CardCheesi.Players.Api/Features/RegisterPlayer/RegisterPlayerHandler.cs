@@ -1,9 +1,9 @@
-using CardCheesi.Game.Api.Auth;
-using CardCheesi.Game.Abstractions;
+using CardCheesi.Auth;
+using CardCheesi.Core;
 using CardCheesi.Game.Persistence;
 using Microsoft.Extensions.Options;
 
-namespace CardCheesi.Game.Api.Features.RegisterPlayer;
+namespace CardCheesi.Players.Api.Features.RegisterPlayer;
 
 public sealed class RegisterPlayerHandler : ICommandHandler<RegisterPlayerCommand, RegisterPlayerResult>
 {

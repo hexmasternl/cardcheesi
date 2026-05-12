@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CardCheesi.Game.Abstractions\CardCheesi.Game.Abstractions.csproj" />
+    <ProjectReference Include="..\..\Core\CardCheesi.Core\CardCheesi.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>

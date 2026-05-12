@@ -1,7 +1,7 @@
 using CardCheesi.Game.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-namespace CardCheesi.Game.Api;
+namespace CardCheesi.Players.Api;
 
 public sealed class PlayerCleanupService(
     IServiceScopeFactory scopeFactory,
@@ -43,7 +43,6 @@ public sealed class PlayerCleanupService(
         }
         else
         {
-            // Fallback for non-relational providers (e.g., InMemory in tests)
             var expiredTokens = await db.RefreshTokens
                 .Where(t => t.ExpiresAt < now)
                 .ToListAsync(ct);

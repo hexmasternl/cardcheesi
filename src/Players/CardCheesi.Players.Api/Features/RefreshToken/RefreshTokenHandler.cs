@@ -1,10 +1,10 @@
-using CardCheesi.Game.Abstractions;
-using CardCheesi.Game.Api.Auth;
+using CardCheesi.Auth;
+using CardCheesi.Core;
 using CardCheesi.Game.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
-namespace CardCheesi.Game.Api.Features.RefreshToken;
+namespace CardCheesi.Players.Api.Features.RefreshToken;
 
 public sealed class RefreshTokenHandler : ICommandHandler<RefreshTokenCommand, RefreshTokenResult?>
 {
@@ -29,7 +29,6 @@ public sealed class RefreshTokenHandler : ICommandHandler<RefreshTokenCommand, R
 
         if (existingToken.RevokedAt.HasValue)
         {
-            // Theft detection: revoke all active tokens for this player
             var allActiveTokens = await _db.RefreshTokens
                 .Where(t => t.PlayerId == existingToken.PlayerId && t.RevokedAt == null)
                 .ToListAsync(ct);

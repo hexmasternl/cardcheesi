@@ -1,19 +1,15 @@
 using CardCheesi.Game.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-namespace CardCheesi.Game.Api;
+namespace CardCheesi.Players.Api;
 
-/// <summary>
-/// Runs EF Core migrations against the database in the background when the application starts,
-/// so the web host is not blocked and the health endpoint can respond during migration.
-/// </summary>
 public sealed class DatabaseMigrationWorker(
     IServiceScopeFactory scopeFactory,
     ILogger<DatabaseMigrationWorker> logger) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        logger.LogInformation("Applying database migrations…");
+        logger.LogInformation("Applying database migrations...");
         try
         {
             using var scope = scopeFactory.CreateScope();

@@ -1,4 +1,4 @@
-namespace CardCheesi.Game.Abstractions;
+namespace CardCheesi.Core;
 
 public sealed class NotFoundException : Exception
 {

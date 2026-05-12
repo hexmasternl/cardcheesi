@@ -1,10 +1,10 @@
-using CardCheesi.Game.Abstractions;
+using CardCheesi.Auth;
+using CardCheesi.Core;
 using CardCheesi.Game.Abstractions.DataTransferObjects;
-using CardCheesi.Game.Api.Auth;
-using CardCheesi.Game.Api.Features.RegisterPlayer;
+using CardCheesi.Players.Api.Features.RegisterPlayer;
 using Microsoft.Extensions.Options;
 
-namespace CardCheesi.Game.Api.Endpoints.Players;
+namespace CardCheesi.Players.Api.Endpoints;
 
 public static class RegisterPlayerEndpoint
 {
@@ -69,4 +69,3 @@ public static class RegisterPlayerEndpoint
         return null;
     }
 }
-
