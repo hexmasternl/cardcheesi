@@ -4,6 +4,7 @@ import {
   Component,
   computed,
   DestroyRef,
+  effect,
   inject,
   OnInit,
   signal,
@@ -78,6 +79,21 @@ export class GamePage implements OnInit {
     });
 
     this.destroyRef.onDestroy(() => this.sseService.disconnect());
+
+    effect(() => {
+      const joined = this.sseService.lastPlayerJoined();
+      if (!joined) return;
+      const state = this.gameState();
+      if (!state) return;
+
+      const alreadyPresent = state.players.some((p) => p.id === joined.playerId);
+      if (!alreadyPresent) {
+        this.gameState.set({
+          ...state,
+          players: [...state.players, { id: joined.playerId, name: joined.playerName, pawns: [] }],
+        });
+      }
+    });
   }
 
   ngOnInit(): void {

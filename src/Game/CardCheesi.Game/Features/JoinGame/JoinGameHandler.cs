@@ -1,3 +1,4 @@
+using System.Text.Json;
 using CardCheesi.Core;
 using CardCheesi.Game.Abstractions;
 using CardCheesi.Game.Abstractions.DomainModels;
@@ -7,8 +8,13 @@ namespace CardCheesi.Game.Features.JoinGame;
 public sealed class JoinGameHandler : ICommandHandler<JoinGameCommand, JoinGameResult>
 {
     private readonly IGameRepository _repo;
+    private readonly ISseConnectionManager _sseConnectionManager;
 
-    public JoinGameHandler(IGameRepository repo) => _repo = repo;
+    public JoinGameHandler(IGameRepository repo, ISseConnectionManager sseConnectionManager)
+    {
+        _repo = repo;
+        _sseConnectionManager = sseConnectionManager;
+    }
 
     public async Task<JoinGameResult> Handle(JoinGameCommand command, CancellationToken ct)
     {
@@ -28,6 +34,13 @@ public sealed class JoinGameHandler : ICommandHandler<JoinGameCommand, JoinGameR
         var updatedGame = game.AddPlayer(newPlayer);
 
         await _repo.SaveAsync(updatedGame, ct);
+
+        var payload = JsonSerializer.Serialize(new
+        {
+            playerId = command.PlayerId.ToString(),
+            playerName = command.PlayerName,
+        });
+        await _sseConnectionManager.BroadcastAsync(command.GameCode, new SseEvent("player-joined", payload), ct);
 
         return new JoinGameResult(updatedGame.Id, command.PlayerId, updatedGame.GameCode);
     }

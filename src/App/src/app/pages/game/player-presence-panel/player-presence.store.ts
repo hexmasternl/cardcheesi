@@ -1,5 +1,5 @@
 import { computed, effect, Injectable, signal } from '@angular/core';
-import { PlayerStatusEvent, SseService } from '../../../services/sse.service';
+import { PlayerJoinedEvent, PlayerStatusEvent, SseService } from '../../../services/sse.service';
 
 export type PlayerPresenceStatus = 'Connected' | 'Disconnected' | 'Left';
 
@@ -24,17 +24,36 @@ export class PlayerPresenceStore {
     effect(() => {
       const event = this.sseService.lastPlayerStatus();
       if (!event) return;
-      this.applyEvent(event);
+      this.applyStatusEvent(event);
+    });
+
+    effect(() => {
+      const event = this.sseService.lastPlayerJoined();
+      if (!event) return;
+      this.applyJoinedEvent(event);
     });
   }
 
-  private applyEvent(event: PlayerStatusEvent): void {
+  private applyStatusEvent(event: PlayerStatusEvent): void {
     this._presenceMap.update((map) => {
       const next = new Map(map);
       next.set(event.playerId, {
         playerId: event.playerId,
         playerName: event.playerName,
         status: event.status as PlayerPresenceStatus,
+      });
+      return next;
+    });
+  }
+
+  private applyJoinedEvent(event: PlayerJoinedEvent): void {
+    this._presenceMap.update((map) => {
+      if (map.has(event.playerId)) return map;
+      const next = new Map(map);
+      next.set(event.playerId, {
+        playerId: event.playerId,
+        playerName: event.playerName,
+        status: 'Connected',
       });
       return next;
     });
