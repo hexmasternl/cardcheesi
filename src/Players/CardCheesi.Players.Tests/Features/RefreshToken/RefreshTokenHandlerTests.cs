@@ -1,5 +1,6 @@
-using CardCheesi.Game.Persistence;
+using CardCheesi.Auth;
 using CardCheesi.Players.Features.RefreshToken;
+using CardCheesi.Players.Persistence;
 using CardCheesi.Players.Tests.Factories;
 using Microsoft.Extensions.Options;
 
@@ -7,11 +8,18 @@ namespace CardCheesi.Players.Tests.Features.RefreshToken;
 
 public sealed class RefreshTokenHandlerTests
 {
+    private static RefreshTokenHandler CreateHandler(PlayersDbContext db, JwtSettings? settings = null)
+    {
+        var resolved = settings ?? JwtSettingsFactory.Create();
+        var jwtService = new JwtTokenService(Options.Create(resolved));
+        return new RefreshTokenHandler(db, jwtService, Options.Create(resolved));
+    }
+
     [Fact]
     public async Task Handle_TokenNotFound_ReturnsNull()
     {
         using var db = DbContextFactory.CreateInMemory();
-        var handler = new RefreshTokenHandler(db, Options.Create(JwtSettingsFactory.Create()));
+        var handler = CreateHandler(db);
 
         var result = await handler.Handle(new RefreshTokenCommand("nonexistent_token"), CancellationToken.None);
 
@@ -29,7 +37,7 @@ public sealed class RefreshTokenHandlerTests
         db.RefreshTokens.Add(tokenEntity);
         await db.SaveChangesAsync();
 
-        var handler = new RefreshTokenHandler(db, Options.Create(JwtSettingsFactory.Create()));
+        var handler = CreateHandler(db);
 
         var result = await handler.Handle(new RefreshTokenCommand(rawToken), CancellationToken.None);
 
@@ -50,7 +58,7 @@ public sealed class RefreshTokenHandlerTests
         db.RefreshTokens.Add(tokenEntity);
         await db.SaveChangesAsync();
 
-        var handler = new RefreshTokenHandler(db, Options.Create(JwtSettingsFactory.Create()));
+        var handler = CreateHandler(db);
         await handler.Handle(new RefreshTokenCommand(rawToken), CancellationToken.None);
 
         var originalToken = db.RefreshTokens.Single(t => t.Id == tokenEntity.Id);
@@ -68,7 +76,7 @@ public sealed class RefreshTokenHandlerTests
         db.RefreshTokens.Add(tokenEntity);
         await db.SaveChangesAsync();
 
-        var handler = new RefreshTokenHandler(db, Options.Create(JwtSettingsFactory.Create()));
+        var handler = CreateHandler(db);
         await handler.Handle(new RefreshTokenCommand(rawToken), CancellationToken.None);
 
         Assert.Equal(2, db.RefreshTokens.Count());
@@ -90,7 +98,7 @@ public sealed class RefreshTokenHandlerTests
         db.RefreshTokens.Add(tokenEntity);
         await db.SaveChangesAsync();
 
-        var handler = new RefreshTokenHandler(db, Options.Create(JwtSettingsFactory.Create()));
+        var handler = CreateHandler(db);
 
         var result = await handler.Handle(new RefreshTokenCommand(rawToken), CancellationToken.None);
 
@@ -120,7 +128,7 @@ public sealed class RefreshTokenHandlerTests
 
         await db.SaveChangesAsync();
 
-        var handler = new RefreshTokenHandler(db, Options.Create(JwtSettingsFactory.Create()));
+        var handler = CreateHandler(db);
         var result = await handler.Handle(new RefreshTokenCommand(rawToken), CancellationToken.None);
 
         Assert.Null(result);
@@ -141,7 +149,7 @@ public sealed class RefreshTokenHandlerTests
         await db.SaveChangesAsync();
 
         var before = DateTime.UtcNow;
-        var handler = new RefreshTokenHandler(db, Options.Create(JwtSettingsFactory.Create()));
+        var handler = CreateHandler(db);
         await handler.Handle(new RefreshTokenCommand(rawToken), CancellationToken.None);
 
         var updatedPlayer = db.Players.Single(p => p.Id == player.Id);

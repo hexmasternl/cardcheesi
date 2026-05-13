@@ -25,7 +25,7 @@ public static class RefreshTokenEndpoint
         IOptions<JwtSettings> jwtOptions,
         CancellationToken ct)
     {
-        var rawCookie = httpContext.Request.Cookies[RegisterPlayerEndpoint.RefreshCookieName];
+        var rawCookie = httpContext.Request.Cookies[CookieHelper.RefreshCookieName];
         if (string.IsNullOrEmpty(rawCookie))
             return Results.Unauthorized();
 
@@ -34,9 +34,9 @@ public static class RefreshTokenEndpoint
             return Results.Unauthorized();
 
         httpContext.Response.Cookies.Append(
-            RegisterPlayerEndpoint.RefreshCookieName,
+            CookieHelper.RefreshCookieName,
             result.RawRefreshToken,
-            RegisterPlayerEndpoint.BuildRefreshCookieOptions(jwtOptions.Value));
+            CookieHelper.BuildRefreshCookieOptions(jwtOptions.Value));
 
         return Results.Ok(new RefreshTokenResponse(result.AccessToken));
     }

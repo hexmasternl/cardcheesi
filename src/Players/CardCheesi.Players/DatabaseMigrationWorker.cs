@@ -1,4 +1,4 @@
-using CardCheesi.Game.Persistence;
+using CardCheesi.Players.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -16,7 +16,7 @@ public sealed class DatabaseMigrationWorker(
         try
         {
             using var scope = scopeFactory.CreateScope();
-            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            var db = scope.ServiceProvider.GetRequiredService<PlayersDbContext>();
 
             if (db.Database.IsRelational())
                 await db.Database.MigrateAsync(stoppingToken);

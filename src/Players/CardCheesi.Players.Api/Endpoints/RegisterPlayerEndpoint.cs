@@ -9,8 +9,6 @@ namespace CardCheesi.Players.Api.Endpoints;
 
 public static class RegisterPlayerEndpoint
 {
-    internal const string RefreshCookieName = "cc_refresh";
-
     public static IEndpointRouteBuilder MapRegisterPlayer(this IEndpointRouteBuilder app)
     {
         app.MapPost("/players", HandleAsync)
@@ -37,19 +35,10 @@ public static class RegisterPlayerEndpoint
         var result = await handler.Handle(new RegisterPlayerCommand(request.Name), ct);
 
         httpContext.Response.Cookies.Append(
-            RefreshCookieName,
+            CookieHelper.RefreshCookieName,
             result.RawRefreshToken,
-            BuildRefreshCookieOptions(jwtOptions.Value));
+            CookieHelper.BuildRefreshCookieOptions(jwtOptions.Value));
 
         return Results.Created("/players", new RegisterPlayerResponse(result.AccessToken));
     }
-
-    internal static CookieOptions BuildRefreshCookieOptions(JwtSettings settings) => new()
-    {
-        HttpOnly = true,
-        Secure = settings.CookieSecure,
-        SameSite = SameSiteMode.Strict,
-        Path = "/api/players/refresh",
-        MaxAge = TimeSpan.FromSeconds(2592000),
-    };
 }

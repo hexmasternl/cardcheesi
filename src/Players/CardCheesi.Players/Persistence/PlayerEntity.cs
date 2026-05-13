@@ -1,4 +1,4 @@
-namespace CardCheesi.Game.Persistence;
+namespace CardCheesi.Players.Persistence;
 
 public sealed class PlayerEntity
 {

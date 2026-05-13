@@ -1,6 +1,6 @@
 using Bogus;
 using CardCheesi.Auth;
-using CardCheesi.Game.Persistence;
+using CardCheesi.Players.Persistence;
 
 namespace CardCheesi.Players.Tests.Factories;
 

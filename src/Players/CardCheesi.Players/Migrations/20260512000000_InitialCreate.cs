@@ -1,12 +1,12 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace CardCheesi.Game.Migrations
+namespace CardCheesi.Players.Migrations
 {
     /// <inheritdoc />
-    public partial class AddPlayersTable : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

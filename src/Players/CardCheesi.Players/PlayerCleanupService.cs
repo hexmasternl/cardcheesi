@@ -1,4 +1,4 @@
-using CardCheesi.Game.Persistence;
+using CardCheesi.Players.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,7 +27,7 @@ public sealed class PlayerCleanupService(
     internal async Task RunSweepAsync(CancellationToken ct)
     {
         using var scope = scopeFactory.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var db = scope.ServiceProvider.GetRequiredService<PlayersDbContext>();
 
         var now = DateTime.UtcNow;
         var inactiveCutoff = now.AddDays(-31);

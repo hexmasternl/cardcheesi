@@ -1,12 +1,15 @@
 using Bogus;
 using CardCheesi.Auth;
-using CardCheesi.Game.Persistence;
+using CardCheesi.Players.Persistence;
+using Microsoft.Extensions.Options;
 
 namespace CardCheesi.Players.Tests.Factories;
 
 internal static class RefreshTokenFactory
 {
     private static readonly Faker _faker = new();
+    private static readonly IJwtTokenService _tokenService =
+        new JwtTokenService(Options.Create(JwtSettingsFactory.Create()));
 
     public static RefreshTokenEntity Create(
         Guid? id = null,
@@ -33,7 +36,7 @@ internal static class RefreshTokenFactory
         DateTime? expiresAt = null,
         DateTime? revokedAt = null)
     {
-        var (raw, hash) = JwtTokenService.GenerateRefreshToken();
+        var (raw, hash) = _tokenService.GenerateRefreshToken();
         var entity = Create(
             playerId: playerId,
             tokenHash: hash,

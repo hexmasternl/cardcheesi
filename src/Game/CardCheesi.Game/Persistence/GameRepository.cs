@@ -1,10 +1,11 @@
+using CardCheesi.Game.Abstractions;
 using CardCheesi.Game.Abstractions.DomainModels;
 using CardCheesi.Game.DomainModels;
 using Microsoft.EntityFrameworkCore;
 
 namespace CardCheesi.Game.Persistence;
 
-public class GameRepository : IGameRepository
+public sealed class GameRepository : IGameRepository
 {
     private readonly AppDbContext _db;
 
@@ -12,7 +13,9 @@ public class GameRepository : IGameRepository
 
     public async Task SaveAsync(IGameState gameState, CancellationToken cancellationToken = default)
     {
-        var concreteState = (DomainModels.GameState)gameState;
+        if (gameState is not GameState concreteState)
+            throw new InvalidOperationException($"Unsupported IGameState implementation: {gameState.GetType().Name}");
+
         var existing = await _db.Games.FindAsync([concreteState.Id], cancellationToken);
 
         if (existing is null)

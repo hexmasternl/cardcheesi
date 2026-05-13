@@ -1,6 +1,6 @@
 using CardCheesi.Auth;
 using CardCheesi.Core;
-using CardCheesi.Game.Persistence;
+using CardCheesi.Players.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
@@ -8,18 +8,20 @@ namespace CardCheesi.Players.Features.RefreshToken;
 
 public sealed class RefreshTokenHandler : ICommandHandler<RefreshTokenCommand, RefreshTokenResult?>
 {
-    private readonly AppDbContext _db;
+    private readonly PlayersDbContext _db;
+    private readonly IJwtTokenService _jwtService;
     private readonly IOptions<JwtSettings> _jwtOptions;
 
-    public RefreshTokenHandler(AppDbContext db, IOptions<JwtSettings> jwtOptions)
+    public RefreshTokenHandler(PlayersDbContext db, IJwtTokenService jwtService, IOptions<JwtSettings> jwtOptions)
     {
         _db = db;
+        _jwtService = jwtService;
         _jwtOptions = jwtOptions;
     }
 
     public async Task<RefreshTokenResult?> Handle(RefreshTokenCommand command, CancellationToken ct)
     {
-        var tokenHash = JwtTokenService.ComputeSha256Hex(command.RawCookieValue);
+        var tokenHash = _jwtService.ComputeSha256Hex(command.RawCookieValue);
         var existingToken = await _db.RefreshTokens
             .Include(t => t.Player)
             .FirstOrDefaultAsync(t => t.TokenHash == tokenHash, ct);
@@ -50,7 +52,7 @@ public sealed class RefreshTokenHandler : ICommandHandler<RefreshTokenCommand, R
         existingToken.RevokedAt = utcNow;
         existingToken.Player.LastSeenAt = utcNow;
 
-        var (rawToken, hash) = JwtTokenService.GenerateRefreshToken();
+        var (rawToken, hash) = _jwtService.GenerateRefreshToken();
         var newRefreshToken = new RefreshTokenEntity
         {
             Id = Guid.NewGuid(),
@@ -63,8 +65,7 @@ public sealed class RefreshTokenHandler : ICommandHandler<RefreshTokenCommand, R
         _db.RefreshTokens.Add(newRefreshToken);
         await _db.SaveChangesAsync(ct);
 
-        var accessToken = JwtTokenService.GenerateAccessToken(
-            settings,
+        var accessToken = _jwtService.GenerateAccessToken(
             existingToken.PlayerId,
             existingToken.Player.Name);
 

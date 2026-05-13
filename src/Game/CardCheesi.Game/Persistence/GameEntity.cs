@@ -2,7 +2,7 @@ using CardCheesi.Game.DomainModels;
 
 namespace CardCheesi.Game.Persistence;
 
-public class GameEntity
+public sealed class GameEntity
 {
     public Guid Id { get; set; }
     public string GameCode { get; set; } = string.Empty;

@@ -1,8 +1,8 @@
 using CardCheesi.Auth;
-using CardCheesi.Game.Persistence;
 using CardCheesi.Players;
 using CardCheesi.Players.Api;
 using CardCheesi.Players.Api.Endpoints;
+using CardCheesi.Players.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,7 +12,7 @@ builder.AddJwtBearerAuthentication();
 
 if (!builder.Environment.IsEnvironment("Testing"))
 {
-    builder.AddNpgsqlDbContext<AppDbContext>("gamedb");
+    builder.AddNpgsqlDbContext<PlayersDbContext>("gamedb");
 }
 
 builder.Services.AddPlayersModule();
@@ -56,7 +56,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 var api = app.MapGroup("/api");
-api.MapRegisterPlayer();
-api.MapRefreshToken();
+api.MapPlayersEndpoints();
 
 app.Run();

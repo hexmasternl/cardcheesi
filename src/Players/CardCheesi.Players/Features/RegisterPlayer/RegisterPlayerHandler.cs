@@ -1,18 +1,20 @@
 using CardCheesi.Auth;
 using CardCheesi.Core;
-using CardCheesi.Game.Persistence;
+using CardCheesi.Players.Persistence;
 using Microsoft.Extensions.Options;
 
 namespace CardCheesi.Players.Features.RegisterPlayer;
 
 public sealed class RegisterPlayerHandler : ICommandHandler<RegisterPlayerCommand, RegisterPlayerResult>
 {
-    private readonly AppDbContext _db;
+    private readonly PlayersDbContext _db;
+    private readonly IJwtTokenService _jwtService;
     private readonly IOptions<JwtSettings> _jwtOptions;
 
-    public RegisterPlayerHandler(AppDbContext db, IOptions<JwtSettings> jwtOptions)
+    public RegisterPlayerHandler(PlayersDbContext db, IJwtTokenService jwtService, IOptions<JwtSettings> jwtOptions)
     {
         _db = db;
+        _jwtService = jwtService;
         _jwtOptions = jwtOptions;
     }
 
@@ -32,7 +34,7 @@ public sealed class RegisterPlayerHandler : ICommandHandler<RegisterPlayerComman
 
         _db.Players.Add(player);
 
-        var (rawToken, tokenHash) = JwtTokenService.GenerateRefreshToken();
+        var (rawToken, tokenHash) = _jwtService.GenerateRefreshToken();
         var refreshToken = new RefreshTokenEntity
         {
             Id = Guid.NewGuid(),
@@ -45,7 +47,7 @@ public sealed class RegisterPlayerHandler : ICommandHandler<RegisterPlayerComman
         _db.RefreshTokens.Add(refreshToken);
         await _db.SaveChangesAsync(ct);
 
-        var accessToken = JwtTokenService.GenerateAccessToken(settings, playerId, command.Name);
+        var accessToken = _jwtService.GenerateAccessToken(playerId, command.Name);
 
         return new RegisterPlayerResult(accessToken, rawToken);
     }
