@@ -1,4 +1,6 @@
-namespace CardCheesi.Game.Abstractions.DomainModels;
+using CardCheesi.Game.Abstractions.DomainModels;
+
+namespace CardCheesi.Game.Abstractions;
 
 public interface IGameRepository
 {

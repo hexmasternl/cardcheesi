@@ -4,7 +4,7 @@ using CardCheesi.Game.DomainModels;
 
 namespace CardCheesi.Game.Tests;
 
-public class JsonbRoundTripTests
+public sealed class JsonbRoundTripTests
 {
     private static readonly JsonSerializerOptions Options = new(JsonSerializerDefaults.Web);
 

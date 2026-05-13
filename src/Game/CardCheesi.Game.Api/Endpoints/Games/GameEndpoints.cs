@@ -1,6 +1,4 @@
 using System.Security.Claims;
-using System.Text.Json;
-using System.Threading.Channels;
 using CardCheesi.Core;
 using CardCheesi.Game.Abstractions;
 using CardCheesi.Game.Abstractions.DataTransferObjects;
@@ -92,8 +90,7 @@ public static class GameEndpoints
         string code,
         string? playerId,
         IQueryHandler<GetGameQuery, GameDto?> gameHandler,
-        ISseConnectionManager connectionManager,
-        IPlayerPresenceTracker presenceTracker,
+        ISseGameEventService sseService,
         HttpContext httpContext,
         CancellationToken ct)
     {
@@ -113,60 +110,7 @@ public static class GameEndpoints
         if (game is null)
             return Results.NotFound();
 
-        var response = httpContext.Response;
-        response.Headers.ContentType = "text/event-stream";
-        response.Headers.CacheControl = "no-cache";
-        response.Headers.Append("X-Accel-Buffering", "no");
-        response.Headers.Append("Connection", "keep-alive");
-
-        var channel = Channel.CreateUnbounded<SseEvent>(new UnboundedChannelOptions { SingleReader = true });
-        connectionManager.AddConnection(code, channel);
-
-        string? playerName = game.Players.FirstOrDefault(p => p.Id == parsedPlayerId)?.Name;
-
-        if (parsedPlayerId != Guid.Empty && playerName is not null)
-            await presenceTracker.ConnectAsync(code, parsedPlayerId, playerName, ct);
-
-        foreach (var evt in presenceTracker.GetSnapshot(code))
-        {
-            var snapshotPayload = JsonSerializer.Serialize(new
-            {
-                playerId = evt.PlayerId.ToString(),
-                playerName = evt.PlayerName,
-                status = evt.Status.ToString(),
-            });
-            await WriteSseEventAsync(response, new SseEvent("player-status", snapshotPayload), ct);
-        }
-
-        var keepAliveTimer = new PeriodicTimer(TimeSpan.FromSeconds(15));
-        var keepAliveTask = Task.Run(async () =>
-        {
-            while (await keepAliveTimer.WaitForNextTickAsync(ct))
-                await channel.Writer.WriteAsync(new SseEvent("keep-alive", ""), ct);
-        }, ct);
-
-        try
-        {
-            await foreach (var sseEvent in channel.Reader.ReadAllAsync(ct))
-            {
-                if (sseEvent.EventType == "keep-alive")
-                    await response.WriteAsync(": keep-alive\n\n", ct);
-                else
-                    await WriteSseEventAsync(response, sseEvent, ct);
-
-                await response.Body.FlushAsync(ct);
-            }
-        }
-        catch (OperationCanceledException) { /* client disconnected */ }
-        finally
-        {
-            keepAliveTimer.Dispose();
-            connectionManager.RemoveConnection(code, channel);
-
-            if (parsedPlayerId != Guid.Empty && playerName is not null)
-                await presenceTracker.DisconnectAsync(code, parsedPlayerId);
-        }
-
+        await sseService.StreamEventsAsync(code, parsedPlayerId, game, httpContext.Response, ct);
         return Results.Empty;
     }
 
@@ -195,7 +139,4 @@ public static class GameEndpoints
             return Results.Conflict(new { error = ex.Message });
         }
     }
-
-    private static Task WriteSseEventAsync(HttpResponse response, SseEvent sseEvent, CancellationToken ct)
-        => response.WriteAsync($"event: {sseEvent.EventType}\ndata: {sseEvent.Data}\n\n", ct);
 }

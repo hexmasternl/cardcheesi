@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CardCheesi.Game.Tests;
 
-public class GameRepositoryTests
+public sealed class GameRepositoryTests
 {
     private static AppDbContext CreateInMemoryContext()
     {

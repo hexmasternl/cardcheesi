@@ -2,15 +2,18 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 namespace CardCheesi.Auth;
 
-public static class JwtTokenService
+public sealed class JwtTokenService(IOptions<JwtSettings> options) : IJwtTokenService
 {
-    public static string GenerateAccessToken(JwtSettings settings, Guid playerId, string playerName)
+    private readonly JwtSettings _settings = options.Value;
+
+    public string GenerateAccessToken(Guid playerId, string playerName)
     {
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(settings.SigningKey));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_settings.SigningKey));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
         var now = DateTime.UtcNow;
 
@@ -22,17 +25,17 @@ public static class JwtTokenService
         };
 
         var token = new JwtSecurityToken(
-            issuer: settings.Issuer,
-            audience: settings.Audience,
+            issuer: _settings.Issuer,
+            audience: _settings.Audience,
             claims: claims,
             notBefore: now,
-            expires: now.AddMinutes(settings.AccessTokenExpiryMinutes),
+            expires: now.AddMinutes(_settings.AccessTokenExpiryMinutes),
             signingCredentials: credentials);
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
-    public static (string RawToken, string Hash) GenerateRefreshToken()
+    public (string RawToken, string Hash) GenerateRefreshToken()
     {
         var bytes = RandomNumberGenerator.GetBytes(32);
         var raw = Convert.ToHexString(bytes).ToLowerInvariant();
@@ -40,7 +43,7 @@ public static class JwtTokenService
         return (raw, hash);
     }
 
-    public static string ComputeSha256Hex(string input)
+    public string ComputeSha256Hex(string input)
     {
         var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(input));
         return Convert.ToHexString(bytes).ToLowerInvariant();

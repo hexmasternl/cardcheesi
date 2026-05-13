@@ -1,7 +1,7 @@
 <Solution>
   <Folder Name="/Aspire/">
-    <Project Path="Aspire/CardCheesi.Aspire.AppHost/CardCheesi.Aspire.AppHost.csproj" Id="9b35ac2a-3720-4d5c-a1c6-aefe0f1993bd" />
     <Project Path="Aspire/CardCheesi.Aspire.ServiceDefaults/CardCheesi.Aspire.ServiceDefaults.csproj" />
+    <Project Path="card-cheesi.AppHost/card-cheesi.AppHost.csproj" />
   </Folder>
   <Folder Name="/Core/">
     <Project Path="Core/CardCheesi.Core/CardCheesi.Core.csproj" />

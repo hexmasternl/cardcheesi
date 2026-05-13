@@ -6,6 +6,7 @@ using CardCheesi.Game.Features.CreateGame;
 using CardCheesi.Game.Features.GetGame;
 using CardCheesi.Game.Features.JoinGame;
 using CardCheesi.Game.Persistence;
+using CardCheesi.Game.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CardCheesi.Game;
@@ -17,6 +18,7 @@ public static class GameModuleRegistration
         services.AddScoped<IGameRepository, GameRepository>();
         services.AddSingleton<ISseConnectionManager, SseConnectionManager>();
         services.AddSingleton<IPlayerPresenceTracker, PlayerPresenceTracker>();
+        services.AddScoped<ISseGameEventService, SseGameEventService>();
 
         services.AddScoped<ICommandHandler<CreateGameCommand, CreateGameResult>, CreateGameHandler>();
         services.AddScoped<ICommandHandler<JoinGameCommand, JoinGameResult>, JoinGameHandler>();

@@ -6,7 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace CardCheesi.Game.Tests;
 
-public class JwtTokenServiceTests
+public sealed class JwtTokenServiceTests
 {
     private static JwtSettings ValidSettings => new()
     {
@@ -16,13 +16,17 @@ public class JwtTokenServiceTests
         AccessTokenExpiryMinutes = 10,
     };
 
+    private static IJwtTokenService CreateService(JwtSettings? settings = null)
+        => new JwtTokenService(Options.Create(settings ?? ValidSettings));
+
     [Fact]
     public void GenerateAccessToken_ValidSettings_ReturnsValidJwt()
     {
+        var svc = CreateService();
         var playerId = Guid.NewGuid();
         const string playerName = "Alice";
 
-        var token = JwtTokenService.GenerateAccessToken(ValidSettings, playerId, playerName);
+        var token = svc.GenerateAccessToken(playerId, playerName);
 
         Assert.NotNull(token);
         Assert.NotEmpty(token);
@@ -36,8 +40,9 @@ public class JwtTokenServiceTests
     [Fact]
     public void GenerateAccessToken_TokenValidatesWithCorrectKey()
     {
+        var svc = CreateService();
         var playerId = Guid.NewGuid();
-        var token = JwtTokenService.GenerateAccessToken(ValidSettings, playerId, "Bob");
+        var token = svc.GenerateAccessToken(playerId, "Bob");
 
         var handler = new JwtSecurityTokenHandler();
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(ValidSettings.SigningKey));
@@ -61,7 +66,8 @@ public class JwtTokenServiceTests
     [Fact]
     public void GenerateAccessToken_TokenFailsWithWrongKey()
     {
-        var token = JwtTokenService.GenerateAccessToken(ValidSettings, Guid.NewGuid(), "Carol");
+        var svc = CreateService();
+        var token = svc.GenerateAccessToken(Guid.NewGuid(), "Carol");
 
         var handler = new JwtSecurityTokenHandler();
         var wrongKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("wrong-key-but-still-32-bytes-long!"));
@@ -81,8 +87,9 @@ public class JwtTokenServiceTests
     [Fact]
     public void GenerateRefreshToken_ReturnsDifferentTokensEachCall()
     {
-        var (raw1, hash1) = JwtTokenService.GenerateRefreshToken();
-        var (raw2, hash2) = JwtTokenService.GenerateRefreshToken();
+        var svc = CreateService();
+        var (raw1, hash1) = svc.GenerateRefreshToken();
+        var (raw2, hash2) = svc.GenerateRefreshToken();
 
         Assert.NotEqual(raw1, raw2);
         Assert.NotEqual(hash1, hash2);
@@ -91,7 +98,8 @@ public class JwtTokenServiceTests
     [Fact]
     public void GenerateRefreshToken_HashDiffersFromRaw()
     {
-        var (raw, hash) = JwtTokenService.GenerateRefreshToken();
+        var svc = CreateService();
+        var (raw, hash) = svc.GenerateRefreshToken();
 
         Assert.NotEqual(raw, hash);
     }
@@ -99,8 +107,9 @@ public class JwtTokenServiceTests
     [Fact]
     public void ComputeSha256Hex_SameInput_ReturnsSameHash()
     {
-        var hash1 = JwtTokenService.ComputeSha256Hex("hello");
-        var hash2 = JwtTokenService.ComputeSha256Hex("hello");
+        var svc = CreateService();
+        var hash1 = svc.ComputeSha256Hex("hello");
+        var hash2 = svc.ComputeSha256Hex("hello");
 
         Assert.Equal(hash1, hash2);
     }
@@ -108,14 +117,15 @@ public class JwtTokenServiceTests
     [Fact]
     public void ComputeSha256Hex_DifferentInputs_ReturnDifferentHashes()
     {
-        var hash1 = JwtTokenService.ComputeSha256Hex("hello");
-        var hash2 = JwtTokenService.ComputeSha256Hex("world");
+        var svc = CreateService();
+        var hash1 = svc.ComputeSha256Hex("hello");
+        var hash2 = svc.ComputeSha256Hex("world");
 
         Assert.NotEqual(hash1, hash2);
     }
 }
 
-public class JwtSettingsValidatorTests
+public sealed class JwtSettingsValidatorTests
 {
     [Fact]
     public void Validate_EmptySigningKey_ReturnsFailure()

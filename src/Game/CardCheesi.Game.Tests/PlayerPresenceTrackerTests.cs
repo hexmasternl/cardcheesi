@@ -5,7 +5,7 @@ using Moq;
 
 namespace CardCheesi.Game.Tests;
 
-public class PlayerPresenceTrackerTests
+public sealed class PlayerPresenceTrackerTests
 {
     private static (PlayerPresenceTracker tracker, Mock<ISseConnectionManager> mockManager) CreateTracker()
     {

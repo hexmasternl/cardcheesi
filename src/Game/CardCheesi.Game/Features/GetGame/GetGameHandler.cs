@@ -25,7 +25,10 @@ public sealed class GetGameHandler : IQueryHandler<GetGameQuery, GameDto?>
     private static GameDto MapToDto(IGameState game)
     {
         var playerDtos = game.Players
-            .Select(p => new PlayerInGameDto(p.Id, p.Name, p.Pawns.Cast<object>().ToList()))
+            .Select(p => new PlayerInGameDto(
+                p.Id,
+                p.Name,
+                p.Pawns.Select(pawn => new PawnDto(pawn.Id, pawn.OwnerId, pawn.Status, pawn.Location)).ToList()))
             .ToList();
 
         var playerDtoMap = playerDtos.ToDictionary(p => p.Id);
@@ -35,7 +38,21 @@ public sealed class GetGameHandler : IQueryHandler<GetGameQuery, GameDto?>
                 t.Id,
                 t.Players.Select(p => playerDtoMap.TryGetValue(p.Id, out var dto)
                     ? dto
-                    : new PlayerInGameDto(p.Id, p.Name, p.Pawns.Cast<object>().ToList())).ToList()))
+                    : new PlayerInGameDto(
+                        p.Id,
+                        p.Name,
+                        p.Pawns.Select(pawn => new PawnDto(pawn.Id, pawn.OwnerId, pawn.Status, pawn.Location)).ToList()))
+                    .ToList()))
+            .ToList();
+
+        var turnDto = game.Turn is null ? null
+            : new TurnStateDto(game.Turn.ActivePlayerId, game.Turn.DealerId, game.Turn.RoundNumber, game.Turn.CardsThisRound);
+
+        var deckDto = game.Deck is null ? null
+            : new DeckDto(game.Deck.Cards);
+
+        var handDtos = game.Hands?
+            .Select(h => new PlayerHandDto(h.PlayerId, h.Cards))
             .ToList();
 
         return new GameDto(
@@ -44,8 +61,9 @@ public sealed class GetGameHandler : IQueryHandler<GetGameQuery, GameDto?>
             game.Status,
             playerDtos,
             teamDtos,
-            game.Turn,
-            game.Deck,
-            game.Hands?.Cast<object>().ToList());
+            turnDto,
+            deckDto,
+            handDtos);
     }
 }
+

@@ -3,7 +3,7 @@ using CardCheesi.Game.DomainModels;
 
 namespace CardCheesi.Game.Tests;
 
-public class GameStateTests
+public sealed class GameStateTests
 {
     private static readonly Card AnyCard = new(CardSuit.Hearts, CardRank.Ace);
     private const string TestCode = "TESTCD";

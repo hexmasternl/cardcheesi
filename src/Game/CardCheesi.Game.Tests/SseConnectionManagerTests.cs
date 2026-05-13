@@ -4,7 +4,7 @@ using CardCheesi.Game.Abstractions.DomainModels;
 
 namespace CardCheesi.Game.Tests;
 
-public class SseConnectionManagerTests
+public sealed class SseConnectionManagerTests
 {
     [Fact]
     public async Task BroadcastAsync_SendsEventToAllChannelsForGame()

@@ -3,7 +3,7 @@ using CardCheesi.Game.DomainModels;
 
 namespace CardCheesi.Game.Tests;
 
-public class GameFactoryTests
+public sealed class GameFactoryTests
 {
     private static readonly IReadOnlyList<string> FourNames = ["Alice", "Bob", "Carol", "Dave"];
     private const string TestCode = "ABCDEF";

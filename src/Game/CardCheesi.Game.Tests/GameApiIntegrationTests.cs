@@ -3,6 +3,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using CardCheesi.Auth;
+using CardCheesi.Game.Abstractions;
 using CardCheesi.Game.Abstractions.DomainModels;
 using CardCheesi.Game.DomainModels;
 using CardCheesi.Game.Persistence;
@@ -15,7 +16,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace CardCheesi.Game.Tests;
 
-public class GameApiIntegrationTests : IClassFixture<GameApiIntegrationTests.Factory>
+public sealed class GameApiIntegrationTests : IClassFixture<GameApiIntegrationTests.Factory>
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
 
@@ -42,7 +43,8 @@ public class GameApiIntegrationTests : IClassFixture<GameApiIntegrationTests.Fac
             AccessTokenExpiryMinutes = 10,
             CookieSecure = false,
         };
-        return JwtTokenService.GenerateAccessToken(settings, playerId, playerName);
+        var service = new JwtTokenService(Microsoft.Extensions.Options.Options.Create(settings));
+        return service.GenerateAccessToken(playerId, playerName);
     }
 
     [Fact]

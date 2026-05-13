@@ -1,6 +1,6 @@
 namespace CardCheesi.Game.Abstractions.DomainModels;
 
-public record PlayerPresenceEvent(
+public sealed record PlayerPresenceEvent(
     Guid PlayerId,
     string PlayerName,
     PlayerPresenceStatus Status);

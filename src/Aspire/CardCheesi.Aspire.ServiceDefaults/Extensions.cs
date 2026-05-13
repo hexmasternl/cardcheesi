@@ -174,6 +174,7 @@ public static class Extensions
                 };
             });
         builder.Services.AddAuthorization();
+        builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 
         return builder;
     }

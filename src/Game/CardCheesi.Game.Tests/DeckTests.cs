@@ -3,7 +3,7 @@ using CardCheesi.Game.DomainModels;
 
 namespace CardCheesi.Game.Tests;
 
-public class DeckTests
+public sealed class DeckTests
 {
     [Fact]
     public void Standard_Returns52Cards()

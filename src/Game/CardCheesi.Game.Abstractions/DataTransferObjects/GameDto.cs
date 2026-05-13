@@ -8,10 +8,10 @@ public sealed record GameDto(
     GameStatus Status,
     IReadOnlyList<PlayerInGameDto> Players,
     IReadOnlyList<TeamInGameDto> Teams,
-    object? Turn,
-    object? Deck,
-    IReadOnlyList<object>? Hands);
+    TurnStateDto? Turn,
+    DeckDto? Deck,
+    IReadOnlyList<PlayerHandDto>? Hands);
 
-public sealed record PlayerInGameDto(Guid Id, string Name, IReadOnlyList<object> Pawns);
+public sealed record PlayerInGameDto(Guid Id, string Name, IReadOnlyList<PawnDto> Pawns);
 
 public sealed record TeamInGameDto(Guid Id, IReadOnlyList<PlayerInGameDto> Players);

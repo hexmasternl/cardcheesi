@@ -1,3 +1,3 @@
 namespace CardCheesi.Game.Abstractions;
 
-public record SseEvent(string EventType, string Data);
+public sealed record SseEvent(string EventType, string Data);

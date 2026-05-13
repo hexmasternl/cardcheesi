@@ -3,7 +3,7 @@ using CardCheesi.Game.DomainModels;
 
 namespace CardCheesi.Game.Tests;
 
-public class TurnStateTests
+public sealed class TurnStateTests
 {
     [Fact]
     public void Round1_CardsThisRound_Is5()
