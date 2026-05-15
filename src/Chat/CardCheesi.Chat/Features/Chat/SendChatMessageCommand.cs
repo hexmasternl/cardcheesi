@@ -1,4 +1,4 @@
-namespace CardCheesi.Game.Features.Chat;
+namespace CardCheesi.Chat.Features.Chat;
 
 public sealed record SendChatMessageCommand(
     string GameCode,

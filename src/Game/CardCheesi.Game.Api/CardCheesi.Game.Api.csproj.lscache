@@ -67,6 +67,9 @@ Program.cs
 [metadataReferences]
 ../../
  Aspire/CardCheesi.Aspire.ServiceDefaults/obj/Debug/net10.0/ref/CardCheesi.Aspire.ServiceDefaults.dll
+ Chat/
+  CardCheesi.Chat.Api/obj/Debug/net10.0/ref/CardCheesi.Chat.Api.dll
+  CardCheesi.Chat/obj/Debug/net10.0/ref/CardCheesi.Chat.dll
  Core/CardCheesi.Core/obj/Debug/net10.0/ref/CardCheesi.Core.dll
 ../
  CardCheesi.Game.Abstractions/obj/Debug/net10.0/ref/CardCheesi.Game.Abstractions.dll

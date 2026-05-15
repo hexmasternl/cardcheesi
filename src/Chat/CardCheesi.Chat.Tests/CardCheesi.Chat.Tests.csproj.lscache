@@ -13,18 +13,18 @@ primary
 lastDtbSucceeded
 
 [properties]
-AssemblyName=CardCheesi.Game.Tests
+AssemblyName=CardCheesi.Chat.Tests
 CommandLineArgsForDesignTimeEvaluation=-langversion:14.0 -define:TRACE
 CompilerGeneratedFilesOutputPath=
 MaxSupportedLangVersion=14.0
 ProjectAssetsFile=<PATH>obj/project.assets.json
-RootNamespace=CardCheesi.Game.Tests
+RootNamespace=CardCheesi.Chat.Tests
 RunAnalyzers=
 RunAnalyzersDuringLiveAnalysis=
 SolutionPath=*Undefined*
 TargetFrameworkIdentifier=.NETCoreApp
-TargetPath=<PATH>bin/Debug/net10.0/CardCheesi.Game.Tests.dll
-TargetRefPath=<PATH>obj/Debug/net10.0/ref/CardCheesi.Game.Tests.dll
+TargetPath=<PATH>bin/Debug/net10.0/CardCheesi.Chat.Tests.dll
+TargetRefPath=<PATH>obj/Debug/net10.0/ref/CardCheesi.Chat.Tests.dll
 TemporaryDependencyNodeTargetIdentifier=net10.0
 
 [commandLineArguments]
@@ -44,8 +44,8 @@ TemporaryDependencyNodeTargetIdentifier=net10.0
 /debug:portable
 /filealign:512
 /optimize-
-/out:obj\Debug\net10.0\CardCheesi.Game.Tests.dll
-/refout:obj\Debug\net10.0\refint\CardCheesi.Game.Tests.dll
+/out:obj\Debug\net10.0\CardCheesi.Chat.Tests.dll
+/refout:obj\Debug\net10.0\refint\CardCheesi.Chat.Tests.dll
 /target:exe
 /warnaserror-
 /utf8output
@@ -55,40 +55,17 @@ TemporaryDependencyNodeTargetIdentifier=net10.0
 
 [sourceFiles]
 <NUGET>/microsoft.net.test.sdk/17.14.1/build/net8.0/Microsoft.NET.Test.Sdk.Program.cs
-DeckTests.cs
-DomainModelTests.cs
-Factories/
- GameStateFactory.cs
- PlayerFactory.cs
-Features/
- CreateGameHandlerTests.cs
- GetGameHandlerTests.cs
- JoinGameHandlerTests.cs
-GameApiIntegrationTests.cs
-GameFactoryTests.cs
-GameRepositoryTests.cs
-JsonbRoundTripTests.cs
-JwtTokenServiceTests.cs
+Features/SendChatMessageHandlerTests.cs
 obj/Debug/net10.0/
  .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
- CardCheesi.Game.Tests.AssemblyInfo.cs
- CardCheesi.Game.Tests.GlobalUsings.g.cs
-PlayerPresenceTrackerTests.cs
-SeededRandom.cs
-SseConnectionManagerTests.cs
-TurnStateTests.cs
+ CardCheesi.Chat.Tests.AssemblyInfo.cs
+ CardCheesi.Chat.Tests.GlobalUsings.g.cs
 
 [metadataReferences]
 ../../
- Aspire/CardCheesi.Aspire.ServiceDefaults/obj/Debug/net10.0/ref/CardCheesi.Aspire.ServiceDefaults.dll
- Chat/
-  CardCheesi.Chat.Api/obj/Debug/net10.0/ref/CardCheesi.Chat.Api.dll
-  CardCheesi.Chat/obj/Debug/net10.0/ref/CardCheesi.Chat.dll
  Core/CardCheesi.Core/obj/Debug/net10.0/ref/CardCheesi.Core.dll
-../
- CardCheesi.Game.Abstractions/obj/Debug/net10.0/ref/CardCheesi.Game.Abstractions.dll
- CardCheesi.Game.Api/obj/Debug/net10.0/ref/CardCheesi.Game.Api.dll
- CardCheesi.Game/obj/Debug/net10.0/ref/CardCheesi.Game.dll
+ Game/CardCheesi.Game.Abstractions/obj/Debug/net10.0/ref/CardCheesi.Game.Abstractions.dll
+../CardCheesi.Chat/obj/Debug/net10.0/ref/CardCheesi.Chat.dll
 <DOTNET>/packs/Microsoft.AspNetCore.App.Ref/10.0.7/ref/net10.0/
  Microsoft.AspNetCore.Antiforgery.dll
  Microsoft.AspNetCore.Authentication.Abstractions.dll
@@ -399,38 +376,9 @@ TurnStateTests.cs
  System.Xml.XPath.XDocument.dll
  WindowsBase.dll
 <NUGET>/
- aspire.npgsql.entityframeworkcore.postgresql/9.3.0/lib/net9.0/Aspire.Npgsql.EntityFrameworkCore.PostgreSQL.dll
  bogus/35.6.1/lib/net6.0/Bogus.dll
  castle.core/5.1.1/lib/net6.0/Castle.Core.dll
- microsoft.aspnetcore.authentication.jwtbearer/10.0.7/lib/net10.0/Microsoft.AspNetCore.Authentication.JwtBearer.dll
- microsoft.aspnetcore.mvc.testing/10.0.7/lib/net10.0/Microsoft.AspNetCore.Mvc.Testing.dll
- microsoft.aspnetcore.openapi/10.0.7/lib/net10.0/Microsoft.AspNetCore.OpenApi.dll
- microsoft.aspnetcore.testhost/10.0.7/lib/net10.0/Microsoft.AspNetCore.TestHost.dll
  microsoft.codecoverage/17.14.1/lib/net8.0/Microsoft.VisualStudio.CodeCoverage.Shim.dll
- microsoft.entityframeworkcore.abstractions/9.0.7/lib/net8.0/Microsoft.EntityFrameworkCore.Abstractions.dll
- microsoft.entityframeworkcore.inmemory/9.0.7/lib/net8.0/Microsoft.EntityFrameworkCore.InMemory.dll
- microsoft.entityframeworkcore.relational/9.0.4/lib/net8.0/Microsoft.EntityFrameworkCore.Relational.dll
- microsoft.entityframeworkcore/9.0.7/lib/net8.0/Microsoft.EntityFrameworkCore.dll
- microsoft.extensions.ambientmetadata.application/10.1.0/lib/net10.0/Microsoft.Extensions.AmbientMetadata.Application.dll
- microsoft.extensions.compliance.abstractions/10.1.0/lib/net10.0/Microsoft.Extensions.Compliance.Abstractions.dll
- microsoft.extensions.dependencyinjection.autoactivation/10.1.0/lib/net10.0/Microsoft.Extensions.DependencyInjection.AutoActivation.dll
- microsoft.extensions.dependencymodel/10.0.7/lib/net10.0/Microsoft.Extensions.DependencyModel.dll
- microsoft.extensions.diagnostics.exceptionsummarization/10.1.0/lib/net10.0/Microsoft.Extensions.Diagnostics.ExceptionSummarization.dll
- microsoft.extensions.diagnostics.healthchecks.entityframeworkcore/9.0.4/lib/net9.0/Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore.dll
- microsoft.extensions.http.diagnostics/10.1.0/lib/net10.0/Microsoft.Extensions.Http.Diagnostics.dll
- microsoft.extensions.http.resilience/10.1.0/lib/net10.0/Microsoft.Extensions.Http.Resilience.dll
- microsoft.extensions.resilience/10.1.0/lib/net10.0/Microsoft.Extensions.Resilience.dll
- microsoft.extensions.servicediscovery.abstractions/10.1.0/lib/net10.0/Microsoft.Extensions.ServiceDiscovery.Abstractions.dll
- microsoft.extensions.servicediscovery/10.1.0/lib/net10.0/Microsoft.Extensions.ServiceDiscovery.dll
- microsoft.extensions.telemetry.abstractions/10.1.0/lib/net10.0/Microsoft.Extensions.Telemetry.Abstractions.dll
- microsoft.extensions.telemetry/10.1.0/lib/net10.0/Microsoft.Extensions.Telemetry.dll
- microsoft.identitymodel.abstractions/8.0.1/lib/net9.0/Microsoft.IdentityModel.Abstractions.dll
- microsoft.identitymodel.jsonwebtokens/8.0.1/lib/net9.0/Microsoft.IdentityModel.JsonWebTokens.dll
- microsoft.identitymodel.logging/8.0.1/lib/net9.0/Microsoft.IdentityModel.Logging.dll
- microsoft.identitymodel.protocols.openidconnect/8.0.1/lib/net9.0/Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
- microsoft.identitymodel.protocols/8.0.1/lib/net9.0/Microsoft.IdentityModel.Protocols.dll
- microsoft.identitymodel.tokens/8.0.1/lib/net9.0/Microsoft.IdentityModel.Tokens.dll
- microsoft.openapi/2.0.0/lib/net8.0/Microsoft.OpenApi.dll
  microsoft.testplatform.testhost/17.14.1/lib/net8.0/
   Microsoft.TestPlatform.CommunicationUtilities.dll
   Microsoft.TestPlatform.CoreUtilities.dll
@@ -442,22 +390,6 @@ TurnStateTests.cs
   testhost.dll
  moq/4.20.72/lib/net6.0/Moq.dll
  newtonsoft.json/13.0.3/lib/net6.0/Newtonsoft.Json.dll
- npgsql.dependencyinjection/9.0.3/lib/net8.0/Npgsql.DependencyInjection.dll
- npgsql.entityframeworkcore.postgresql/9.0.4/lib/net8.0/Npgsql.EntityFrameworkCore.PostgreSQL.dll
- npgsql.opentelemetry/9.0.3/lib/net6.0/Npgsql.OpenTelemetry.dll
- npgsql/9.0.3/lib/net8.0/Npgsql.dll
- opentelemetry.api.providerbuilderextensions/1.14.0/lib/net10.0/OpenTelemetry.Api.ProviderBuilderExtensions.dll
- opentelemetry.api/1.14.0/lib/net10.0/OpenTelemetry.Api.dll
- opentelemetry.exporter.opentelemetryprotocol/1.14.0/lib/net10.0/OpenTelemetry.Exporter.OpenTelemetryProtocol.dll
- opentelemetry.extensions.hosting/1.14.0/lib/net10.0/OpenTelemetry.Extensions.Hosting.dll
- opentelemetry.instrumentation.aspnetcore/1.14.0/lib/net10.0/OpenTelemetry.Instrumentation.AspNetCore.dll
- opentelemetry.instrumentation.http/1.14.0/lib/net10.0/OpenTelemetry.Instrumentation.Http.dll
- opentelemetry.instrumentation.runtime/1.14.0/lib/net10.0/OpenTelemetry.Instrumentation.Runtime.dll
- opentelemetry/1.14.0/lib/net10.0/OpenTelemetry.dll
- polly.core/8.4.2/lib/net8.0/Polly.Core.dll
- polly.extensions/8.4.2/lib/net8.0/Polly.Extensions.dll
- polly.ratelimiting/8.4.2/lib/net8.0/Polly.RateLimiting.dll
- system.identitymodel.tokens.jwt/8.0.1/lib/net9.0/System.IdentityModel.Tokens.Jwt.dll
  xunit.abstractions/2.0.3/lib/netstandard2.0/xunit.abstractions.dll
  xunit.assert/2.9.3/lib/net6.0/xunit.assert.dll
  xunit.extensibility.core/2.9.3/lib/netstandard1.1/xunit.core.dll
@@ -469,6 +401,7 @@ TurnStateTests.cs
  Microsoft.AspNetCore.App.CodeFixes.dll
  Microsoft.AspNetCore.App.SourceGenerators.dll
  Microsoft.AspNetCore.Components.Analyzers.dll
+ Microsoft.Extensions.Logging.Generators.dll
  Microsoft.Extensions.Options.SourceGeneration.dll
  Microsoft.Extensions.Validation.ValidationsGenerator.dll
 <DOTNET>/packs/Microsoft.NETCore.App.Ref/10.0.7/analyzers/dotnet/cs/
@@ -481,16 +414,10 @@ TurnStateTests.cs
 <DOTNET>/sdk/10.0.203/Sdks/Microsoft.NET.Sdk/analyzers/
  Microsoft.CodeAnalysis.CSharp.NetAnalyzers.dll
  Microsoft.CodeAnalysis.NetAnalyzers.dll
-<NUGET>/
- microsoft.aspnetcore.openapi/10.0.7/analyzers/dotnet/cs/Microsoft.AspNetCore.OpenApi.SourceGenerators.dll
- microsoft.entityframeworkcore.analyzers/9.0.7/analyzers/dotnet/cs/Microsoft.EntityFrameworkCore.Analyzers.dll
- microsoft.extensions.telemetry.abstractions/10.1.0/analyzers/dotnet/cs/
-  Microsoft.Gen.Logging.dll
-  Microsoft.Gen.Metrics.dll
- xunit.analyzers/1.18.0/analyzers/dotnet/cs/
-  xunit.analyzers.dll
-  xunit.analyzers.fixes.dll
+<NUGET>/xunit.analyzers/1.18.0/analyzers/dotnet/cs/
+ xunit.analyzers.dll
+ xunit.analyzers.fixes.dll
 
 [analyzerConfigFiles]
 <DOTNET>/sdk/10.0.203/Sdks/Microsoft.NET.Sdk/analyzers/build/config/analysislevel_10_default.globalconfig
-obj/Debug/net10.0/CardCheesi.Game.Tests.GeneratedMSBuildEditorConfig.editorconfig
+obj/Debug/net10.0/CardCheesi.Chat.Tests.GeneratedMSBuildEditorConfig.editorconfig

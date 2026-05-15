@@ -153,7 +153,7 @@ export class GamePage implements OnInit {
   protected onSendMessage(text: string): void {
     const code = this.gameCode();
     if (!code) return;
-    this.http.post(`/api/games/${code}/chat`, { text }).subscribe();
+    this.http.post(`/api/chat/${code}`, { text }).subscribe();
   }
 
   private fetchGame(): void {

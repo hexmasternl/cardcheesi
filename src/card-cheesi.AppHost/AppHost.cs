@@ -24,6 +24,8 @@ var gateway = builder.AddYarp("gateway")
     {
         yarp.AddRoute("/api/players/{**catch-all}", playersApi.GetEndpoint("http"));
 
+        yarp.AddRoute("/api/chat/{**catch-all}", gameApi.GetEndpoint("http"));
+
         yarp.AddRoute("/api/games/{**catch-all}", gameApi.GetEndpoint("http"));
     })
     .WaitFor(playersApi)

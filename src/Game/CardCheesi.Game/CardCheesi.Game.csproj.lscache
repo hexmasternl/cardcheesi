@@ -62,9 +62,6 @@ DomainModels/
  PlayerHand.cs
  Team.cs
  TurnState.cs
-Features/Chat/
- SendChatMessageCommand.cs
- SendChatMessageHandler.cs
 Features/CreateGame/
  CreateGameCommand.cs
  CreateGameHandler.cs

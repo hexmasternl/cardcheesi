@@ -3,6 +3,11 @@
     <Project Path="Aspire/CardCheesi.Aspire.ServiceDefaults/CardCheesi.Aspire.ServiceDefaults.csproj" />
     <Project Path="card-cheesi.AppHost/card-cheesi.AppHost.csproj" />
   </Folder>
+  <Folder Name="/Chat/">
+    <Project Path="Chat/CardCheesi.Chat/CardCheesi.Chat.csproj" />
+    <Project Path="Chat/CardCheesi.Chat.Api/CardCheesi.Chat.Api.csproj" />
+    <Project Path="Chat/CardCheesi.Chat.Tests/CardCheesi.Chat.Tests.csproj" />
+  </Folder>
   <Folder Name="/Core/">
     <Project Path="Core/CardCheesi.Core/CardCheesi.Core.csproj" />
   </Folder>

@@ -2,7 +2,6 @@ using System.Security.Claims;
 using CardCheesi.Core;
 using CardCheesi.Game.Abstractions;
 using CardCheesi.Game.Abstractions.DataTransferObjects;
-using CardCheesi.Game.Features.Chat;
 using CardCheesi.Game.Features.CreateGame;
 using CardCheesi.Game.Features.GetGame;
 using CardCheesi.Game.Features.JoinGame;
@@ -20,8 +19,7 @@ public static class GameEndpoints
             .RequireAuthorization()
             .Produces<CreateGameResponse>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
-            .ProducesProblem(StatusCodes.Status503ServiceUnavailable)
-            .WithOpenApi();
+            .ProducesProblem(StatusCodes.Status503ServiceUnavailable);
 
         group.MapGet("/{code}", GetGame)
             .WithName("GetGame")
@@ -29,8 +27,7 @@ public static class GameEndpoints
             .Produces<GameDto>()
             .Produces(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status403Forbidden)
-            .Produces(StatusCodes.Status404NotFound)
-            .WithOpenApi();
+            .Produces(StatusCodes.Status404NotFound);
 
         group.MapGet("/{code}/events", GetGameEvents)
             .WithName("GameEvents");
@@ -39,8 +36,7 @@ public static class GameEndpoints
             .WithName("LeaveGame")
             .RequireAuthorization()
             .Produces(StatusCodes.Status204NoContent)
-            .ProducesProblem(StatusCodes.Status401Unauthorized)
-            .WithOpenApi();
+            .ProducesProblem(StatusCodes.Status401Unauthorized);
 
         group.MapPost("/{code}/join", JoinGame)
             .WithName("JoinGame")
@@ -48,18 +44,7 @@ public static class GameEndpoints
             .Produces<JoinGameResponse>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status404NotFound)
-            .ProducesProblem(StatusCodes.Status409Conflict)
-            .WithOpenApi();
-
-        group.MapPost("/{code}/chat", SendChatMessage)
-            .WithName("SendChatMessage")
-            .RequireAuthorization()
-            .Produces(StatusCodes.Status200OK)
-            .ProducesProblem(StatusCodes.Status400BadRequest)
-            .ProducesProblem(StatusCodes.Status401Unauthorized)
-            .ProducesProblem(StatusCodes.Status403Forbidden)
-            .ProducesProblem(StatusCodes.Status404NotFound)
-            .WithOpenApi();
+            .ProducesProblem(StatusCodes.Status409Conflict);
 
         return app;
     }
@@ -172,37 +157,4 @@ public static class GameEndpoints
         await presenceTracker.LeaveAsync(code, playerId, ct);
         return Results.NoContent();
     }
-
-    private static async Task<IResult> SendChatMessage(
-        string code,
-        SendChatMessageRequest request,
-        HttpContext httpContext,
-        ICommandHandler<SendChatMessageCommand> handler,
-        CancellationToken ct)
-    {
-        var playerId = Guid.Parse(httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)
-                                  ?? httpContext.User.FindFirstValue("sub")!);
-        var playerName = httpContext.User.FindFirstValue(ClaimTypes.Name)
-                         ?? httpContext.User.FindFirstValue("name")!;
-
-        try
-        {
-            await handler.Handle(new SendChatMessageCommand(code, playerId, playerName, request.Text), ct);
-            return Results.Ok();
-        }
-        catch (DomainException ex)
-        {
-            return Results.BadRequest(new { error = ex.Message });
-        }
-        catch (ForbiddenException)
-        {
-            return Results.Forbid();
-        }
-        catch (NotFoundException ex)
-        {
-            return Results.NotFound(new { error = ex.Message });
-        }
-    }
-
-    private sealed record SendChatMessageRequest(string Text);
 }

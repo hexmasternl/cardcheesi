@@ -1,3 +1,5 @@
+using CardCheesi.Chat;
+using CardCheesi.Chat.Api.Endpoints;
 using CardCheesi.Game;
 using CardCheesi.Game.Api;
 using CardCheesi.Game.Api.Endpoints.Games;
@@ -16,6 +18,7 @@ if (!builder.Environment.IsEnvironment("Testing"))
 }
 
 builder.Services.AddGameModule();
+builder.Services.AddChatModule();
 
 builder.Services.AddOpenApi(options =>
 {
@@ -57,6 +60,7 @@ app.UseAuthorization();
 
 var api = app.MapGroup("/api");
 api.MapGameEndpoints();
+api.MapChatEndpoints();
 
 app.Run();
 

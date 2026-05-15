@@ -1,9 +1,8 @@
 using System.Text.Json;
 using CardCheesi.Core;
 using CardCheesi.Game.Abstractions;
-using CardCheesi.Game.Abstractions.DomainModels;
 
-namespace CardCheesi.Game.Features.Chat;
+namespace CardCheesi.Chat.Features.Chat;
 
 public sealed class SendChatMessageHandler(
     IGameRepository repo,
@@ -25,19 +24,12 @@ public sealed class SendChatMessageHandler(
         if (game.Players.All(p => p.Id != command.SenderId))
             throw new ForbiddenException("You are not a member of this game.");
 
-        var message = new ChatMessage(
-            command.GameCode,
-            command.SenderId,
-            command.SenderName,
-            command.Text,
-            DateTimeOffset.UtcNow);
-
         var payload = JsonSerializer.Serialize(new
         {
-            senderId = message.SenderId.ToString(),
-            senderName = message.SenderName,
-            text = message.Text,
-            timestamp = message.Timestamp.ToString("o"),
+            senderId = command.SenderId.ToString(),
+            senderName = command.SenderName,
+            text = command.Text,
+            timestamp = DateTimeOffset.UtcNow.ToString("o"),
         });
 
         await connectionManager.BroadcastAsync(command.GameCode, new SseEvent("chat-message", payload), ct);
