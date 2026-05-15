@@ -3,8 +3,8 @@
 Generate a pawn 3D model in GLB (glTF 2.0 binary) format.
 
 Pawn dimensions:
-  - Diameter: 1 cm  (0.010 m)
-  - Height:   2 cm  (0.020 m)
+  - Diameter: 2.2 cm  (0.022 m)
+  - Height:   4.0 cm  (0.040 m)
 
 The shape is produced by revolving a chess-pawn silhouette profile around
 the Y axis (Y = up).  Geometry units are metres, matching Babylon.js / glTF
@@ -268,8 +268,8 @@ def build_glb(positions: list[float], normals: list[float], indices: list[int]) 
 if __name__ == "__main__":
     import os
 
-    DIAMETER_M = 0.010   # 1 cm
-    HEIGHT_M   = 0.020   # 2 cm
+    DIAMETER_M = 0.022   # 2.2 cm
+    HEIGHT_M   = 0.040   # 4.0 cm
 
     profile  = build_pawn_profile(r=DIAMETER_M / 2, h=HEIGHT_M)
     pos, nrm, idx = revolve_profile(profile, segments=48)
