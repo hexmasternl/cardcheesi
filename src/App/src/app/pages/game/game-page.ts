@@ -60,14 +60,6 @@ export class GamePage implements OnInit {
     return s ? (GameStatusLabel[s.status] ?? 'Unknown') : '';
   });
 
-  protected readonly playerInitials = (name: string): string =>
-    name
-      .split(' ')
-      .map((w) => w[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
-
   constructor() {
     afterNextRender(() => {
       const code = this.gameCode();

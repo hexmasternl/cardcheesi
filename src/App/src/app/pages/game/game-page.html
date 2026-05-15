@@ -64,24 +64,6 @@
         />
       </header>
 
-      <!-- Player roster -->
-      <section class="game-page__players">
-        <h3 class="game-page__players-title">Players</h3>
-        <ul class="game-page__player-list">
-          @for (player of game.players; track player.id) {
-            <li class="game-page__player-card">
-              <span class="game-page__player-avatar">{{ playerInitials(player.name) }}</span>
-              <span class="game-page__player-name">{{ player.name }}</span>
-            </li>
-          }
-          @if (game.players.length === 0) {
-            <li class="game-page__player-card game-page__player-card--empty">
-              Waiting for players to join…
-            </li>
-          }
-        </ul>
-      </section>
-
     </div>
   }
 

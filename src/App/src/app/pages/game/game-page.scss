@@ -90,8 +90,7 @@ $accent:        #00d4aa;
 }
 
 // Re-enable pointer events on UI elements within the overlay
-.game-page__header,
-.game-page__players {
+.game-page__header {
   pointer-events: auto;
 }
 
@@ -156,87 +155,10 @@ $accent:        #00d4aa;
   border: 1px solid rgba($primary, 0.4);
 }
 
-// ── Players panel ─────────────────────────────────────────────────────────────
-.game-page__players {
-  padding: 2rem 1.5rem;
-  max-width: 480px;
-}
-
-.game-page__players-title {
-  margin: 0 0 1rem;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: rgba(#e8f4ff, 0.5);
-}
-
-.game-page__player-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.625rem;
-}
-
-.game-page__player-card {
-  @include glass(rgba($dark-bg, 0.65), rgba($primary, 0.15));
-  display: flex;
-  align-items: center;
-  gap: 0.875rem;
-  padding: 0.75rem 1rem;
-  border-radius: 0.875rem;
-  transition: background 0.2s;
-
-  &:hover {
-    background: rgba($dark-bg, 0.85);
-  }
-
-  &--empty {
-    justify-content: center;
-    font-size: 0.9rem;
-    color: rgba(#e8f4ff, 0.45);
-    font-style: italic;
-    padding: 1.25rem;
-    border-style: dashed;
-  }
-}
-
-.game-page__player-avatar {
-  flex-shrink: 0;
-  width: 2.25rem;
-  height: 2.25rem;
-  border-radius: 50%;
-  background: linear-gradient(135deg, $primary 0%, $secondary 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.8rem;
-  font-weight: 800;
-  color: #fff;
-  letter-spacing: 0.02em;
-}
-
-.game-page__player-name {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #e8f4ff;
-}
-
-// ── Home link ─────────────────────────────────────────────────────────────────
-.game-page__home-link {
-  text-decoration: none;
-}
-
 // ── Responsive ────────────────────────────────────────────────────────────────
 @media (max-width: 600px) {
   .game-page__error-card {
     padding: 2rem 1.5rem;
     margin: 1rem;
-  }
-
-  .game-page__players {
-    padding: 1.5rem 1rem;
   }
 }
