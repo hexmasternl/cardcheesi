@@ -4,7 +4,7 @@ import { PlayerJoinedEvent, PlayerStatusEvent, SseService } from '../../../servi
 export type PlayerPresenceStatus = 'Connected' | 'Disconnected' | 'Left';
 
 /** CSS hex colors matching the Babylon.js PLAYER_COLORS in game-board.ts (sRGB approximation). */
-export const PAWN_COLORS: readonly string[] = ['#d91f1f', '#1f47d9', '#1fb333', '#e0bf05'];
+export const PAWN_COLORS: readonly string[] = ['#1fb333', '#d91f1f', '#e0bf05', '#1f47d9'];
 
 export interface PlayerPresenceEntry {
   playerId: string;

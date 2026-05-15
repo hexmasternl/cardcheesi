@@ -32,10 +32,10 @@ import { GamePlayer, GameStatus } from '../game-state.model';
 
 /** One PBR colour per player slot (index 0–3). */
 const PLAYER_COLORS: Color3[] = [
-  new Color3(0.85, 0.12, 0.12), // P1 – red
-  new Color3(0.12, 0.28, 0.85), // P2 – blue
-  new Color3(0.12, 0.70, 0.20), // P3 – green
-  new Color3(0.88, 0.75, 0.02), // P4 – yellow
+  new Color3(0.12, 0.70, 0.20), // P1 – green
+  new Color3(0.85, 0.12, 0.12), // P2 – red
+  new Color3(0.88, 0.75, 0.02), // P3 – yellow
+  new Color3(0.12, 0.28, 0.85), // P4 – blue
 ];
 
 /**
