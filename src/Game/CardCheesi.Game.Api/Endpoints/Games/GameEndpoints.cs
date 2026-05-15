@@ -2,6 +2,7 @@ using System.Security.Claims;
 using CardCheesi.Core;
 using CardCheesi.Game.Abstractions;
 using CardCheesi.Game.Abstractions.DataTransferObjects;
+using CardCheesi.Game.Features.Chat;
 using CardCheesi.Game.Features.CreateGame;
 using CardCheesi.Game.Features.GetGame;
 using CardCheesi.Game.Features.JoinGame;
@@ -48,6 +49,16 @@ public static class GameEndpoints
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status409Conflict)
+            .WithOpenApi();
+
+        group.MapPost("/{code}/chat", SendChatMessage)
+            .WithName("SendChatMessage")
+            .RequireAuthorization()
+            .Produces(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status403Forbidden)
+            .ProducesProblem(StatusCodes.Status404NotFound)
             .WithOpenApi();
 
         return app;
@@ -161,4 +172,37 @@ public static class GameEndpoints
         await presenceTracker.LeaveAsync(code, playerId, ct);
         return Results.NoContent();
     }
+
+    private static async Task<IResult> SendChatMessage(
+        string code,
+        SendChatMessageRequest request,
+        HttpContext httpContext,
+        ICommandHandler<SendChatMessageCommand> handler,
+        CancellationToken ct)
+    {
+        var playerId = Guid.Parse(httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)
+                                  ?? httpContext.User.FindFirstValue("sub")!);
+        var playerName = httpContext.User.FindFirstValue(ClaimTypes.Name)
+                         ?? httpContext.User.FindFirstValue("name")!;
+
+        try
+        {
+            await handler.Handle(new SendChatMessageCommand(code, playerId, playerName, request.Text), ct);
+            return Results.Ok();
+        }
+        catch (DomainException ex)
+        {
+            return Results.BadRequest(new { error = ex.Message });
+        }
+        catch (ForbiddenException)
+        {
+            return Results.Forbid();
+        }
+        catch (NotFoundException ex)
+        {
+            return Results.NotFound(new { error = ex.Message });
+        }
+    }
+
+    private sealed record SendChatMessageRequest(string Text);
 }

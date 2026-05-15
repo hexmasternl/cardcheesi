@@ -15,7 +15,14 @@ export interface YourTurnEvent {
   canDispose: boolean;
 }
 
-export type SseEventType = 'player-status' | 'player-joined' | 'your-turn';
+export interface ChatMessageEvent {
+  senderId: string;
+  senderName: string;
+  text: string;
+  timestamp: string;
+}
+
+export type SseEventType = 'player-status' | 'player-joined' | 'your-turn' | 'chat-message';
 
 @Injectable({ providedIn: 'root' })
 export class SseService {
@@ -24,6 +31,7 @@ export class SseService {
   readonly lastPlayerStatus = signal<PlayerStatusEvent | null>(null);
   readonly lastPlayerJoined = signal<PlayerJoinedEvent | null>(null);
   readonly lastYourTurn = signal<YourTurnEvent | null>(null);
+  readonly chatMessages = signal<ChatMessageEvent[]>([]);
   readonly connectionError = signal<boolean>(false);
 
   connect(gameCode: string, playerId: string): void {
@@ -66,6 +74,16 @@ export class SseService {
       }
     });
 
+    this.eventSource.addEventListener('chat-message', (event: MessageEvent) => {
+      try {
+        const data = JSON.parse(event.data) as ChatMessageEvent;
+        this.chatMessages.update((msgs) => [...msgs, data]);
+        this.connectionError.set(false);
+      } catch {
+        // malformed payload — ignore
+      }
+    });
+
     this.eventSource.onerror = () => {
       this.connectionError.set(true);
     };
@@ -78,5 +96,6 @@ export class SseService {
     }
     this.lastPlayerJoined.set(null);
     this.lastYourTurn.set(null);
+    this.chatMessages.set([]);
   }
 }

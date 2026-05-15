@@ -9,7 +9,7 @@ import {
   signal,
 } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
@@ -21,6 +21,7 @@ import { Card, GameState, GameStatusLabel } from './game-state.model';
 import { GameBoardComponent } from './game-board/game-board';
 import { PlayerPresencePanelComponent } from './player-presence-panel/player-presence-panel';
 import { GameHudComponent } from './game-hud/game-hud';
+import { ChatPanelComponent } from './chat-panel/chat-panel';
 import { AuthService } from '../../services/auth.service';
 import { SseService } from '../../services/sse.service';
 
@@ -36,6 +37,7 @@ import { SseService } from '../../services/sse.service';
     GameBoardComponent,
     PlayerPresencePanelComponent,
     GameHudComponent,
+    ChatPanelComponent,
   ],
   templateUrl: './game-page.html',
   styleUrl: './game-page.scss',
@@ -47,6 +49,7 @@ export class GamePage implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly sseService = inject(SseService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly http = inject(HttpClient);
 
   protected readonly gameCode = toSignal(
     this.route.paramMap.pipe(map((p) => p.get('gameCode') ?? '')),
@@ -58,6 +61,8 @@ export class GamePage implements OnInit {
   protected readonly error = signal<{ is404: boolean; message: string } | null>(null);
   protected readonly hudExpanded = signal(false);
   protected readonly hudCanDispose = signal(false);
+  protected readonly chatPanelExpanded = signal(false);
+  protected readonly chatMessages = computed(() => this.sseService.chatMessages());
 
   protected readonly statusLabel = computed(() => {
     const s = this.gameState();
@@ -143,6 +148,12 @@ export class GamePage implements OnInit {
 
   protected refresh(): void {
     this.fetchGame();
+  }
+
+  protected onSendMessage(text: string): void {
+    const code = this.gameCode();
+    if (!code) return;
+    this.http.post(`/api/games/${code}/chat`, { text }).subscribe();
   }
 
   private fetchGame(): void {

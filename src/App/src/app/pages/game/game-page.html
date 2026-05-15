@@ -72,6 +72,13 @@
       [cards]="myHand()"
       [canDispose]="hudCanDispose()"
     />
+
+    <!-- Chat panel (slides in from the left) -->
+    <app-chat-panel
+      [(expanded)]="chatPanelExpanded"
+      [messages]="chatMessages()"
+      (sendMessage)="onSendMessage($event)"
+    />
   }
 
 </div>

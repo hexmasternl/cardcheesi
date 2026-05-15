@@ -1,0 +1,55 @@
+<div class="chat-panel" [class.chat-panel--expanded]="expanded()">
+
+  <!-- Toggle tab on the right edge -->
+  <button class="chat-panel__toggle" (click)="toggle()" [attr.aria-label]="expanded() ? 'Collapse chat' : 'Expand chat'">
+    <i class="pi" [class.pi-comments]="!expanded()" [class.pi-chevron-left]="expanded()"></i>
+    @if (!expanded() && unreadCount() > 0) {
+      <span class="chat-panel__badge">{{ unreadCount() }}</span>
+    }
+  </button>
+
+  <!-- Panel body -->
+  <div class="chat-panel__body">
+
+    <div class="chat-panel__header">
+      <i class="pi pi-comments"></i>
+      <span>Chat</span>
+    </div>
+
+    <!-- Message list -->
+    <div class="chat-panel__messages" #messageList>
+      @if (messages().length === 0) {
+        <p class="chat-panel__empty">No messages yet. Say hello! 👋</p>
+      }
+      @for (msg of messages(); track msg.timestamp + msg.senderId) {
+        <div class="chat-panel__message" [class.chat-panel__message--own]="isOwnMessage(msg.senderId)">
+          <span class="chat-panel__sender">{{ msg.senderName }}</span>
+          <span class="chat-panel__text">{{ msg.text }}</span>
+          <span class="chat-panel__time">{{ formatTime(msg.timestamp) }}</span>
+        </div>
+      }
+    </div>
+
+    <!-- Composer -->
+    <div class="chat-panel__composer">
+      <input
+        class="chat-panel__input"
+        type="text"
+        placeholder="Type a message…"
+        [ngModel]="inputText()"
+        (ngModelChange)="inputText.set($event)"
+        (keydown)="onKeydown($event)"
+        maxlength="500"
+      />
+      <button
+        class="chat-panel__send"
+        [disabled]="!canSend()"
+        (click)="onSend()"
+        aria-label="Send message"
+      >
+        <i class="pi pi-send"></i>
+      </button>
+    </div>
+
+  </div>
+</div>

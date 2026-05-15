@@ -2,6 +2,7 @@ using CardCheesi.Core;
 using CardCheesi.Game.Abstractions;
 using CardCheesi.Game.Abstractions.DataTransferObjects;
 using CardCheesi.Game.Abstractions.DomainModels;
+using CardCheesi.Game.Features.Chat;
 using CardCheesi.Game.Features.CreateGame;
 using CardCheesi.Game.Features.GetGame;
 using CardCheesi.Game.Features.JoinGame;
@@ -23,6 +24,7 @@ public static class GameModuleRegistration
         services.AddScoped<ICommandHandler<CreateGameCommand, CreateGameResult>, CreateGameHandler>();
         services.AddScoped<ICommandHandler<JoinGameCommand, JoinGameResult>, JoinGameHandler>();
         services.AddScoped<IQueryHandler<GetGameQuery, GameDto?>, GetGameHandler>();
+        services.AddScoped<ICommandHandler<SendChatMessageCommand>, SendChatMessageHandler>();
 
         return services;
     }
