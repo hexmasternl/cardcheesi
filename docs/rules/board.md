@@ -1,5 +1,9 @@
 # Card-Cheesi — The Board
 
+## Physical Dimensions
+
+The physical board measures **128 × 128 centimeters**.
+
 ## Layout
 
 The board consists of **64 positions** arranged in a loop, plus **4 finish positions** per player.
