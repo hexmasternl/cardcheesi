@@ -65,6 +65,13 @@
       </header>
 
     </div>
+
+    <!-- HUD (outside content overlay so pointer-events work independently) -->
+    <app-game-hud
+      [(expanded)]="hudExpanded"
+      [cards]="myHand()"
+      [canDispose]="hudCanDispose()"
+    />
   }
 
 </div>

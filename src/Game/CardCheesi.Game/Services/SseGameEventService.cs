@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Threading.Channels;
 using CardCheesi.Game.Abstractions;
 using CardCheesi.Game.Abstractions.DataTransferObjects;
+using CardCheesi.Game.Abstractions.DomainModels;
 using Microsoft.AspNetCore.Http;
 
 namespace CardCheesi.Game.Services;
@@ -40,6 +41,12 @@ public sealed class SseGameEventService(
                 status = evt.Status.ToString(),
             });
             await WriteSseEventAsync(response, new SseEvent("player-status", snapshotPayload), ct);
+        }
+
+        if (game.Status == GameStatus.InProgress && game.Turn?.ActivePlayerId == playerId)
+        {
+            var yourTurnPayload = JsonSerializer.Serialize(new { canDispose = false });
+            await WriteSseEventAsync(response, new SseEvent("your-turn", yourTurnPayload), ct);
         }
 
         var keepAliveTimer = new PeriodicTimer(TimeSpan.FromSeconds(15));

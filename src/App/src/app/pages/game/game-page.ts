@@ -17,9 +17,10 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { TagModule } from 'primeng/tag';
 import { CardModule } from 'primeng/card';
 import { GameService } from './game.service';
-import { GameState, GameStatusLabel } from './game-state.model';
+import { Card, GameState, GameStatusLabel } from './game-state.model';
 import { GameBoardComponent } from './game-board/game-board';
 import { PlayerPresencePanelComponent } from './player-presence-panel/player-presence-panel';
+import { GameHudComponent } from './game-hud/game-hud';
 import { AuthService } from '../../services/auth.service';
 import { SseService } from '../../services/sse.service';
 
@@ -34,6 +35,7 @@ import { SseService } from '../../services/sse.service';
     CardModule,
     GameBoardComponent,
     PlayerPresencePanelComponent,
+    GameHudComponent,
   ],
   templateUrl: './game-page.html',
   styleUrl: './game-page.scss',
@@ -54,10 +56,19 @@ export class GamePage implements OnInit {
   protected readonly loading = signal(true);
   protected readonly gameState = signal<GameState | null>(null);
   protected readonly error = signal<{ is404: boolean; message: string } | null>(null);
+  protected readonly hudExpanded = signal(false);
+  protected readonly hudCanDispose = signal(false);
 
   protected readonly statusLabel = computed(() => {
     const s = this.gameState();
     return s ? (GameStatusLabel[s.status] ?? 'Unknown') : '';
+  });
+
+  protected readonly myHand = computed<Card[]>(() => {
+    const state = this.gameState();
+    const playerId = this.authService.getPlayerId();
+    if (!state?.hands || !playerId) return [];
+    return state.hands.find((h) => h.playerId === playerId)?.cards ?? [];
   });
 
   constructor() {
@@ -116,6 +127,13 @@ export class GamePage implements OnInit {
           players: [...state.players, { id: joined.playerId, name: joined.playerName, pawns: [] }],
         });
       }
+    });
+
+    effect(() => {
+      const ev = this.sseService.lastYourTurn();
+      if (!ev) return;
+      this.hudCanDispose.set(ev.canDispose);
+      this.hudExpanded.set(true);
     });
   }
 

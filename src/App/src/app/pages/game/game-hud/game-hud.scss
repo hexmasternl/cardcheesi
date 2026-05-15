@@ -1,0 +1,153 @@
+$primary:      #009ccc;
+$primary-glow: rgba(0, 156, 204, 0.35);
+$dark-bg:      #060f1f;
+
+@keyframes btnRunningLight {
+  0%   { background-position: -150% center; }
+  100% { background-position:  250% center; }
+}
+
+// ── HUD container ─────────────────────────────────────────────────────────────
+.hud {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  pointer-events: auto;
+
+  // Collapsed: only the toggle button (~2.5rem) peeks above the bottom edge
+  transform: translateY(calc(100% - 2.5rem));
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &--expanded {
+    transform: translateY(0);
+  }
+}
+
+// ── Toggle button ─────────────────────────────────────────────────────────────
+.hud__toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 2.5rem;
+  margin: 0 auto;
+  background: rgba($dark-bg, 0.85);
+  border: 1px solid rgba($primary, 0.35);
+  border-bottom: none;
+  border-radius: 10px 10px 0 0;
+  color: $primary;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+
+  i { font-size: 0.9rem; }
+
+  &:hover {
+    background: rgba($primary, 0.2);
+  }
+}
+
+// ── HUD body ──────────────────────────────────────────────────────────────────
+.hud__body {
+  display: flex;
+  align-items: flex-end;
+  gap: 1.5rem;
+  padding: 1rem 2rem 1.25rem;
+  background: rgba($dark-bg, 0.78);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-top: 1px solid rgba($primary, 0.2);
+}
+
+// ── Card fan ──────────────────────────────────────────────────────────────────
+.hud__cards {
+  position: relative;
+  flex: 1;
+  height: 130px;
+  min-width: 0;
+}
+
+// ── Action buttons ────────────────────────────────────────────────────────────
+.hud__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  flex-shrink: 0;
+  width: 130px;
+}
+
+.hud__btn {
+  width: 100%;
+  padding: 0.65rem 1rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.4);
+  font-family: 'Quicksand', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.04em;
+  cursor: not-allowed;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+  overflow: hidden;
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  // ── Play button (active state) ─────────────────────────────────────────────
+  &--play.hud__btn--active {
+    background: $primary;
+    border-color: $primary;
+    box-shadow: 0 4px 20px $primary-glow;
+    color: #fff;
+    cursor: pointer;
+
+    &:hover {
+      background: lighten($primary, 5%);
+    }
+
+    .hud__btn-label {
+      display: block;
+      background: linear-gradient(
+        90deg,
+        #93c8d9 0%,
+        #93c8d9 30%,
+        #ffffff 50%,
+        #93c8d9 70%,
+        #93c8d9 100%
+      );
+      background-size: 200% auto;
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      animation: btnRunningLight 2.2s linear infinite;
+      will-change: background-position;
+    }
+
+    &:hover .hud__btn-label {
+      animation-play-state: paused;
+      background: #fff;
+      background-clip: text;
+      -webkit-background-clip: text;
+    }
+  }
+
+  // ── Dispose button (active state) ─────────────────────────────────────────
+  &--dispose:not(:disabled) {
+    background: rgba(255, 200, 0, 0.15);
+    border-color: rgba(255, 200, 0, 0.5);
+    color: #ffc800;
+    cursor: pointer;
+
+    &:hover {
+      background: rgba(255, 200, 0, 0.25);
+    }
+  }
+}
+
+.hud__btn-label {
+  display: block;
+}

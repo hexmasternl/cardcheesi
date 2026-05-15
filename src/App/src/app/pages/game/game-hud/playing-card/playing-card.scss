@@ -1,0 +1,75 @@
+:host {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(calc(-50% + var(--card-offset, 0px))) rotate(var(--card-angle, 0deg));
+  transform-origin: bottom center;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  user-select: none;
+
+  &.selected {
+    transform: translateX(calc(-50% + var(--card-offset, 0px))) rotate(var(--card-angle, 0deg))
+      translateY(-18px);
+  }
+
+  &:hover:not(.selected) {
+    transform: translateX(calc(-50% + var(--card-offset, 0px))) rotate(var(--card-angle, 0deg))
+      translateY(-6px);
+  }
+}
+
+.card {
+  width: 68px;
+  height: 100px;
+  border-radius: 10px;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.25),
+    0 1px 4px rgba(0, 0, 0, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  color: #1a2a40;
+
+  &--red {
+    color: #c0392b;
+  }
+}
+
+.card__corner {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1;
+  gap: 1px;
+
+  &--tl {
+    top: 5px;
+    left: 6px;
+  }
+
+  &--br {
+    bottom: 5px;
+    right: 6px;
+    transform: rotate(180deg);
+  }
+}
+
+.card__rank {
+  font-size: 0.7rem;
+  font-weight: 700;
+  font-family: 'Quicksand', sans-serif;
+}
+
+.card__suit-small {
+  font-size: 0.6rem;
+}
+
+.card__center {
+  font-size: 1.6rem;
+  line-height: 1;
+}

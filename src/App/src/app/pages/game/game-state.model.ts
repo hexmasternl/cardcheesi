@@ -1,3 +1,22 @@
+export interface Card {
+  /** 0 = Clubs, 1 = Diamonds, 2 = Hearts, 3 = Spades */
+  suit: number;
+  /** 1 = Ace, 2–10, 11 = Jack, 12 = Queen, 13 = King */
+  rank: number;
+}
+
+export interface PlayerHand {
+  playerId: string;
+  cards: Card[];
+}
+
+export interface TurnState {
+  activePlayerId: string;
+  dealerId: string;
+  roundNumber: number;
+  cardsThisRound: number;
+}
+
 export interface GamePlayer {
   id: string;
   name: string;
@@ -16,9 +35,9 @@ export interface GameState {
   status: 0 | 1 | 2;
   teams: GameTeam[];
   players: GamePlayer[];
-  turn: unknown | null;
+  turn: TurnState | null;
   deck: unknown | null;
-  hands: unknown[] | null;
+  hands: PlayerHand[] | null;
 }
 
 export const GameStatus = {

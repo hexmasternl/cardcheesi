@@ -1,0 +1,45 @@
+<div class="hud" [class.hud--expanded]="expanded()">
+
+  <!-- Expand / collapse toggle -->
+  <button class="hud__toggle" type="button" (click)="toggle()" [attr.aria-label]="expanded() ? 'Collapse HUD' : 'Expand HUD'">
+    <i [class]="expanded() ? 'pi pi-chevron-down' : 'pi pi-chevron-up'"></i>
+  </button>
+
+  <!-- Main body -->
+  <div class="hud__body">
+
+    <!-- Cards fan -->
+    <div class="hud__cards">
+      @for (card of cards(); track $index) {
+        <app-playing-card
+          [card]="card"
+          [selected]="selectedIndex() === $index"
+          [style]="cardStyle($index)"
+          (click)="selectCard($index)"
+        />
+      }
+    </div>
+
+    <!-- Action buttons -->
+    <div class="hud__actions">
+      <button
+        class="hud__btn hud__btn--play"
+        [class.hud__btn--active]="canPlay()"
+        [disabled]="!canPlay()"
+        type="button"
+        (click)="onPlay()"
+      >
+        <span class="hud__btn-label">Play</span>
+      </button>
+      <button
+        class="hud__btn hud__btn--dispose"
+        [disabled]="!canDispose()"
+        type="button"
+        (click)="onDispose()"
+      >
+        <span class="hud__btn-label">Dispose</span>
+      </button>
+    </div>
+
+  </div>
+</div>

@@ -11,7 +11,11 @@ export interface PlayerJoinedEvent {
   playerName: string;
 }
 
-export type SseEventType = 'player-status' | 'player-joined';
+export interface YourTurnEvent {
+  canDispose: boolean;
+}
+
+export type SseEventType = 'player-status' | 'player-joined' | 'your-turn';
 
 @Injectable({ providedIn: 'root' })
 export class SseService {
@@ -19,6 +23,7 @@ export class SseService {
 
   readonly lastPlayerStatus = signal<PlayerStatusEvent | null>(null);
   readonly lastPlayerJoined = signal<PlayerJoinedEvent | null>(null);
+  readonly lastYourTurn = signal<YourTurnEvent | null>(null);
   readonly connectionError = signal<boolean>(false);
 
   connect(gameCode: string, playerId: string): void {
@@ -51,6 +56,16 @@ export class SseService {
       }
     });
 
+    this.eventSource.addEventListener('your-turn', (event: MessageEvent) => {
+      try {
+        const data = JSON.parse(event.data) as YourTurnEvent;
+        this.lastYourTurn.set(data);
+        this.connectionError.set(false);
+      } catch {
+        // malformed payload — ignore
+      }
+    });
+
     this.eventSource.onerror = () => {
       this.connectionError.set(true);
     };
@@ -62,5 +77,6 @@ export class SseService {
       this.eventSource = null;
     }
     this.lastPlayerJoined.set(null);
+    this.lastYourTurn.set(null);
   }
 }
