@@ -11,6 +11,7 @@ import {
 } from '@angular/core';
 import {
   AbstractEngine,
+  ActionManager,
   ArcRotateCamera,
   AssetContainer,
   BoundingInfo,
@@ -18,6 +19,7 @@ import {
   Color4,
   DirectionalLight,
   Engine,
+  ExecuteCodeAction,
   HemisphericLight,
   Mesh,
   PBRMaterial,
@@ -216,12 +218,32 @@ export class GameBoardComponent {
         const [x, y, z] = positions[i];
         root.position = new Vector3(x, y, z);
 
-        root.getChildMeshes().forEach(mesh => {
+        const childMeshes = root.getChildMeshes();
+        childMeshes.forEach(mesh => {
           const mat = new PBRMaterial(`pawn_mat_p${playerIndex}_${i}`, this.scene!);
           mat.albedoColor = color;
           mat.metallic = 0.1;
           mat.roughness = 0.5;
           mesh.material = mat;
+        });
+
+        // Hover: add an emissive glow on pointer-over, remove on pointer-out.
+        childMeshes.forEach(mesh => {
+          mesh.actionManager = new ActionManager(this.scene!);
+          mesh.actionManager.registerAction(
+            new ExecuteCodeAction(ActionManager.OnPointerOverTrigger, () => {
+              childMeshes.forEach(m => {
+                (m.material as PBRMaterial).emissiveColor = color.scale(0.4);
+              });
+            }),
+          );
+          mesh.actionManager.registerAction(
+            new ExecuteCodeAction(ActionManager.OnPointerOutTrigger, () => {
+              childMeshes.forEach(m => {
+                (m.material as PBRMaterial).emissiveColor = Color3.Black();
+              });
+            }),
+          );
         });
 
         this.spawnedPawnRoots.push(root);
