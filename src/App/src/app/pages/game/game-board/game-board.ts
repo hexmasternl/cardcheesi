@@ -144,7 +144,15 @@ export class GameBoardComponent {
     dirLight.intensity = 0.8;
 
     await SceneLoader.ImportMeshAsync('', '/models/', 'board.glb', scene).then(
-      ({ meshes }) => {
+      ({ meshes, transformNodes }) => {
+        // Move the board down by 2 cm so the board surface aligns with the
+        // pawn base positions (Y ≈ 0.006).  The glTF root TransformNode
+        // (__root__) is the first entry in transformNodes.
+        const boardRoot = transformNodes.find(n => n.name === '__root__') ?? transformNodes[0];
+        if (boardRoot) {
+          boardRoot.position.y = -0.02;
+        }
+
         const renderMeshes = meshes.filter((m): m is Mesh => m instanceof Mesh);
         if (renderMeshes.length > 0) {
           let min = renderMeshes[0].getBoundingInfo().boundingBox.minimumWorld;
