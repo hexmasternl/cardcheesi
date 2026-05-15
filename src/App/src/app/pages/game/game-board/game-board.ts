@@ -128,11 +128,11 @@ export class GameBoardComponent {
       'camera',
       -Math.PI / 2,
       Math.PI / 3.5,
-      1.4,
+      1.9,
       Vector3.Zero(),
       scene,
     );
-    camera.lowerRadiusLimit = 1.4;
+    camera.lowerRadiusLimit = 1.9;
     camera.upperRadiusLimit = 6;
     camera.lowerBetaLimit = 0.2;
     camera.upperBetaLimit = Math.PI / 2.1;
