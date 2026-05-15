@@ -1,7 +1,10 @@
 <div class="game-page">
 
   <!-- 3D board background -->
-  <app-game-board />
+  <app-game-board
+    [players]="gameState()?.players ?? []"
+    [gameStatus]="gameState()?.status ?? 0"
+  />
 
   <!-- Player presence panel (always visible when game state loaded) -->
   @if (!loading() && !error() && gameState(); as game) {
