@@ -4,6 +4,7 @@
   <ul class="presence-panel__list">
     @for (player of store.players(); track player.playerId) {
       <li class="presence-panel__item">
+        <span class="presence-panel__pawn" [style.color]="pawnColor(player.slotIndex)" aria-hidden="true">♟</span>
         <span class="presence-panel__name">{{ player.playerName }}</span>
         <p-tag
           [value]="statusLabel(player.status)"
@@ -25,6 +26,7 @@
       <span
         class="presence-panel__avatar"
         [class]="'presence-panel__avatar--' + player.status.toLowerCase()"
+        [style.border-color]="pawnColor(player.slotIndex)"
         [title]="player.playerName + ' — ' + statusLabel(player.status)"
       >{{ initials(player.playerName) }}</span>
     }

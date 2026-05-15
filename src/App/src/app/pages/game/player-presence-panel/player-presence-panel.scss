@@ -51,6 +51,13 @@ $presence-mobile-bp: 480px;
     }
   }
 
+  &__pawn {
+    font-size: 1rem;
+    flex-shrink: 0;
+    line-height: 1;
+    filter: drop-shadow(0 0 3px currentColor);
+  }
+
   &__name {
     font-size: 0.875rem;
     font-weight: 600;

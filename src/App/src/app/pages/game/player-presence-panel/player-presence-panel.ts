@@ -1,12 +1,12 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  effect,
   inject,
   input,
-  OnInit,
 } from '@angular/core';
 import { TagModule } from 'primeng/tag';
-import { PlayerPresenceStatus, PlayerPresenceStore } from './player-presence.store';
+import { PAWN_COLORS, PlayerPresenceStatus, PlayerPresenceStore } from './player-presence.store';
 import { GamePlayer } from '../game-state.model';
 
 @Component({
@@ -17,13 +17,17 @@ import { GamePlayer } from '../game-state.model';
   styleUrl: './player-presence-panel.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PlayerPresencePanelComponent implements OnInit {
+export class PlayerPresencePanelComponent {
   readonly players = input<GamePlayer[]>([]);
 
   protected readonly store = inject(PlayerPresenceStore);
 
-  ngOnInit(): void {
-    this.store.seedPlayers(this.players());
+  constructor() {
+    effect(() => this.store.seedPlayers(this.players()));
+  }
+
+  protected pawnColor(slotIndex: number): string {
+    return PAWN_COLORS[slotIndex] ?? '#888';
   }
 
   protected initials(name: string): string {

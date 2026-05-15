@@ -3,10 +3,15 @@ import { PlayerJoinedEvent, PlayerStatusEvent, SseService } from '../../../servi
 
 export type PlayerPresenceStatus = 'Connected' | 'Disconnected' | 'Left';
 
+/** CSS hex colors matching the Babylon.js PLAYER_COLORS in game-board.ts (sRGB approximation). */
+export const PAWN_COLORS: readonly string[] = ['#d91f1f', '#1f47d9', '#1fb333', '#e0bf05'];
+
 export interface PlayerPresenceEntry {
   playerId: string;
   playerName: string;
   status: PlayerPresenceStatus;
+  /** 0-based slot index — determines pawn color. */
+  slotIndex: number;
 }
 
 /**
@@ -36,11 +41,13 @@ export class PlayerPresenceStore {
 
   private applyStatusEvent(event: PlayerStatusEvent): void {
     this._presenceMap.update((map) => {
+      const existing = map.get(event.playerId);
       const next = new Map(map);
       next.set(event.playerId, {
         playerId: event.playerId,
         playerName: event.playerName,
         status: event.status as PlayerPresenceStatus,
+        slotIndex: existing?.slotIndex ?? next.size,
       });
       return next;
     });
@@ -54,6 +61,7 @@ export class PlayerPresenceStore {
         playerId: event.playerId,
         playerName: event.playerName,
         status: 'Connected',
+        slotIndex: next.size,
       });
       return next;
     });
@@ -63,15 +71,16 @@ export class PlayerPresenceStore {
   seedPlayers(players: Array<{ id: string; name: string }>): void {
     this._presenceMap.update((map) => {
       const next = new Map(map);
-      for (const p of players) {
+      players.forEach((p, index) => {
         if (!next.has(p.id)) {
           next.set(p.id, {
             playerId: p.id,
             playerName: p.name,
             status: 'Disconnected',
+            slotIndex: index,
           });
         }
-      }
+      });
       return next;
     });
   }
