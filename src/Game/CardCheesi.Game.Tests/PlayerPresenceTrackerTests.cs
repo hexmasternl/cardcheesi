@@ -86,4 +86,67 @@ public sealed class PlayerPresenceTrackerTests
         Assert.Contains(broadcastedStatuses, s => s.Contains("Connected"));
         Assert.Contains(broadcastedStatuses, s => s.Contains("Disconnected"));
     }
+
+    [Fact]
+    public async Task LeaveAsync_SetsStatusLeft_AndBroadcasts()
+    {
+        var (tracker, mock) = CreateTracker();
+        var playerId = Guid.NewGuid();
+
+        await tracker.ConnectAsync("GAME01", playerId, "Eve");
+        await tracker.LeaveAsync("GAME01", playerId);
+
+        var snapshot = tracker.GetSnapshot("GAME01");
+        Assert.Equal(PlayerPresenceStatus.Left, snapshot[0].Status);
+
+        // Connected + Left = 2 broadcasts
+        mock.Verify(m => m.BroadcastAsync("GAME01", It.IsAny<SseEvent>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
+    }
+
+    [Fact]
+    public async Task LeaveAsync_IsIdempotent_WhenAlreadyLeft()
+    {
+        var (tracker, mock) = CreateTracker();
+        var playerId = Guid.NewGuid();
+
+        await tracker.ConnectAsync("GAME01", playerId, "Frank");
+        await tracker.LeaveAsync("GAME01", playerId);
+        await tracker.LeaveAsync("GAME01", playerId); // second call — should be a no-op
+
+        mock.Verify(m => m.BroadcastAsync("GAME01", It.IsAny<SseEvent>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
+    }
+
+    [Fact]
+    public async Task DisconnectAsync_DoesNotDowngrade_WhenPlayerAlreadyLeft()
+    {
+        var (tracker, mock) = CreateTracker();
+        var playerId = Guid.NewGuid();
+
+        await tracker.ConnectAsync("GAME01", playerId, "Grace");
+        await tracker.LeaveAsync("GAME01", playerId);
+
+        // SSE close may race with the beacon — DisconnectAsync must not downgrade Left → Disconnected
+        await tracker.DisconnectAsync("GAME01", playerId);
+
+        var snapshot = tracker.GetSnapshot("GAME01");
+        Assert.Equal(PlayerPresenceStatus.Left, snapshot[0].Status);
+
+        // Only Connected + Left — no extra Disconnected broadcast
+        mock.Verify(m => m.BroadcastAsync("GAME01", It.IsAny<SseEvent>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
+    }
+
+    [Fact]
+    public async Task LeaveAsync_CancelsGraceTimer_FromDisconnectedState()
+    {
+        var (tracker, mock) = CreateTracker();
+        var playerId = Guid.NewGuid();
+
+        await tracker.ConnectAsync("GAME01", playerId, "Henry");
+        await tracker.DisconnectAsync("GAME01", playerId);
+        // Grace period started — explicit leave should cancel it and set Left immediately
+        await tracker.LeaveAsync("GAME01", playerId);
+
+        var snapshot = tracker.GetSnapshot("GAME01");
+        Assert.Equal(PlayerPresenceStatus.Left, snapshot[0].Status);
+    }
 }

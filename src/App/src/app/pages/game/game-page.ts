@@ -72,6 +72,37 @@ export class GamePage implements OnInit {
 
     this.destroyRef.onDestroy(() => this.sseService.disconnect());
 
+    // Notify the server when the player leaves the page (tab close, navigation, browser close).
+    const handleBeforeUnload = () => {
+      const code = this.gameCode();
+      const token = this.authService.accessToken();
+      if (!code || !token) return;
+      void fetch(`/api/games/${code}/leave`, {
+        method: 'POST',
+        keepalive: true,
+        headers: { Authorization: `Bearer ${token}` },
+      });
+    };
+
+    // Reconnect SSE when the tab becomes visible again after an error.
+    const handleVisibilityChange = () => {
+      if (!document.hidden && this.sseService.connectionError()) {
+        const code = this.gameCode();
+        const playerId = this.authService.getPlayerId();
+        if (code && playerId) {
+          this.sseService.connect(code, playerId);
+        }
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    this.destroyRef.onDestroy(() => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    });
+
     effect(() => {
       const joined = this.sseService.lastPlayerJoined();
       if (!joined) return;

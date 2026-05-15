@@ -27,6 +27,10 @@ export class SseService {
     const url = `/api/games/${gameCode}/events?playerId=${encodeURIComponent(playerId)}`;
     this.eventSource = new EventSource(url);
 
+    this.eventSource.onopen = () => {
+      this.connectionError.set(false);
+    };
+
     this.eventSource.addEventListener('player-status', (event: MessageEvent) => {
       try {
         const data = JSON.parse(event.data) as PlayerStatusEvent;

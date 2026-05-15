@@ -53,6 +53,9 @@ public sealed class PlayerPresenceTracker : IPlayerPresenceTracker
         if (!_games.TryGetValue(gameCode, out var players)) return;
         if (!players.TryGetValue(playerId, out var existing)) return;
 
+        // Do not downgrade a player who has explicitly left
+        if (existing.Status == PlayerPresenceStatus.Left) return;
+
         var graceCts = new CancellationTokenSource();
         players[playerId] = existing with { Status = PlayerPresenceStatus.Disconnected, GraceTimer = graceCts };
 
@@ -76,6 +79,22 @@ public sealed class PlayerPresenceTracker : IPlayerPresenceTracker
                 // Grace period was cancelled — player reconnected
             }
         }, CancellationToken.None);
+    }
+
+    public async Task LeaveAsync(string gameCode, Guid playerId, CancellationToken ct = default)
+    {
+        if (!_games.TryGetValue(gameCode, out var players)) return;
+        if (!players.TryGetValue(playerId, out var existing)) return;
+
+        // Idempotent — already left
+        if (existing.Status == PlayerPresenceStatus.Left) return;
+
+        // Cancel any pending grace timer
+        existing.GraceTimer?.Cancel();
+        existing.GraceTimer?.Dispose();
+
+        players[playerId] = existing with { Status = PlayerPresenceStatus.Left, GraceTimer = null };
+        await BroadcastStatusAsync(gameCode, playerId, existing.PlayerName, PlayerPresenceStatus.Left, ct);
     }
 
     private async Task BroadcastStatusAsync(

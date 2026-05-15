@@ -34,6 +34,13 @@ public static class GameEndpoints
         group.MapGet("/{code}/events", GetGameEvents)
             .WithName("GameEvents");
 
+        group.MapPost("/{code}/leave", LeaveGame)
+            .WithName("LeaveGame")
+            .RequireAuthorization()
+            .Produces(StatusCodes.Status204NoContent)
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .WithOpenApi();
+
         group.MapPost("/{code}/join", JoinGame)
             .WithName("JoinGame")
             .RequireAuthorization()
@@ -138,5 +145,20 @@ public static class GameEndpoints
         {
             return Results.Conflict(new { error = ex.Message });
         }
+    }
+
+    private static async Task<IResult> LeaveGame(
+        string code,
+        HttpContext httpContext,
+        IPlayerPresenceTracker presenceTracker,
+        CancellationToken ct)
+    {
+        var playerIdStr = httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)
+                          ?? httpContext.User.FindFirstValue("sub");
+        if (!Guid.TryParse(playerIdStr, out var playerId))
+            return Results.Unauthorized();
+
+        await presenceTracker.LeaveAsync(code, playerId, ct);
+        return Results.NoContent();
     }
 }
