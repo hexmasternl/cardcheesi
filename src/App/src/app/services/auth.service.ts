@@ -52,6 +52,16 @@ export class AuthService {
     this.scheduleProactiveRefresh(token);
   }
 
+  /** Returns the authenticated player's ID (JWT `sub`), or null if not authenticated or token expired. */
+  getPlayerId(): string | null {
+    const token = this._accessToken();
+    if (!token) return null;
+    const payload = this.parseJwtPayload(token);
+    if (!payload?.sub) return null;
+    if (payload.exp * 1000 <= Date.now()) return null;
+    return payload.sub;
+  }
+
   clearSession(): void {
     this._accessToken.set(null);
     if (this.refreshTimerId !== null) {

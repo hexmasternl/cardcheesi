@@ -1,5 +1,4 @@
 import {
-  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   computed,
@@ -21,9 +20,9 @@ import { GameService } from './game.service';
 import { GameState, GameStatusLabel } from './game-state.model';
 import { GameBoardComponent } from './game-board/game-board';
 import { PlayerPresencePanelComponent } from './player-presence-panel/player-presence-panel';
+import { AuthService } from '../../services/auth.service';
 import { SseService } from '../../services/sse.service';
 
-const LOCAL_PLAYER_KEY = (gameCode: string) => `cardcheesi_player_${gameCode}`;
 
 @Component({
   selector: 'app-game-page',
@@ -43,6 +42,7 @@ const LOCAL_PLAYER_KEY = (gameCode: string) => `cardcheesi_player_${gameCode}`;
 export class GamePage implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly gameService = inject(GameService);
+  private readonly authService = inject(AuthService);
   private readonly sseService = inject(SseService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -61,13 +61,13 @@ export class GamePage implements OnInit {
   });
 
   constructor() {
-    afterNextRender(() => {
+    // Connect SSE whenever gameCode and playerId are both available.
+    // Re-runs automatically if the access token is refreshed.
+    effect(() => {
       const code = this.gameCode();
-      if (!code) return;
-      const playerId = localStorage.getItem(LOCAL_PLAYER_KEY(code));
-      if (playerId) {
-        this.sseService.connect(code, playerId);
-      }
+      const playerId = this.authService.getPlayerId();
+      if (!code || !playerId) return;
+      this.sseService.connect(code, playerId);
     });
 
     this.destroyRef.onDestroy(() => this.sseService.disconnect());
