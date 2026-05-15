@@ -104,22 +104,35 @@ public sealed class GameFactoryTests
     }
 
     [Fact]
-    public void Create_DeckContains52Cards()
-    {
-        var state = GameFactory.Create(FourNames, TestCode);
-
-        Assert.NotNull(state.Deck);
-        Assert.Equal(52, state.Deck.Cards.Count);
-    }
-
-    [Fact]
-    public void Create_AllHandsAreEmpty()
+    public void Create_EachPlayerHasFiveCards()
     {
         var state = GameFactory.Create(FourNames, TestCode);
 
         Assert.NotNull(state.Hands);
         Assert.Equal(4, state.Hands.Count);
-        Assert.All(state.Hands, h => Assert.Empty(h.Cards));
+        Assert.All(state.Hands, h => Assert.Equal(5, h.Cards.Count));
+    }
+
+    [Fact]
+    public void Create_DeckHas32CardsAfterDealing()
+    {
+        var state = GameFactory.Create(FourNames, TestCode);
+
+        Assert.NotNull(state.Deck);
+        Assert.Equal(32, state.Deck.Cards.Count);
+    }
+
+    [Fact]
+    public void Create_AllDealtCardsAndRemainingDeckAre52UniqueCards()
+    {
+        var state = GameFactory.Create(FourNames, TestCode);
+
+        var allCards = state.Hands!.SelectMany(h => h.Cards)
+            .Concat(state.Deck!.Cards)
+            .ToList();
+
+        Assert.Equal(52, allCards.Count);
+        Assert.Equal(52, allCards.Distinct().Count());
     }
 
     [Fact]

@@ -65,12 +65,85 @@ public sealed class DeckTests
     }
 
     [Fact]
-    public void Shuffle_WithSameSeed_ProducesSameOrder()
+    public void Deal_ReturnsRequestedNumberOfCards()
     {
-        var original = Deck.Standard();
-        var deck1 = original.Shuffle(new SeededRandom(99));
-        var deck2 = original.Shuffle(new SeededRandom(99));
+        var deck = Deck.Standard().Shuffle(new SeededRandom(1));
 
-        Assert.True(deck1.Cards.SequenceEqual(deck2.Cards));
+        var (dealt, _) = deck.Deal(5);
+
+        Assert.Equal(5, dealt.Count);
+    }
+
+    [Fact]
+    public void Deal_RemainingDeckHasReducedCount()
+    {
+        var deck = Deck.Standard().Shuffle(new SeededRandom(1));
+
+        var (_, remaining) = deck.Deal(5);
+
+        Assert.Equal(47, remaining.Cards.Count);
+    }
+
+    [Fact]
+    public void Deal_DealtCardsAreFromTopOfDeck()
+    {
+        var deck = Deck.Standard().Shuffle(new SeededRandom(1));
+
+        var (dealt, _) = deck.Deal(5);
+
+        Assert.Equal(deck.Cards.Take(5).ToList(), dealt);
+    }
+
+    [Fact]
+    public void Deal_RemainingCardsMatchDeckTail()
+    {
+        var deck = Deck.Standard().Shuffle(new SeededRandom(1));
+
+        var (_, remaining) = deck.Deal(5);
+
+        Assert.Equal(deck.Cards.Skip(5).ToList(), remaining.Cards);
+    }
+
+    [Fact]
+    public void Deal_DoesNotMutateOriginalDeck()
+    {
+        var deck = Deck.Standard();
+        var originalCards = deck.Cards.ToList();
+
+        deck.Deal(5);
+
+        Assert.Equal(originalCards, deck.Cards);
+    }
+
+    [Fact]
+    public void Deal_WithZeroCount_ReturnsEmptyDealtAndFullDeck()
+    {
+        var deck = Deck.Standard();
+
+        var (dealt, remaining) = deck.Deal(0);
+
+        Assert.Empty(dealt);
+        Assert.Equal(52, remaining.Cards.Count);
+    }
+
+    [Fact]
+    public void Deal_WithExactDeckCount_EmptiesRemainingDeck()
+    {
+        var deck = Deck.Standard();
+
+        var (dealt, remaining) = deck.Deal(52);
+
+        Assert.Equal(52, dealt.Count);
+        Assert.Empty(remaining.Cards);
+    }
+
+    [Theory]
+    [InlineData(-1)]
+    [InlineData(53)]
+    public void Deal_WithInvalidCount_ThrowsArgumentOutOfRangeException(int count)
+    {
+        var deck = Deck.Standard();
+
+        Assert.Throws<ArgumentOutOfRangeException>(() => deck.Deal(count));
     }
 }

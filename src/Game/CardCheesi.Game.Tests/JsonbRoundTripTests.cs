@@ -59,7 +59,7 @@ public sealed class JsonbRoundTripTests
         Assert.Equal(4, restored.Players.Count);
         Assert.NotNull(restored.Turn);
         Assert.NotNull(restored.Deck);
-        Assert.Equal(52, restored.Deck.Cards.Count);
+        Assert.Equal(32, restored.Deck.Cards.Count);
         Assert.NotNull(restored.Hands);
     }
 

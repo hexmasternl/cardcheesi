@@ -68,11 +68,17 @@ public static class GameFactory
             new(Guid.NewGuid(), [players[1], players[3]])
         };
 
-        var deck = Deck.Standard().Shuffle(rng);
+        var remainingDeck = Deck.Standard().Shuffle(rng);
+        var hands = new List<PlayerHand>(players.Count);
 
-        var hands = players
-            .Select(p => new PlayerHand(p.Id, []))
-            .ToList<PlayerHand>();
+        foreach (var player in players)
+        {
+            var (dealt, rest) = remainingDeck.Deal(5);
+            hands.Add(new PlayerHand(player.Id, dealt));
+            remainingDeck = rest;
+        }
+
+        var deck = remainingDeck;
 
         var turnState = new TurnState(
             ActivePlayerId: players[0].Id,

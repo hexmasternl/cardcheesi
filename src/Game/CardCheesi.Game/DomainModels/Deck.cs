@@ -27,4 +27,22 @@ public record Deck(IReadOnlyList<Card> Cards) : IDeck
     }
 
     IDeck IDeck.Shuffle(IRandom rng) => Shuffle(rng);
+
+    /// <summary>
+    /// Deals <paramref name="count"/> cards from the top of the deck.
+    /// Returns the dealt cards and a new <see cref="Deck"/> with those cards removed.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// Thrown when <paramref name="count"/> is negative or exceeds the number of cards in the deck.
+    /// </exception>
+    public (IReadOnlyList<Card> Dealt, Deck Remaining) Deal(int count)
+    {
+        if (count < 0 || count > Cards.Count)
+            throw new ArgumentOutOfRangeException(nameof(count),
+                $"Cannot deal {count} cards from a deck of {Cards.Count}.");
+
+        var dealt = Cards.Take(count).ToList().AsReadOnly();
+        var remaining = new Deck(Cards.Skip(count).ToList().AsReadOnly());
+        return (dealt, remaining);
+    }
 }
