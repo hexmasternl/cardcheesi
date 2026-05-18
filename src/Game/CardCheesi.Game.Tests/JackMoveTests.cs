@@ -147,15 +147,41 @@ public class JackMoveTests
     }
 
     [Fact]
-    public void GetValidMoves_JackCard_OnlyOwnBoardPawnsNoEnemy_ReturnsEmpty()
+    public void GetValidMoves_JackCard_ProtectedTeammateExcludedFromSwap_InNormalMode()
     {
+        // Player 0 controls own (unprotected) pawn; teammate (player 2) has a PROTECTED
+        // pawn on the board. Per rules: protected pawns owned by anyone other than the
+        // controller cannot be swapped — teammate's protected pawn is off-limits in normal mode.
         var state   = CreateGame();
-        state = state.WithPawnAtBoard(0, 0, 5);   // only own pawn on board, no enemy
+        state = state.WithPawnAtBoard(0, 0, 5);
+        state = state.WithPawnAtBoard(2, 0, 40, isProtected: true);  // teammate protected
         state = state.WithHand(0, JackCard);
-        var playerId = state.Players[0].Id;
+        var playerId   = state.Players[0].Id;
+        var teammatePawnId = state.Players[2].Pawns[0].Id;
 
         var moves = state.GetValidMoves(playerId, JackCard);
 
-        Assert.Empty(moves);
+        Assert.DoesNotContain(moves, m =>
+            m is SwapMove sw && (sw.PawnId1 == teammatePawnId || sw.PawnId2 == teammatePawnId));
+    }
+
+    [Fact]
+    public void GetValidMoves_JackCard_UnprotectedTeammatePawnCanBeSwapped()
+    {
+        // Sanity check: teammate's UNprotected pawn is still a valid swap target.
+        var state   = CreateGame();
+        state = state.WithPawnAtBoard(0, 0, 5);
+        state = state.WithPawnAtBoard(2, 0, 40, isProtected: false);
+        state = state.WithHand(0, JackCard);
+        var playerId   = state.Players[0].Id;
+        var ownPawnId  = state.Players[0].Pawns[0].Id;
+        var teammateId = state.Players[2].Pawns[0].Id;
+
+        var moves = state.GetValidMoves(playerId, JackCard);
+
+        Assert.Contains(moves, m =>
+            m is SwapMove sw &&
+            ((sw.PawnId1 == ownPawnId && sw.PawnId2 == teammateId) ||
+             (sw.PawnId1 == teammateId && sw.PawnId2 == ownPawnId)));
     }
 }

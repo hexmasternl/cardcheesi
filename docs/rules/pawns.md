@@ -33,7 +33,6 @@ Once a pawn enters the **finish area**, it is protected for the rest of the game
 When a **Jack** is played, the player swaps the positions of two pawns. The following rules apply:
 
 - The two pawns **must be of different colors**.
-- Protected pawns **cannot be swapped** unless the player owns the protected pawn.
-  - If the protected pawn belongs to another player, the swap is **rejected**.
-- **Exception**: If a player has finished all 4 of their own pawns and is now playing their teammate's pawns, they may swap a **protected pawn belonging to their teammate**.
+- A protected pawn that the controller does not own **cannot be swapped** — this includes a teammate's protected pawn.
+- **Proxy mode**: When a player has finished all 4 of their own pawns they begin playing their teammate's pawns. Those teammate pawns become the controller's pawns for the rest of the game, so the teammate's protected pawns may participate in a swap *as the controller-owned side* of the swap.
 - Pawns in the **finish area** cannot be swapped.

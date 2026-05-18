@@ -143,7 +143,9 @@ internal static class CardMoveEnumerator
                 moves.Add(new SingleMove(pawn.Id, 7));
         }
 
-        // Splits: steps1 + steps2 = 7, two different pawns
+        // Splits: steps1 + steps2 = 7, two different pawns.
+        // Pawn 2 is validated against the state AFTER step 1 has been applied so the
+        // enumeration matches what MakeSplitMove will actually execute.
         for (int i = 0; i < boardPawns.Count; i++)
         {
             for (int j = 0; j < boardPawns.Count; j++)
@@ -153,9 +155,7 @@ internal static class CardMoveEnumerator
                 var pawn1 = boardPawns[i];
                 var pawn2 = boardPawns[j];
                 int pawnIdx1 = MoveValidator.GetPlayerIndex(pawn1.OwnerId, state.Players);
-                int pawnIdx2 = MoveValidator.GetPlayerIndex(pawn2.OwnerId, state.Players);
                 var bl1 = (BoardLocation)pawn1.Location;
-                var bl2 = (BoardLocation)pawn2.Location;
 
                 for (int steps1 = 1; steps1 <= 6; steps1++)
                 {
@@ -165,9 +165,27 @@ internal static class CardMoveEnumerator
                         bl1.Position, steps1, pawn1.OwnerId, pawnIdx1, state);
                     if (dest1 is null) continue;
 
-                    // Simplified: check pawn2 against original state
+                    GameState afterStep1;
+                    try
+                    {
+                        afterStep1 = state.MakeMove(pawn1.Id, steps1);
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        continue;
+                    }
+
+                    // Re-locate pawn2 in the post-step1 state (it may have been hit & sent
+                    // to reserve by step 1, or moved if pawn2 was the one being hit).
+                    var pawn2After = MoveValidator.AllPawns(afterStep1)
+                        .FirstOrDefault(p => p.Id == pawn2.Id);
+                    if (pawn2After is null) continue;
+                    if (pawn2After.Location is not BoardLocation bl2After) continue;
+
+                    int pawnIdx2 = MoveValidator.GetPlayerIndex(pawn2.OwnerId, afterStep1.Players);
+
                     var dest2 = MoveValidator.TryAdvanceFromBoard(
-                        bl2.Position, steps2, pawn2.OwnerId, pawnIdx2, state);
+                        bl2After.Position, steps2, pawn2.OwnerId, pawnIdx2, afterStep1);
                     if (dest2 is null) continue;
 
                     var split = new SplitMove(pawn1.Id, steps1, pawn2.Id, steps2);
@@ -183,16 +201,16 @@ internal static class CardMoveEnumerator
 
     /// <summary>
     /// Jack: swap positions of two board pawns belonging to different owners.
-    /// Cannot swap finish pawns or protected enemies (except teammate proxy exception).
+    /// A protected pawn belonging to anyone other than the controller (including a teammate)
+    /// cannot be swapped. Pawns in the finish corridor cannot be swapped.
+    /// In proxy mode the "controller" pawns are the teammate's pawns, so the teammate's
+    /// protected pawn IS the controller's pawn and may participate in a swap — this is
+    /// naturally handled by <see cref="GetControlledPawns"/>.
     /// </summary>
     private static IReadOnlyList<MoveOption> EnumerateJackMoves(
         GameState state, Guid playerId, int playerIndex)
     {
         var moves = new List<MoveOption>();
-        int teammateIdx = MoveValidator.GetTeammateIndex(playerIndex);
-        Guid? teammateId = teammateIdx < state.Players.Count
-            ? state.Players[teammateIdx].Id
-            : null;
 
         var controllerBoardPawns = GetControlledPawns(state, playerId, playerIndex)
             .Where(p => p.Location is BoardLocation)
@@ -208,12 +226,8 @@ internal static class CardMoveEnumerator
             {
                 if (otherPawn.OwnerId == myPawn.OwnerId) continue; // same owner
 
-                // Check protection on the other pawn
-                if (otherPawn.IsProtected)
-                {
-                    // Proxy exception: can swap a protected teammate pawn
-                    if (otherPawn.OwnerId != teammateId) continue;
-                }
+                // Cannot swap a protected pawn that the controller does not own.
+                if (otherPawn.IsProtected) continue;
 
                 var swap = new SwapMove(myPawn.Id, otherPawn.Id);
                 var swapRev = new SwapMove(otherPawn.Id, myPawn.Id);

@@ -24,7 +24,7 @@ One player is designated the **dealer** for all three rounds. After all three ro
 On their turn, a player must either:
 
 1. **Play a card** — choose a valid card from their hand and execute its action (see [Cards](cards.md)).
-2. **Dispose all cards** — if no valid move is possible with any card in hand, the player discards their entire hand and skips their turn.
+2. **Dispose all cards** — if (and only if) **no** card in the player's hand has any legal move, the player discards their **entire** hand in a single action and skips their turn. Partial disposes are not allowed: as long as one card is playable, the player must take a turn.
 
 ## Playing Teammate Pawns
 

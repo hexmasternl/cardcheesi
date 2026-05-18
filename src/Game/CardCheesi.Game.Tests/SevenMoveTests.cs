@@ -120,15 +120,60 @@ public class SevenMoveTests
     }
 
     [Fact]
-    public void GetValidMoves_SevenCard_NoPawnsOnBoard_ReturnsEmpty()
+    public void GetValidMoves_SevenCard_SplitDoesNotIncludeMoveBlockedByStep1Outcome()
     {
+        // Setup: own pawn0 at 5, enemy pawn at 8 (unprotected).
+        // Own pawn1 at 30.
+        // A split of pawn0=3 + pawn1=4 would: step1 hits enemy at 8 (legal). step2 advances
+        // pawn1 from 30 to 34 (legal in both old and new logic).
+        // The enumerator must validate step2 against the POST-step1 state — this test makes
+        // sure the change does not regress legitimate splits.
         var state = CreateGame();
-        // All pawns in reserve by default
+        state = state.WithPawnAtBoard(0, 0, 5);
+        state = state.WithPawnAtBoard(1, 0, 8, isProtected: false);
+        state = state.WithPawnAtBoard(0, 1, 30);
         state = state.WithHand(0, SevenCard);
         var playerId = state.Players[0].Id;
+        var pawn0Id  = state.Players[0].Pawns[0].Id;
+        var pawn1Id  = state.Players[0].Pawns[1].Id;
 
         var moves = state.GetValidMoves(playerId, SevenCard);
 
-        Assert.Empty(moves);
+        Assert.Contains(moves, m =>
+            m is SplitMove sp &&
+            ((sp.PawnId1 == pawn0Id && sp.Steps1 == 3 && sp.PawnId2 == pawn1Id && sp.Steps2 == 4) ||
+             (sp.PawnId1 == pawn1Id && sp.Steps1 == 4 && sp.PawnId2 == pawn0Id && sp.Steps2 == 3)));
+    }
+
+    [Fact]
+    public void GetValidMoves_SevenCard_SplitRejectedWhenStep1MakesStep2Illegal()
+    {
+        // Own pawn0 at 5. Own pawn1 at 8.
+        // Order A: pawn0 first, 3 steps → would land on own pawn1 at 8 (ILLEGAL).
+        // Order B: pawn1 first, 4 steps → pawn1 vacates 8; then pawn0 advances 3 → 8 (LEGAL).
+        // The post-step1-aware enumerator must reject A and accept B for this 3+4 distribution.
+        var state = CreateGame();
+        state = state.WithPawnAtBoard(0, 0, 5);
+        state = state.WithPawnAtBoard(0, 1, 8);
+        state = state.WithHand(0, SevenCard);
+        var playerId = state.Players[0].Id;
+        var pawn0Id  = state.Players[0].Pawns[0].Id;
+        var pawn1Id  = state.Players[0].Pawns[1].Id;
+
+        var moves = state.GetValidMoves(playerId, SevenCard);
+
+        // The ILLEGAL ordering (pawn0 first by 3) must not be present.
+        Assert.DoesNotContain(moves, m =>
+            m is SplitMove sp && sp.PawnId1 == pawn0Id && sp.Steps1 == 3 && sp.PawnId2 == pawn1Id);
+
+        // The LEGAL reverse ordering (pawn1 first by 4, then pawn0 by 3) should be enumerated.
+        Assert.Contains(moves, m =>
+            m is SplitMove sp && sp.PawnId1 == pawn1Id && sp.Steps1 == 4 && sp.PawnId2 == pawn0Id && sp.Steps2 == 3);
+
+        // Sanity: a legal 1+6 split (pawn0→6, pawn1→14) should still be present.
+        Assert.Contains(moves, m =>
+            m is SplitMove sp &&
+            ((sp.PawnId1 == pawn0Id && sp.Steps1 == 1 && sp.PawnId2 == pawn1Id && sp.Steps2 == 6) ||
+             (sp.PawnId1 == pawn1Id && sp.Steps1 == 6 && sp.PawnId2 == pawn0Id && sp.Steps2 == 1)));
     }
 }

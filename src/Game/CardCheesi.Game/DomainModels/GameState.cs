@@ -251,6 +251,36 @@ public record GameState(
 
     bool IGameState.HasPlayableCards(Guid playerId) => HasPlayableCards(playerId);
 
+    /// <summary>
+    /// Discards the player's entire hand at once. Permitted only when the player has no
+    /// playable cards — partial disposes are rejected.
+    /// </summary>
+    public GameState DisposeHand(Guid playerId)
+    {
+        if (Hands is null)
+            throw new InvalidOperationException("Game has no active hands.");
+
+        var hand = Hands.FirstOrDefault(h => h.PlayerId == playerId)
+            ?? throw new InvalidOperationException($"No hand found for player {playerId}.");
+
+        if (HasPlayableCards(playerId))
+            throw new InvalidOperationException(
+                $"Player {playerId} has at least one playable card and must take a turn instead of disposing.");
+
+        if (hand.Cards.Count == 0)
+            return this; // nothing to discard
+
+        var emptiedHand = new PlayerHand(playerId, new List<Card>().AsReadOnly());
+        var newHands = Hands
+            .Select(h => h.PlayerId == playerId ? emptiedHand : h)
+            .ToList()
+            .AsReadOnly();
+
+        return this with { Hands = newHands };
+    }
+
+    IGameState IGameState.DisposeHand(Guid playerId) => DisposeHand(playerId);
+
     // -----------------------------------------------------------------------
     // Private helpers
     // -----------------------------------------------------------------------

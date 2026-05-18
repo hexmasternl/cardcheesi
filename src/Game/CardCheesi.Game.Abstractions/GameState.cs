@@ -32,6 +32,13 @@ public interface IGameState
     /// <summary>Returns true if the player has at least one valid move with any card currently in hand.</summary>
     bool HasPlayableCards(Guid playerId);
 
+    /// <summary>
+    /// Discards every card in <paramref name="playerId"/>'s hand at once. A player MAY only
+    /// dispose when they have no playable cards (see <see cref="HasPlayableCards"/>);
+    /// partial disposes are not permitted.
+    /// </summary>
+    IGameState DisposeHand(Guid playerId);
+
     /// <summary>Returns all legal move options for the given player and card.</summary>
     IReadOnlyList<MoveOption> GetValidMoves(Guid playerId, Card card);
 }
