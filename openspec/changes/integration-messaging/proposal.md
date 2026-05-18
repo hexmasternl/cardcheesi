@@ -25,7 +25,7 @@ _(none — no existing spec-level requirements change)_
 ## Impact
 
 - **New project**: `src/CardCheesi.IntegrationMessages/` — referenced by both API projects and potentially future consumers.
-- **AppHost** (`src/card-cheesi.AppHost/`): adds Dapr Community Toolkit NuGet, calls `AddDaprPubSub()`, wires sidecars to `players-api` and `game-api` resources.
+- **AppHost** (`src/Aspire/CardCheesi.Aspire.AppHost/`): adds Dapr Community Toolkit NuGet, calls `AddDaprPubSub()`, wires sidecars to `players-api` and `game-api` resources.
 - **Players API** (`src/Players/CardCheesi.Players.Api/`): adds `Dapr.Client` dependency, publishes events after player registration and presence changes.
 - **Game API** (`src/Game/CardCheesi.Game.Api/`): adds `Dapr.Client` dependency, publishes events after game creation and player join/leave.
 - **No breaking changes** to existing HTTP API contracts.

@@ -5,7 +5,7 @@ var postgres = builder.AddPostgres("postgres")
 
 var gamedb = postgres.AddDatabase("gamedb");
 
-var frontend = builder.AddNpmApp("frontend", "../App", "start:aspire")
+var frontend = builder.AddNpmApp("frontend", "../../App", "start:aspire")
     .WithHttpEndpoint(port: 4300, env: "PORT")
     .WithExternalHttpEndpoints();
 

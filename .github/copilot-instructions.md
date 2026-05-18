@@ -11,7 +11,7 @@ CardCheesi is a digital implementation of a card-based board game (inspired by P
   - `CardCheesi.Game.Api` — ASP.NET Core Web API
   - `CardCheesi.Game.Tests` — xUnit tests
 - **`src/Aspire/CardCheesi.Aspire.ServiceDefaults/`** — shared Aspire service defaults (OpenTelemetry, health checks, service discovery)
-- **`src/card-cheesi.AppHost/`** — .NET Aspire AppHost that orchestrates all services
+- **`src/Aspire/CardCheesi.Aspire.AppHost/`** — .NET Aspire AppHost that orchestrates all services
 - **`src/card-cheesi.slnx`** — solution file
 
 The AppHost is the single entry point to run the full stack locally via the Aspire dashboard.
@@ -34,7 +34,7 @@ dotnet test src/Game/CardCheesi.Game.Tests
 dotnet test src/Game/CardCheesi.Game.Tests --filter "FullyQualifiedName~<TestName>"
 
 # Start full stack (Aspire dashboard + all services)
-dotnet run --project src/card-cheesi.AppHost
+dotnet run --project src/Aspire/CardCheesi.Aspire.AppHost
 ```
 
 ### Aspire: Applying Backend Changes at Runtime

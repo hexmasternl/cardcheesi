@@ -12,7 +12,7 @@
 
 ## 2. Dapr Pub/Sub in Aspire AppHost
 
-- [ ] 2.1 Add `CommunityToolkit.Aspire.Hosting.Dapr` NuGet package to `card-cheesi.AppHost.csproj`
+- [ ] 2.1 Add `CommunityToolkit.Aspire.Hosting.Dapr` NuGet package to `CardCheesi.Aspire.AppHost.csproj`
 - [ ] 2.2 Call `builder.AddDaprPubSub("pubsub")` in `AppHost.cs` to register the pub/sub component
 - [ ] 2.3 Chain `.WithDaprSidecar()` on the `playersApi` resource in `AppHost.cs`
 - [ ] 2.4 Chain `.WithDaprSidecar()` on the `gameApi` resource in `AppHost.cs`
