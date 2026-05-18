@@ -39,6 +39,12 @@ public interface IGameState
     /// </summary>
     IGameState DisposeHand(Guid playerId);
 
+    /// <summary>
+    /// Advances the turn to the next player. When all hands become empty, deals the next
+    /// round (or starts a new dealer's turn) automatically.
+    /// </summary>
+    IGameState AdvanceTurn(IRandom? rng = null);
+
     /// <summary>Returns all legal move options for the given player and card.</summary>
     IReadOnlyList<MoveOption> GetValidMoves(Guid playerId, Card card);
 }

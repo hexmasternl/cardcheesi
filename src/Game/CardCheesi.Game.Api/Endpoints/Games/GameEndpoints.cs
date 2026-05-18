@@ -3,8 +3,10 @@ using CardCheesi.Core;
 using CardCheesi.Game.Abstractions;
 using CardCheesi.Game.Abstractions.DataTransferObjects;
 using CardCheesi.Game.Features.CreateGame;
+using CardCheesi.Game.Features.DisposeHand;
 using CardCheesi.Game.Features.GetGame;
 using CardCheesi.Game.Features.JoinGame;
+using CardCheesi.Game.Features.MakeMove;
 
 namespace CardCheesi.Game.Api.Endpoints.Games;
 
@@ -45,6 +47,23 @@ public static class GameEndpoints
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status409Conflict);
+
+        group.MapPost("/{code}/move", MakeMove)
+            .WithName("MakeMove")
+            .RequireAuthorization()
+            .Produces(StatusCodes.Status204NoContent)
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status403Forbidden)
+            .ProducesProblem(StatusCodes.Status404NotFound);
+
+        group.MapPost("/{code}/dispose", DisposeHand)
+            .WithName("DisposeHand")
+            .RequireAuthorization()
+            .Produces(StatusCodes.Status204NoContent)
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status404NotFound);
 
         return app;
     }
@@ -156,5 +175,52 @@ public static class GameEndpoints
 
         await presenceTracker.LeaveAsync(code, playerId, ct);
         return Results.NoContent();
+    }
+
+    private static async Task<IResult> MakeMove(
+        string code,
+        MakeMoveRequest request,
+        HttpContext httpContext,
+        ICommandHandler<MakeMoveCommand, MakeMoveResult> handler,
+        CancellationToken ct)
+    {
+        var playerId = Guid.Parse(httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)
+                                  ?? httpContext.User.FindFirstValue("sub")!);
+        try
+        {
+            await handler.Handle(new MakeMoveCommand(code, playerId, request), ct);
+            return Results.NoContent();
+        }
+        catch (NotFoundException ex)
+        {
+            return Results.NotFound(new { error = ex.Message });
+        }
+        catch (DomainException ex)
+        {
+            return Results.Problem(ex.Message, statusCode: StatusCodes.Status400BadRequest);
+        }
+    }
+
+    private static async Task<IResult> DisposeHand(
+        string code,
+        HttpContext httpContext,
+        ICommandHandler<DisposeHandCommand, DisposeHandResult> handler,
+        CancellationToken ct)
+    {
+        var playerId = Guid.Parse(httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)
+                                  ?? httpContext.User.FindFirstValue("sub")!);
+        try
+        {
+            await handler.Handle(new DisposeHandCommand(code, playerId), ct);
+            return Results.NoContent();
+        }
+        catch (NotFoundException ex)
+        {
+            return Results.NotFound(new { error = ex.Message });
+        }
+        catch (DomainException ex)
+        {
+            return Results.Problem(ex.Message, statusCode: StatusCodes.Status400BadRequest);
+        }
     }
 }

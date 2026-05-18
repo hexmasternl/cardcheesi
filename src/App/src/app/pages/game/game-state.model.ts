@@ -17,10 +17,34 @@ export interface TurnState {
   cardsThisRound: number;
 }
 
+/** 0 = Reserve, 1 = InPlay, 2 = Finished */
+export const PawnStatus = { Reserve: 0, InPlay: 1, Finished: 2 } as const;
+
+export type PawnLocation =
+  | { $type: 'reserve' }
+  | { $type: 'board'; position: number }
+  | { $type: 'finish'; slot: number };
+
+export interface Pawn {
+  id: string;
+  ownerId: string;
+  /** 0 = Reserve, 1 = InPlay, 2 = Finished */
+  status: 0 | 1 | 2;
+  location: PawnLocation;
+}
+
+export interface MakeMoveRequest {
+  cardSuit: number;
+  cardRank: number;
+  pawnId: string;
+  pawnId2?: string;
+  steps?: number;
+}
+
 export interface GamePlayer {
   id: string;
   name: string;
-  pawns: unknown[];
+  pawns: Pawn[];
 }
 
 export interface GameTeam {

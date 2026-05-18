@@ -48,7 +48,11 @@ public sealed class SseGameEventService(
         {
             var gameState = await gameRepository.GetByCodeAsync(gameCode, ct);
             bool canDispose = gameState is not null && !gameState.HasPlayableCards(playerId);
-            var yourTurnPayload = JsonSerializer.Serialize(new { canDispose });
+            var yourTurnPayload = JsonSerializer.Serialize(new
+            {
+                activePlayerId = playerId.ToString(),
+                canDispose,
+            });
             await WriteSseEventAsync(response, new SseEvent("your-turn", yourTurnPayload), ct);
         }
 

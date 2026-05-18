@@ -17,13 +17,14 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { TagModule } from 'primeng/tag';
 import { CardModule } from 'primeng/card';
 import { GameService } from './game.service';
-import { Card, GameState, GameStatusLabel } from './game-state.model';
+import { Card, GameState, GameStatusLabel, MakeMoveRequest } from './game-state.model';
 import { GameBoardComponent } from './game-board/game-board';
 import { PlayerPresencePanelComponent } from './player-presence-panel/player-presence-panel';
 import { GameHudComponent } from './game-hud/game-hud';
 import { ChatPanelComponent } from './chat-panel/chat-panel';
 import { AuthService } from '../../services/auth.service';
 import { SseService } from '../../services/sse.service';
+import { TurnFlowStore } from './turn-flow.store';
 
 
 @Component({
@@ -48,6 +49,7 @@ export class GamePage implements OnInit {
   private readonly gameService = inject(GameService);
   private readonly authService = inject(AuthService);
   private readonly sseService = inject(SseService);
+  protected readonly turnFlow = inject(TurnFlowStore);
   private readonly destroyRef = inject(DestroyRef);
   private readonly http = inject(HttpClient);
 
@@ -78,7 +80,6 @@ export class GamePage implements OnInit {
 
   constructor() {
     // Connect SSE whenever gameCode and playerId are both available.
-    // Re-runs automatically if the access token is refreshed.
     effect(() => {
       const code = this.gameCode();
       const playerId = this.authService.getPlayerId();
@@ -88,7 +89,6 @@ export class GamePage implements OnInit {
 
     this.destroyRef.onDestroy(() => this.sseService.disconnect());
 
-    // Notify the server when the player leaves the page (tab close, navigation, browser close).
     const handleBeforeUnload = () => {
       const code = this.gameCode();
       const token = this.authService.accessToken();
@@ -100,7 +100,6 @@ export class GamePage implements OnInit {
       });
     };
 
-    // Reconnect SSE when the tab becomes visible again after an error.
     const handleVisibilityChange = () => {
       if (!document.hidden && this.sseService.connectionError()) {
         const code = this.gameCode();
@@ -117,6 +116,21 @@ export class GamePage implements OnInit {
     this.destroyRef.onDestroy(() => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
+    });
+
+    // Sync game state into TurnFlowStore
+    effect(() => {
+      this.turnFlow.gameState.set(this.gameState());
+    });
+
+    effect(() => {
+      this.turnFlow.myPlayerId.set(this.authService.getPlayerId() ?? '');
+    });
+
+    // Refresh game state when the server broadcasts a game-updated event
+    effect(() => {
+      const updated = this.sseService.lastGameUpdated();
+      if (updated > 0) this.fetchGame();
     });
 
     effect(() => {
@@ -137,6 +151,8 @@ export class GamePage implements OnInit {
     effect(() => {
       const ev = this.sseService.lastYourTurn();
       if (!ev) return;
+      // Only respond if this event is addressed to us
+      if (ev.activePlayerId !== this.authService.getPlayerId()) return;
       this.hudCanDispose.set(ev.canDispose);
       this.hudExpanded.set(true);
     });
@@ -154,6 +170,30 @@ export class GamePage implements OnInit {
     const code = this.gameCode();
     if (!code) return;
     this.http.post(`/api/chat/${code}`, { text }).subscribe();
+  }
+
+  protected onPawnClicked(pawnId: string): void {
+    this.turnFlow.selectPawn(pawnId);
+  }
+
+  protected onPlayMove(request: MakeMoveRequest): void {
+    const code = this.gameCode();
+    if (!code) return;
+    this.gameService.makeMove(code, request).subscribe({
+      error: (err: HttpErrorResponse) => {
+        console.error('Failed to make move', err);
+      },
+    });
+  }
+
+  protected onDisposeHand(): void {
+    const code = this.gameCode();
+    if (!code) return;
+    this.gameService.disposeHand(code).subscribe({
+      error: (err: HttpErrorResponse) => {
+        console.error('Failed to dispose hand', err);
+      },
+    });
   }
 
   private fetchGame(): void {

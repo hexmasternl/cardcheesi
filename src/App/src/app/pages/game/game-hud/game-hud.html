@@ -24,8 +24,8 @@
     <div class="hud__actions">
       <button
         class="hud__btn hud__btn--play"
-        [class.hud__btn--active]="canPlay()"
-        [disabled]="!canPlay()"
+        [class.hud__btn--active]="turnFlow.canPlay()"
+        [disabled]="!turnFlow.canPlay()"
         type="button"
         (click)="onPlay()"
       >
@@ -42,4 +42,43 @@
     </div>
 
   </div>
+
+  <!-- Seven card: step count popup -->
+  @if (turnFlow.showSevenPopup()) {
+    <div class="hud__popup">
+      <p class="hud__popup-label">How many steps for this pawn?</p>
+      <div class="hud__popup-buttons">
+        @for (n of sevenStepOptions; track n) {
+          <button class="hud__popup-btn" type="button" (click)="onSelectSevenSteps(n)">{{ n }}</button>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Ace card: enter or advance popup -->
+  @if (turnFlow.showAcePopup()) {
+    <div class="hud__popup">
+      <p class="hud__popup-label">What do you want to do with the Ace?</p>
+      <div class="hud__popup-buttons">
+        <button class="hud__popup-btn hud__popup-btn--wide" type="button" (click)="onSelectAceChoice('enter')">
+          Bring pawn into play
+        </button>
+        <button class="hud__popup-btn hud__popup-btn--wide" type="button" (click)="onSelectAceChoice('advance')">
+          Move pawn 1 step
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Phase hint -->
+  @if (turnFlow.phase() === 'needs-pawn' || turnFlow.phase() === 'needs-pawn-2') {
+    <div class="hud__hint">
+      @if (turnFlow.phase() === 'needs-pawn') {
+        Click a pawn on the board to select it
+      } @else {
+        Click a second pawn on the board
+      }
+    </div>
+  }
+
 </div>

@@ -151,3 +151,72 @@ $dark-bg:      #060f1f;
 .hud__btn-label {
   display: block;
 }
+
+// ── Popup (Seven steps / Ace choice) ─────────────────────────────────────────
+.hud__popup {
+  position: absolute;
+  bottom: calc(100% + 0.5rem);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba($dark-bg, 0.95);
+  border: 1px solid rgba($primary, 0.35);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  z-index: 30;
+  min-width: 280px;
+  text-align: center;
+  backdrop-filter: blur(18px);
+}
+
+.hud__popup-label {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.85rem;
+  margin: 0 0 0.75rem;
+}
+
+.hud__popup-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.hud__popup-btn {
+  min-width: 2.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid rgba($primary, 0.5);
+  background: rgba($primary, 0.15);
+  color: $primary;
+  font-family: 'Quicksand', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+
+  &:hover {
+    background: rgba($primary, 0.3);
+    border-color: $primary;
+  }
+
+  &--wide {
+    flex: 1 1 100%;
+    padding: 0.6rem 1rem;
+  }
+}
+
+// ── Phase hint ────────────────────────────────────────────────────────────────
+.hud__hint {
+  position: absolute;
+  bottom: calc(100% + 0.5rem);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba($dark-bg, 0.85);
+  border: 1px solid rgba($primary, 0.25);
+  border-radius: 8px;
+  padding: 0.4rem 1rem;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.8rem;
+  white-space: nowrap;
+  pointer-events: none;
+}

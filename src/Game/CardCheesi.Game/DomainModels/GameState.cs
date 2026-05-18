@@ -1,3 +1,4 @@
+using CardCheesi.Game;
 using CardCheesi.Game.Abstractions.DomainModels;
 using CardCheesi.Game.Rules;
 
@@ -230,7 +231,7 @@ public record GameState(
         => MakeSplitMove(pawnId1, spaces1, pawnId2, spaces2);
 
     // -----------------------------------------------------------------------
-    // GetValidMoves / HasPlayableCards
+    // GetValidMoves / HasPlayableCards / AdvanceTurn
     // -----------------------------------------------------------------------
 
     /// <summary>Returns all legal move options for the given player and card.</summary>
@@ -251,6 +252,81 @@ public record GameState(
     }
 
     bool IGameState.HasPlayableCards(Guid playerId) => HasPlayableCards(playerId);
+
+    /// <summary>
+    /// Advances the turn to the next player and deals the next round automatically when the
+    /// current hands are empty.
+    /// </summary>
+    public GameState AdvanceTurn(IRandom? rng = null)
+    {
+        rng ??= SystemRandom.Instance;
+
+        if (Turn is null)
+            throw new InvalidOperationException("Game has no active turn.");
+
+        int currentIndex = -1;
+        for (int i = 0; i < Players.Count; i++)
+        {
+            if (Players[i].Id == Turn.ActivePlayerId) { currentIndex = i; break; }
+        }
+        if (currentIndex < 0)
+            throw new InvalidOperationException("Active player not found.");
+
+        int nextIndex = (currentIndex + 1) % Players.Count;
+
+        bool allHandsEmpty = Hands is null || Hands.All(h => h.Cards.Count == 0);
+
+        if (!allHandsEmpty)
+            return this with { Turn = Turn with { ActivePlayerId = Players[nextIndex].Id } };
+
+        if (Turn.RoundNumber < 3)
+        {
+            var deck = Deck ?? throw new InvalidOperationException("Deck is null; cannot deal next round.");
+            var newHands = new List<PlayerHand>(Players.Count);
+            foreach (var player in Players)
+            {
+                var (dealt, rest) = deck.Deal(4);
+                newHands.Add(new PlayerHand(player.Id, dealt));
+                deck = rest;
+            }
+
+            return this with
+            {
+                Turn = Turn with { ActivePlayerId = Players[nextIndex].Id, RoundNumber = Turn.RoundNumber + 1 },
+                Deck = deck,
+                Hands = newHands.AsReadOnly(),
+            };
+        }
+
+        int currentDealerIndex = -1;
+        for (int i = 0; i < Players.Count; i++)
+        {
+            if (Players[i].Id == Turn.DealerId) { currentDealerIndex = i; break; }
+        }
+        if (currentDealerIndex < 0)
+            throw new InvalidOperationException("Dealer not found.");
+
+        int newDealerIndex = (currentDealerIndex + 1) % Players.Count;
+        int firstPlayerIndex = (newDealerIndex + 1) % Players.Count;
+
+        var freshDeck = CardCheesi.Game.DomainModels.Deck.Standard().Shuffle(rng);
+        var freshHands = new List<PlayerHand>(Players.Count);
+        foreach (var player in Players)
+        {
+            var (dealt, rest) = freshDeck.Deal(5);
+            freshHands.Add(new PlayerHand(player.Id, dealt));
+            freshDeck = rest;
+        }
+
+        return this with
+        {
+            Turn = new TurnState(Players[firstPlayerIndex].Id, Players[newDealerIndex].Id, 1),
+            Deck = freshDeck,
+            Hands = freshHands.AsReadOnly(),
+        };
+    }
+
+    IGameState IGameState.AdvanceTurn(IRandom? rng) => AdvanceTurn(rng);
 
     /// <summary>
     /// Discards the player's entire hand at once. Permitted only when the player has no

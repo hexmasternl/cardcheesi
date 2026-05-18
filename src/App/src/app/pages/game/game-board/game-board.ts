@@ -7,6 +7,7 @@ import {
   effect,
   inject,
   input,
+  output,
   viewChild,
 } from '@angular/core';
 import {
@@ -30,7 +31,7 @@ import {
   WebGPUEngine,
 } from '@babylonjs/core';
 import '@babylonjs/loaders/glTF';
-import { GamePlayer, GameStatus } from '../game-state.model';
+import { GamePlayer, GameStatus, Pawn, PawnStatus } from '../game-state.model';
 
 /** One PBR colour per player slot (index 0–3). */
 const PLAYER_COLORS: Color3[] = [
@@ -52,6 +53,48 @@ const RESERVE_POSITIONS: [number, number, number][][] = [
   [[-0.58, 0.006,  0.50], [-0.50, 0.006,  0.50], [-0.50, 0.006,  0.58], [-0.58, 0.006,  0.58]],
 ];
 
+/** Y-height for pawns on the board surface. */
+const BOARD_Y = 0.012;
+
+/**
+ * Maps board position 1–64 to world XZ coordinates.
+ * Positions run clockwise: 1–16 bottom row (left→right),
+ * 17–32 right column (bottom→top), 33–48 top row (right→left),
+ * 49–64 left column (top→bottom).
+ */
+function boardPositionToWorld(position: number): [number, number, number] {
+  const INNER = 0.38; // inner path edge
+  const OUTER = 0.43; // center of path squares on outer edge
+  const SPAN = OUTER * 2; // total span across the board face
+  const t = (n: number, count = 15) => n / count; // 0..1
+
+  if (position >= 1 && position <= 16) {
+    return [-OUTER + t(position - 1) * SPAN, BOARD_Y, -INNER];
+  } else if (position >= 17 && position <= 32) {
+    return [INNER, BOARD_Y, -OUTER + t(position - 17) * SPAN];
+  } else if (position >= 33 && position <= 48) {
+    return [OUTER - t(position - 33) * SPAN, BOARD_Y, INNER];
+  } else {
+    return [-INNER, BOARD_Y, OUTER - t(position - 49) * SPAN];
+  }
+}
+
+/**
+ * Maps finish slot (1–4) for a given player index to world XZ coordinates.
+ * Each player's finish track runs from the board edge toward the center.
+ */
+function finishPositionToWorld(playerIndex: number, slot: number): [number, number, number] {
+  const s = slot - 1; // 0-based
+  const step = 0.075;
+  switch (playerIndex) {
+    case 0: return [0,      BOARD_Y, -0.26 + s * step]; // P1: bottom center → inward
+    case 1: return [0.26 - s * step, BOARD_Y, 0];       // P2: right center → inward
+    case 2: return [0,      BOARD_Y,  0.26 - s * step]; // P3: top center → inward
+    case 3: return [-0.26 + s * step, BOARD_Y, 0];      // P4: left center → inward
+    default: return [0, BOARD_Y, 0];
+  }
+}
+
 async function createEngine(canvas: HTMLCanvasElement): Promise<AbstractEngine> {
   if (await WebGPUEngine.IsSupportedAsync) {
     const engine = new WebGPUEngine(canvas);
@@ -59,6 +102,14 @@ async function createEngine(canvas: HTMLCanvasElement): Promise<AbstractEngine> 
     return engine;
   }
   return new Engine(canvas, true);
+}
+
+interface SpawnedPawn {
+  root: TransformNode;
+  meshes: Mesh[];
+  playerIndex: number;
+  baseColor: Color3;
+  pawnId: string;
 }
 
 @Component({
@@ -79,24 +130,34 @@ export class GameBoardComponent {
   private engine?: AbstractEngine;
   private scene?: Scene;
   private pawnContainer?: AssetContainer;
-  private readonly spawnedPawnRoots: TransformNode[] = [];
+  private readonly spawnedPawns: SpawnedPawn[] = [];
+  private blinkTimer = 0;
 
   readonly players = input<GamePlayer[]>([]);
   readonly gameStatus = input<0 | 1 | 2>(0);
+  readonly blinkingPawnIds = input<string[]>([]);
+  readonly selectablePawnIds = input<string[]>([]);
+
+  readonly pawnClicked = output<string>();
 
   constructor() {
     const destroyRef = inject(DestroyRef);
     let destroyed = false;
 
     // Re-place pawns reactively whenever the player list or game status changes.
-    // The guard ensures the scene and pawn container are ready first; the
-    // manual call inside initScene() handles the initial placement.
     effect(() => {
       const players = this.players();
       const status = this.gameStatus();
       if (this.scene && this.pawnContainer) {
         this.placePawns(players, status);
       }
+    });
+
+    // Update blink/selectable highlight reactively
+    effect(() => {
+      const blinking = this.blinkingPawnIds();
+      const selectable = this.selectablePawnIds();
+      this.updatePawnHighlights(blinking, selectable);
     });
 
     afterNextRender(async () => {
@@ -147,9 +208,6 @@ export class GameBoardComponent {
 
     await SceneLoader.ImportMeshAsync('', '/models/', 'board.glb', scene).then(
       ({ meshes, transformNodes }) => {
-        // Move the board down by 2 cm so the board surface aligns with the
-        // pawn base positions (Y ≈ 0.006).  The glTF root TransformNode
-        // (__root__) is the first entry in transformNodes.
         const boardRoot = transformNodes.find(n => n.name === '__root__') ?? transformNodes[0];
         if (boardRoot) {
           boardRoot.position.y = -0.02;
@@ -190,64 +248,142 @@ export class GameBoardComponent {
     this.scene = scene;
     this.placePawns(this.players(), this.gameStatus());
 
+    // Blink timer: toggles emissive on blinking pawns each ~500ms
     this.engine.runRenderLoop(() => {
       scene.render();
       this.zoomLabelRef().nativeElement.textContent = `zoom: ${camera.radius.toFixed(2)}`;
+
+      this.blinkTimer += scene.getEngine().getDeltaTime();
+      if (this.blinkTimer >= 500) {
+        this.blinkTimer = 0;
+        this.tickBlink();
+      }
     });
 
     window.addEventListener('resize', this.onResize);
   }
 
-  private placePawns(players: GamePlayer[], status: 0 | 1 | 2): void {
-    this.spawnedPawnRoots.forEach(root => root.dispose(false, true));
-    this.spawnedPawnRoots.length = 0;
-
-    if (status !== GameStatus.Waiting || !this.pawnContainer || !this.scene) return;
-
-    players.slice(0, 4).forEach((_, playerIndex) => {
-      const positions = RESERVE_POSITIONS[playerIndex];
-      const color = PLAYER_COLORS[playerIndex];
-
-      for (let i = 0; i < 4; i++) {
-        const entries = this.pawnContainer!.instantiateModelsToScene(
-          name => `pawn_p${playerIndex}_${i}_${name}`,
-        );
-        const root = entries.rootNodes[0] as TransformNode;
-        if (!root) continue;
-
-        const [x, y, z] = positions[i];
-        root.position = new Vector3(x, y, z);
-
-        const childMeshes = root.getChildMeshes();
-        childMeshes.forEach(mesh => {
-          const mat = new PBRMaterial(`pawn_mat_p${playerIndex}_${i}`, this.scene!);
-          mat.albedoColor = color;
-          mat.metallic = 0.1;
-          mat.roughness = 0.5;
-          mesh.material = mat;
-        });
-
-        // Hover: add an emissive glow on pointer-over, remove on pointer-out.
-        childMeshes.forEach(mesh => {
-          mesh.actionManager = new ActionManager(this.scene!);
-          mesh.actionManager.registerAction(
-            new ExecuteCodeAction(ActionManager.OnPointerOverTrigger, () => {
-              childMeshes.forEach(m => {
-                (m.material as PBRMaterial).emissiveColor = color.scale(0.4);
-              });
-            }),
-          );
-          mesh.actionManager.registerAction(
-            new ExecuteCodeAction(ActionManager.OnPointerOutTrigger, () => {
-              childMeshes.forEach(m => {
-                (m.material as PBRMaterial).emissiveColor = Color3.Black();
-              });
-            }),
-          );
-        });
-
-        this.spawnedPawnRoots.push(root);
+  private blinkOn = false;
+  private tickBlink(): void {
+    this.blinkOn = !this.blinkOn;
+    const blinking = this.blinkingPawnIds();
+    for (const spawned of this.spawnedPawns) {
+      if (blinking.includes(spawned.pawnId)) {
+        const emissive = this.blinkOn ? spawned.baseColor.scale(0.6) : Color3.Black();
+        spawned.meshes.forEach(m => (m.material as PBRMaterial).emissiveColor = emissive);
       }
+    }
+  }
+
+  private updatePawnHighlights(blinking: string[], selectable: string[]): void {
+    for (const spawned of this.spawnedPawns) {
+      const isBlinking = blinking.includes(spawned.pawnId);
+      const isSelectable = selectable.includes(spawned.pawnId);
+
+      if (!isBlinking) {
+        // Reset emissive for non-blinking pawns
+        spawned.meshes.forEach(m => {
+          const mat = m.material as PBRMaterial;
+          if (mat) mat.emissiveColor = Color3.Black();
+        });
+      }
+
+      // Show ring/outline for selectable pawns (scale them up slightly)
+      spawned.root.scaling = isSelectable
+        ? new Vector3(1.25, 1.25, 1.25)
+        : new Vector3(1, 1, 1);
+    }
+  }
+
+  private placePawns(players: GamePlayer[], status: 0 | 1 | 2): void {
+    this.spawnedPawns.forEach(sp => sp.root.dispose(false, true));
+    this.spawnedPawns.length = 0;
+
+    if (!this.pawnContainer || !this.scene) return;
+
+    if (status === GameStatus.Waiting) {
+      players.slice(0, 4).forEach((player, playerIndex) => {
+        const positions = RESERVE_POSITIONS[playerIndex];
+        for (let i = 0; i < 4; i++) {
+          const [x, y, z] = positions[i];
+          const pawnId = (player.pawns[i] as Pawn | undefined)?.id ?? `p${playerIndex}_${i}`;
+          this.spawnPawn(playerIndex, pawnId, x, y, z);
+        }
+      });
+    } else if (status === GameStatus.InProgress) {
+      players.slice(0, 4).forEach((player, playerIndex) => {
+        let reserveIndex = 0;
+        for (const pawn of player.pawns) {
+          let pos: [number, number, number];
+          if (pawn.location.$type === 'reserve') {
+            pos = RESERVE_POSITIONS[playerIndex][reserveIndex++] ?? [0, BOARD_Y, 0];
+          } else if (pawn.location.$type === 'board') {
+            pos = boardPositionToWorld(pawn.location.position);
+          } else {
+            pos = finishPositionToWorld(playerIndex, pawn.location.slot);
+          }
+          this.spawnPawn(playerIndex, pawn.id, ...pos);
+        }
+      });
+    }
+
+    // Re-apply highlights after re-placing
+    this.updatePawnHighlights(this.blinkingPawnIds(), this.selectablePawnIds());
+  }
+
+  private spawnPawn(playerIndex: number, pawnId: string, x: number, y: number, z: number): void {
+    const color = PLAYER_COLORS[playerIndex];
+    const entries = this.pawnContainer!.instantiateModelsToScene(
+      name => `pawn_p${playerIndex}_${pawnId}_${name}`,
+    );
+    const root = entries.rootNodes[0] as TransformNode;
+    if (!root) return;
+
+    root.position = new Vector3(x, y, z);
+
+    const childMeshes = root.getChildMeshes() as Mesh[];
+    childMeshes.forEach(mesh => {
+      const mat = new PBRMaterial(`pawn_mat_${pawnId}`, this.scene!);
+      mat.albedoColor = color;
+      mat.metallic = 0.1;
+      mat.roughness = 0.5;
+      mesh.material = mat;
+    });
+
+    const spawned: SpawnedPawn = { root, meshes: childMeshes, playerIndex, baseColor: color, pawnId };
+    this.spawnedPawns.push(spawned);
+
+    // Click and hover actions
+    childMeshes.forEach(mesh => {
+      mesh.actionManager = new ActionManager(this.scene!);
+
+      mesh.actionManager.registerAction(
+        new ExecuteCodeAction(ActionManager.OnPickTrigger, () => {
+          this.pawnClicked.emit(pawnId);
+        }),
+      );
+
+      mesh.actionManager.registerAction(
+        new ExecuteCodeAction(ActionManager.OnPointerOverTrigger, () => {
+          const isBlinking = this.blinkingPawnIds().includes(pawnId);
+          if (!isBlinking) {
+            childMeshes.forEach(m => {
+              (m.material as PBRMaterial).emissiveColor = color.scale(0.4);
+            });
+          }
+        }),
+      );
+
+      mesh.actionManager.registerAction(
+        new ExecuteCodeAction(ActionManager.OnPointerOutTrigger, () => {
+          const isBlinking = this.blinkingPawnIds().includes(pawnId);
+          if (!isBlinking) {
+            childMeshes.forEach(m => {
+              (m.material as PBRMaterial).emissiveColor = Color3.Black();
+            });
+          }
+        }),
+      );
     });
   }
 }

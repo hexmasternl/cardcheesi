@@ -4,6 +4,9 @@
   <app-game-board
     [players]="gameState()?.players ?? []"
     [gameStatus]="gameState()?.status ?? 0"
+    [blinkingPawnIds]="turnFlow.blinkingPawnIds()"
+    [selectablePawnIds]="turnFlow.selectablePawnIds()"
+    (pawnClicked)="onPawnClicked($event)"
   />
 
   <!-- Player presence panel (always visible when game state loaded) -->
@@ -71,6 +74,8 @@
       [(expanded)]="hudExpanded"
       [cards]="myHand()"
       [canDispose]="hudCanDispose()"
+      (playMove)="onPlayMove($event)"
+      (disposeHand)="onDisposeHand()"
     />
 
     <!-- Chat panel (slides in from the left) -->
