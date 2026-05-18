@@ -35,6 +35,7 @@ export class GameBoardComponent {
 
   private sceneManager?: BabylonSceneManager;
   private pawnLayer?: PawnLayer;
+  private boardInitialized = false;
 
   readonly players = input<GamePlayer[]>([]);
   readonly gameStatus = input<0 | 1 | 2>(0);
@@ -52,7 +53,12 @@ export class GameBoardComponent {
       const status = this.gameStatus();
       const blinking = this.blinkingPawnIds();
       const selectable = this.selectablePawnIds();
-      this.pawnLayer?.placePawns(players, status, blinking, selectable);
+      if (!this.pawnLayer) return;
+      if (this.boardInitialized) {
+        this.pawnLayer.movePawns(players, status, blinking, selectable);
+      } else {
+        this.pawnLayer.placePawns(players, status, blinking, selectable);
+      }
     });
 
     effect(() => {
@@ -94,6 +100,7 @@ export class GameBoardComponent {
       this.blinkingPawnIds(),
       this.selectablePawnIds(),
     );
+    this.boardInitialized = true;
 
     const { camera, scene } = this.sceneManager;
     this.sceneManager.startRenderLoop(() => {

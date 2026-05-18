@@ -1,4 +1,5 @@
 import { Color3 } from '@babylonjs/core';
+import { Pawn } from '../game-state.model';
 
 /** One PBR albedo colour per player slot (index 0–3). */
 export const PLAYER_COLORS: Color3[] = [
@@ -65,4 +66,25 @@ export function finishPositionToWorld(
     case 3:  return [-0.26 + s * step,    BOARD_Y, 0];                // P4 left   → inward
     default: return [0, BOARD_Y, 0];
   }
+}
+
+/**
+ * Resolves the world position of a pawn based on its current location.
+ *
+ * @param pawn         The pawn whose position is being resolved.
+ * @param playerIndex  Index (0–3) of the pawn's owner.
+ * @param reserveIndex Which reserve slot (0–3) to use when `pawn.location.$type === 'reserve'`.
+ */
+export function resolveWorldPosition(
+  pawn: Pawn,
+  playerIndex: number,
+  reserveIndex: number,
+): [number, number, number] {
+  if (pawn.location.$type === 'reserve') {
+    return RESERVE_POSITIONS[playerIndex][reserveIndex] ?? [0, BOARD_Y, 0];
+  }
+  if (pawn.location.$type === 'board') {
+    return boardPositionToWorld(pawn.location.position);
+  }
+  return finishPositionToWorld(playerIndex, pawn.location.slot);
 }

@@ -1,5 +1,6 @@
 import {
   ActionManager,
+  Animation,
   AssetContainer,
   Color3,
   ExecuteCodeAction,
@@ -12,11 +13,9 @@ import {
 } from '@babylonjs/core';
 import { GamePlayer, GameStatus, Pawn } from '../game-state.model';
 import {
-  boardPositionToWorld,
-  BOARD_Y,
-  finishPositionToWorld,
   PLAYER_COLORS,
   RESERVE_POSITIONS,
+  resolveWorldPosition,
 } from './board-coordinates';
 
 interface SpawnedPawn {
@@ -45,7 +44,7 @@ interface SpawnedPawn {
  *   layer.dispose();
  */
 export class PawnLayer {
-  private readonly spawnedPawns: SpawnedPawn[] = [];
+  private readonly spawnedPawns = new Map<string, SpawnedPawn>();
   private blinkOn = false;
   private blinkTimer = 0;
 
@@ -80,7 +79,7 @@ export class PawnLayer {
 
   /**
    * Removes all existing pawn meshes and re-spawns them according to the
-   * current game state. Call whenever `players` or `status` changes.
+   * current game state. Call on first render.
    */
   placePawns(
     players: GamePlayer[],
@@ -89,7 +88,7 @@ export class PawnLayer {
     selectable: string[],
   ): void {
     this.spawnedPawns.forEach(sp => sp.root.dispose(false, true));
-    this.spawnedPawns.length = 0;
+    this.spawnedPawns.clear();
 
     if (status === GameStatus.Waiting) {
       players.slice(0, 4).forEach((player, playerIndex) => {
@@ -104,17 +103,68 @@ export class PawnLayer {
       players.slice(0, 4).forEach((player, playerIndex) => {
         let reserveIndex = 0;
         for (const pawn of player.pawns) {
-          let pos: [number, number, number];
-          if (pawn.location.$type === 'reserve') {
-            pos = RESERVE_POSITIONS[playerIndex][reserveIndex++] ?? [0, BOARD_Y, 0];
-          } else if (pawn.location.$type === 'board') {
-            pos = boardPositionToWorld(pawn.location.position);
-          } else {
-            pos = finishPositionToWorld(playerIndex, pawn.location.slot);
-          }
-          this.spawnPawn(playerIndex, pawn.id, ...pos);
+          const [x, y, z] = resolveWorldPosition(pawn, playerIndex, reserveIndex);
+          if (pawn.location.$type === 'reserve') reserveIndex++;
+          this.spawnPawn(playerIndex, pawn.id, x, y, z);
         }
       });
+    }
+
+    this.updateHighlights(blinking, selectable);
+  }
+
+  /**
+   * Animates pawns from their current world positions to the positions described
+   * in the new game state. Spawns new pawns and removes stale ones.
+   * Call on subsequent state updates (after `placePawns` was called once).
+   */
+  movePawns(
+    players: GamePlayer[],
+    status: 0 | 1 | 2,
+    blinking: string[],
+    selectable: string[],
+  ): void {
+    if (status === GameStatus.Waiting) {
+      this.placePawns(players, status, blinking, selectable);
+      return;
+    }
+
+    const activePawnIds = new Set<string>();
+
+    players.slice(0, 4).forEach((player, playerIndex) => {
+      let reserveIndex = 0;
+      for (const pawn of player.pawns) {
+        const [x, y, z] = resolveWorldPosition(pawn, playerIndex, reserveIndex);
+        if (pawn.location.$type === 'reserve') reserveIndex++;
+        activePawnIds.add(pawn.id);
+
+        const spawned = this.spawnedPawns.get(pawn.id);
+        if (!spawned) {
+          this.spawnPawn(playerIndex, pawn.id, x, y, z);
+        } else {
+          const target = new Vector3(x, y, z);
+          if (!spawned.root.position.equalsWithEpsilon(target, 0.001)) {
+            Animation.CreateAndStartAnimation(
+              'pawnMove',
+              spawned.root,
+              'position',
+              30,
+              15,
+              spawned.root.position.clone(),
+              target,
+              Animation.ANIMATIONLOOPMODE_CONSTANT,
+            );
+          }
+        }
+      }
+    });
+
+    // Remove pawns no longer in the game state
+    for (const [id, sp] of this.spawnedPawns) {
+      if (!activePawnIds.has(id)) {
+        sp.root.dispose(false, true);
+        this.spawnedPawns.delete(id);
+      }
     }
 
     this.updateHighlights(blinking, selectable);
@@ -125,7 +175,7 @@ export class PawnLayer {
    * Selectable pawns are scaled up; non-blinking emissive is reset.
    */
   updateHighlights(blinking: string[], selectable: string[]): void {
-    for (const spawned of this.spawnedPawns) {
+    for (const spawned of this.spawnedPawns.values()) {
       const isBlinking = blinking.includes(spawned.pawnId);
       const isSelectable = selectable.includes(spawned.pawnId);
 
@@ -154,7 +204,7 @@ export class PawnLayer {
     this.blinkOn = !this.blinkOn;
 
     const blinking = getBlinkingIds();
-    for (const spawned of this.spawnedPawns) {
+    for (const spawned of this.spawnedPawns.values()) {
       if (blinking.includes(spawned.pawnId)) {
         const emissive = this.blinkOn ? spawned.baseColor.scale(0.6) : Color3.Black();
         spawned.meshes.forEach(m => ((m.material as PBRMaterial).emissiveColor = emissive));
@@ -164,7 +214,7 @@ export class PawnLayer {
 
   dispose(): void {
     this.spawnedPawns.forEach(sp => sp.root.dispose(false, true));
-    this.spawnedPawns.length = 0;
+    this.spawnedPawns.clear();
     this.container.dispose();
   }
 
@@ -200,7 +250,7 @@ export class PawnLayer {
       baseColor: color,
       pawnId,
     };
-    this.spawnedPawns.push(spawned);
+    this.spawnedPawns.set(pawnId, spawned);
 
     childMeshes.forEach(mesh => {
       mesh.actionManager = new ActionManager(this.scene);
