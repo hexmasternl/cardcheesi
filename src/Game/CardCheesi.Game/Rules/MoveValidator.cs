@@ -22,13 +22,16 @@ internal static class MoveValidator
     public static int GetTeammateIndex(int playerIndex) => (playerIndex + 2) % 4;
 
     /// <summary>
-    /// Returns true when a protected pawn NOT owned by <paramref name="movingPawnOwnerId"/> sits
-    /// at <paramref name="boardPos"/>. Protected pawns block passing and landing.
+    /// Returns true when any protected pawn sits at <paramref name="boardPos"/>.
+    /// Protected pawns block passing for everyone — including the owner and the owner's
+    /// teammate. The <paramref name="movingPawnOwnerId"/> parameter is retained for
+    /// signature stability but is not consulted: protection blocks all passers.
+    /// (A pawn moving never has to "pass" its own starting square, so excluding the owner
+    /// is unnecessary even for the moving pawn itself.)
     /// </summary>
     public static bool IsProtectedBlocker(int boardPos, Guid movingPawnOwnerId, GameState state)
         => AllPawns(state).Any(p =>
-            p.Location is BoardLocation bl && bl.Position == boardPos &&
-            p.IsProtected && p.OwnerId != movingPawnOwnerId);
+            p.Location is BoardLocation bl && bl.Position == boardPos && p.IsProtected);
 
     /// <summary>
     /// Returns true when every intermediate board position (steps 1 … steps-1 ahead of
@@ -132,10 +135,25 @@ internal static class MoveValidator
     /// <paramref name="currentPosition"/>. Returns the new <see cref="BoardLocation"/>,
     /// or null when the move is illegal.
     /// </summary>
+    /// <remarks>
+    /// Home-crossing rule: once a pawn has left its home (i.e., is no longer
+    /// <paramref name="isProtected"/>), it can never cross its own home position
+    /// backwards. A pawn that is still protected (freshly entered, sitting on home)
+    /// MAY move backwards — the resulting position wraps to before home.
+    /// Landing exactly on the home position is allowed (not considered "crossing").
+    /// </remarks>
     public static BoardLocation? TryRetreatFromBoard(
-        int currentPosition, int steps, Guid ownerId, GameState state)
+        int currentPosition, int steps, Guid ownerId, int playerIndex, bool isProtected, GameState state)
     {
         if (!IsBackwardPathClear(currentPosition, steps, ownerId, state)) return null;
+
+        // Home-crossing rule: only protected pawns may cross home backwards.
+        if (!isProtected)
+        {
+            int homePos = BoardRules.HomePosition(playerIndex);
+            int currentPathDist = BoardRules.PathDistance(currentPosition, homePos);
+            if (currentPathDist - steps < 0) return null;
+        }
 
         int dest = BoardRules.RetreatBoardPosition(currentPosition, steps);
         if (!CanLandOnBoardPosition(dest, ownerId, state)) return null;

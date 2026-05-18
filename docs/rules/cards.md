@@ -14,7 +14,9 @@ The player may choose **one** of the following:
 
 ### Four
 - **Reverse** one pawn already in play by **4 positions** (move backward).
-- Like all moves, a pawn moving backward cannot pass a protected pawn.
+- A pawn moving backward cannot pass any protected pawn (the protection rule applies in both directions).
+- **Home-crossing rule**: Once a pawn has left its home position (i.e., it is no longer in the *protected* state), it **may never cross its own home position backwards**. Landing exactly on home is allowed; passing through it is not.
+- A pawn that is **still protected** (freshly entered, still sitting on home) MAY use a Four to retreat — the backward path wraps around the home position. For example, a Player 1 pawn freshly placed on position 1 may use a Four to move to position 61, ending up close to its finish corridor.
 
 ### Seven
 The player may choose **one** of the following:

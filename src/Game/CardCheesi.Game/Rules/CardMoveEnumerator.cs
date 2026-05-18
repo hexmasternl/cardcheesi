@@ -114,7 +114,9 @@ internal static class CardMoveEnumerator
         {
             if (pawn.Location is BoardLocation bl)
             {
-                var dest = MoveValidator.TryRetreatFromBoard(bl.Position, 4, pawn.OwnerId, state);
+                int pawnPlayerIndex = MoveValidator.GetPlayerIndex(pawn.OwnerId, state.Players);
+                var dest = MoveValidator.TryRetreatFromBoard(
+                    bl.Position, 4, pawn.OwnerId, pawnPlayerIndex, pawn.IsProtected, state);
                 if (dest is not null)
                     moves.Add(new SingleMove(pawn.Id, -4));
             }

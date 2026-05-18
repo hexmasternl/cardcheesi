@@ -8,13 +8,17 @@ When a pawn is brought into play, it is immediately **protected** (see below).
 
 ## Protected Pawns
 
-A pawn is **protected** when it is first placed on its home position.
+A pawn is **protected** when it is first placed on its home position (and again when it enters the finish corridor).
 
 Rules for protected pawns:
-- Other players **cannot hit** (capture) a protected pawn.
-- Other players **cannot pass** a protected pawn — not even a teammate.
-- Only the player who **owns** the pawn may move a protected pawn.
-- The pawn **loses its protection** as soon as it is moved or its position is swapped.
+- A protected pawn **cannot be hit** (captured) by any other pawn.
+- A protected pawn **cannot be passed** by any pawn — including the owner's other pawns, the teammate's pawns, and opponents' pawns.
+- The owner of the protected pawn (or the controller in [proxy mode](#proxy-mode)) may still **move the protected pawn itself**. Doing so **immediately removes its protection**.
+- A protected pawn cannot be swapped except by the controller who owns it (see [Swapping Pawns](#swapping-pawns)).
+
+### Proxy mode
+
+When a player has finished all 4 of their own pawns they begin playing their teammate's pawns. For all rules that distinguish "owner", the controller in proxy mode is treated as the **owner** of the teammate's pawns. (In particular, the controller may move teammate's protected pawns and may swap them with a Jack.)
 
 ## Hitting a Pawn
 

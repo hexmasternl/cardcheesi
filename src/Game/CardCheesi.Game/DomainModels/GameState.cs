@@ -144,9 +144,10 @@ public record GameState(
                 throw new InvalidOperationException("Pawn must be on the board to retreat.");
 
             int stepsBack = Math.Abs(spaces);
-            var dest = MoveValidator.TryRetreatFromBoard(bl.Position, stepsBack, pawn.OwnerId, this)
+            var dest = MoveValidator.TryRetreatFromBoard(
+                    bl.Position, stepsBack, pawn.OwnerId, playerIndex, pawn.IsProtected, this)
                 ?? throw new InvalidOperationException(
-                    $"Cannot retreat pawn {pawnId} by {stepsBack} step(s): path blocked.");
+                    $"Cannot retreat pawn {pawnId} by {stepsBack} step(s): path blocked or crosses home.");
 
             var movedPawn = pawn with
             {
