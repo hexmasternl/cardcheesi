@@ -57,13 +57,13 @@ export class PawnLayer {
 
   /**
    * Loads the pawn GLB asset container and returns a ready `PawnLayer`.
-   * Returns `null` when the component was destroyed before loading finished.
+   * Returns `undefined` when the component was destroyed before loading finished.
    */
   static async create(
     scene: Scene,
     onPawnClicked: (pawnId: string) => void,
     isDestroyed: () => boolean,
-  ): Promise<PawnLayer | null> {
+  ): Promise<PawnLayer | undefined> {
     const container = await SceneLoader.LoadAssetContainerAsync(
       '/models/',
       'pawn.glb',
@@ -72,7 +72,7 @@ export class PawnLayer {
 
     if (isDestroyed()) {
       container.dispose();
-      return null;
+      return undefined;
     }
 
     return new PawnLayer(scene, container, onPawnClicked);

@@ -41,17 +41,17 @@ export class BabylonSceneManager {
 
   /**
    * Creates the engine, scene, camera, lighting, and loads the board GLB.
-   * Returns `null` when the component was destroyed before the async work finished.
+   * Returns `undefined` when the component was destroyed before the async work finished.
    */
   static async create(
     canvas: HTMLCanvasElement,
     isDestroyed: () => boolean,
-  ): Promise<BabylonSceneManager | null> {
+  ): Promise<BabylonSceneManager | undefined> {
     const engine = await createEngine(canvas);
 
     if (isDestroyed()) {
       engine.dispose();
-      return null;
+      return undefined;
     }
 
     engine.setHardwareScalingLevel(1 / window.devicePixelRatio);
@@ -104,7 +104,7 @@ export class BabylonSceneManager {
 
     if (isDestroyed()) {
       scene.dispose();
-      return null;
+      return undefined;
     }
 
     return new BabylonSceneManager(engine, scene, camera);
