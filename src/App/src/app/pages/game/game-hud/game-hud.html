@@ -8,39 +8,56 @@
   <!-- Main body -->
   <div class="hud__body">
 
-    <!-- Cards fan -->
-    <div class="hud__cards">
-      @for (card of cards(); track $index) {
-        <app-playing-card
-          [card]="card"
-          [selected]="selectedIndex() === $index"
-          [style]="cardStyle($index)"
-          (click)="selectCard($index)"
-        />
-      }
+    <!-- Contextual hint bar — always visible during the player's turn -->
+    <div class="hud__hint" role="status" aria-live="polite">
+      {{ turnFlow.helpText() }}
     </div>
 
-    <!-- Action buttons -->
-    <div class="hud__actions">
-      <button
-        class="hud__btn hud__btn--play"
-        [class.hud__btn--active]="turnFlow.canPlay()"
-        [disabled]="!turnFlow.canPlay()"
-        type="button"
-        (click)="onPlay()"
-      >
-        <span class="hud__btn-label">Play</span>
-      </button>
-      <button
-        class="hud__btn hud__btn--dispose"
-        [disabled]="!canDispose()"
-        type="button"
-        (click)="onDispose()"
-      >
-        <span class="hud__btn-label">Dispose</span>
-      </button>
-    </div>
+    <!-- Cards fan + action buttons -->
+    <div class="hud__main">
 
+      <!-- Cards fan -->
+      <div class="hud__cards">
+        @for (card of cards(); track $index) {
+          <app-playing-card
+            [card]="card"
+            [selected]="selectedIndex() === $index"
+            [style]="cardStyle($index)"
+            (click)="selectCard($index)"
+          />
+        }
+      </div>
+
+      <!-- Action buttons -->
+      <div class="hud__actions">
+        <button
+          class="hud__btn hud__btn--play"
+          [class.hud__btn--active]="turnFlow.canPlay()"
+          [disabled]="!turnFlow.canPlay()"
+          type="button"
+          (click)="onPlay()"
+        >
+          <span class="hud__btn-label">Play Card</span>
+        </button>
+        <button
+          class="hud__btn hud__btn--reset"
+          [disabled]="!turnFlow.selectedCard()"
+          type="button"
+          (click)="onReset()"
+        >
+          <span class="hud__btn-label">Reset</span>
+        </button>
+        <button
+          class="hud__btn hud__btn--dispose"
+          [disabled]="!canDispose()"
+          type="button"
+          (click)="onDispose()"
+        >
+          <span class="hud__btn-label">Dispose</span>
+        </button>
+      </div>
+
+    </div>
   </div>
 
   <!-- Seven card: step count popup -->
@@ -67,17 +84,6 @@
           Move pawn 1 step
         </button>
       </div>
-    </div>
-  }
-
-  <!-- Phase hint -->
-  @if (turnFlow.phase() === 'needs-pawn' || turnFlow.phase() === 'needs-pawn-2') {
-    <div class="hud__hint">
-      @if (turnFlow.phase() === 'needs-pawn') {
-        Click a pawn on the board to select it
-      } @else {
-        Click a second pawn on the board
-      }
     </div>
   }
 

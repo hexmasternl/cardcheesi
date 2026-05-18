@@ -77,6 +77,11 @@ export class GameHudComponent {
     }
   }
 
+  protected onReset(): void {
+    this.selectedIndex.set(null);
+    this.turnFlow.reset();
+  }
+
   protected onPlay(): void {
     const payload = this.turnFlow.movePayload();
     if (!payload) return;

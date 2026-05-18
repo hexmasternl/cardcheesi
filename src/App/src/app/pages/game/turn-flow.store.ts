@@ -32,6 +32,49 @@ export class TurnFlowStore {
   readonly showSevenPopup = computed(() => this._phase() === 'needs-seven-steps');
   readonly canPlay = computed(() => this._phase() === 'ready');
 
+  /** Contextual one-liner shown in the HUD hint bar throughout the turn. */
+  readonly helpText = computed<string>(() => {
+    const phase = this._phase();
+    const card  = this._selectedCard();
+
+    if (phase === 'idle' || !card) return 'Select a card to play';
+
+    const rank = card.rank;
+
+    switch (phase) {
+      case 'needs-ace-choice':
+        return 'Choose how to use the Ace';
+
+      case 'needs-pawn': {
+        const aceChoice = this._aceChoice();
+        if (rank === 13) return 'Select a pawn from reserve to bring into play';
+        if (rank === 1 && aceChoice === 'enter') return 'Select a pawn from reserve to bring into play';
+        if (rank === 11) return 'Select the first pawn to swap';
+        if (rank === 7)  return 'Select a pawn to move with the 7';
+        if (rank === 4)  return 'Select a pawn to move 4 steps backwards';
+        if (rank === 12) return 'Select a pawn to move 12 steps forward';
+        return `Select a pawn to move ${rank} step${rank === 1 ? '' : 's'} forward`;
+      }
+
+      case 'needs-seven-steps':
+        return 'Choose how many steps for this pawn';
+
+      case 'needs-pawn-2':
+        if (rank === 11) return 'Select the second pawn to swap';
+        if (rank === 7) {
+          const remaining = 7 - (this._sevenSteps1() ?? 0);
+          return `Select a second pawn for the remaining ${remaining} step${remaining === 1 ? '' : 's'}`;
+        }
+        return 'Select a second pawn';
+
+      case 'ready':
+        return "Click 'Play Card' to complete the move";
+
+      default:
+        return '';
+    }
+  });
+
   readonly blinkingPawnIds = computed<string[]>(() => {
     const p1 = this._selectedPawnId1();
     const p2 = this._selectedPawnId2();

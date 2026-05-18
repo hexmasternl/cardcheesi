@@ -51,13 +51,30 @@ $dark-bg:      #060f1f;
 // ── HUD body ──────────────────────────────────────────────────────────────────
 .hud__body {
   display: flex;
-  align-items: flex-end;
-  gap: 1.5rem;
-  padding: 1rem 2rem 1.25rem;
+  flex-direction: column;
+  padding: 0.5rem 2rem 1.25rem;
   background: rgba($dark-bg, 0.78);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
   border-top: 1px solid rgba($primary, 0.2);
+}
+
+// ── Hint bar ──────────────────────────────────────────────────────────────────
+.hud__hint {
+  text-align: center;
+  padding: 0.35rem 0 0.5rem;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.8rem;
+  letter-spacing: 0.02em;
+  min-height: 1.6rem;
+  pointer-events: none;
+}
+
+// ── Main row (cards + buttons) ────────────────────────────────────────────────
+.hud__main {
+  display: flex;
+  align-items: flex-end;
+  gap: 1.5rem;
 }
 
 // ── Card fan ──────────────────────────────────────────────────────────────────
@@ -135,6 +152,18 @@ $dark-bg:      #060f1f;
     }
   }
 
+  // ── Reset button (active state) ───────────────────────────────────────────
+  &--reset:not(:disabled) {
+    background: rgba(255, 80, 80, 0.12);
+    border-color: rgba(255, 80, 80, 0.45);
+    color: #ff7070;
+    cursor: pointer;
+
+    &:hover {
+      background: rgba(255, 80, 80, 0.22);
+    }
+  }
+
   // ── Dispose button (active state) ─────────────────────────────────────────
   &--dispose:not(:disabled) {
     background: rgba(255, 200, 0, 0.15);
@@ -205,18 +234,3 @@ $dark-bg:      #060f1f;
   }
 }
 
-// ── Phase hint ────────────────────────────────────────────────────────────────
-.hud__hint {
-  position: absolute;
-  bottom: calc(100% + 0.5rem);
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba($dark-bg, 0.85);
-  border: 1px solid rgba($primary, 0.25);
-  border-radius: 8px;
-  padding: 0.4rem 1rem;
-  color: rgba(255, 255, 255, 0.65);
-  font-size: 0.8rem;
-  white-space: nowrap;
-  pointer-events: none;
-}
