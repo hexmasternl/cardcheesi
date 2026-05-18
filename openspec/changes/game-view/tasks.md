@@ -60,8 +60,8 @@
 
 ## 9. Frontend — Pawn position animation
 
-- [ ] 9.1 Add `resolveWorldPosition(pawn, playerIndex, reserveIndex)` helper to `board-coordinates.ts` that delegates to `boardPositionToWorld`, `finishPositionToWorld`, or `RESERVE_POSITIONS` based on `pawn.location.$type`
-- [ ] 9.2 Refactor `PawnLayer.spawnedPawns` from `SpawnedPawn[]` to `Map<string, SpawnedPawn>` keyed by pawn ID
-- [ ] 9.3 Add `movePawns(players, status, blinking, selectable)` method to `PawnLayer` that spawns missing pawns, removes stale ones, and uses `Animation.CreateAndStartAnimation` to animate existing pawns to new positions (30 fps, 15 frames)
-- [ ] 9.4 Update `GameBoardComponent` to call `placePawns()` on first render and `movePawns()` on subsequent state changes
-- [ ] 9.5 Add unit tests for `resolveWorldPosition` covering board, finish, and reserve location types
+- [x] 9.1 Add `resolveWorldPosition(pawn, playerIndex, reserveIndex)` helper to `board-coordinates.ts` that delegates to `boardPositionToWorld`, `finishPositionToWorld`, or `RESERVE_POSITIONS` based on `pawn.location.$type`
+- [x] 9.2 Refactor `PawnLayer.spawnedPawns` from `SpawnedPawn[]` to `Map<string, SpawnedPawn>` keyed by pawn ID
+- [x] 9.3 Add `movePawns(players, status, blinking, selectable)` method to `PawnLayer` that spawns missing pawns, removes stale ones, and uses `Animation.CreateAndStartAnimation` to animate existing pawns to new positions (30 fps, 15 frames)
+- [x] 9.4 Update `GameBoardComponent` to call `placePawns()` on first render and `movePawns()` on subsequent state changes
+- [x] 9.5 Add unit tests for `resolveWorldPosition` covering board, finish, and reserve location types
