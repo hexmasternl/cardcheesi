@@ -37,7 +37,7 @@ describe('PlayerPresenceStore', () => {
 
     const players = store.players();
     expect(players).toHaveLength(1);
-    expect(players[0]).toEqual({ playerId: 'p1', playerName: 'Alice', status: 'Connected' });
+    expect(players[0]).toEqual({ playerId: 'p1', playerName: 'Alice', status: 'Connected', slotIndex: 0 });
   });
 
   it('player-joined event does not overwrite existing presence entry', () => {
