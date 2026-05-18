@@ -54,4 +54,4 @@
 
 - [x] 9.1 Run `dotnet build src/card-cheesi.slnx` — no errors
 - [x] 9.2 Run `dotnet test src/card-cheesi.slnx` — all tests green
-- [ ] 9.3 Start the Aspire AppHost and verify the PostgreSQL container starts and the API connects successfully
+- [x] 9.3 Start the Aspire AppHost and verify the PostgreSQL container starts and the API connects successfully
