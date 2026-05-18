@@ -1,6 +1,7 @@
 ---
 name: dotnet-fullstack-mentor
 description: 'Opinionated mentor for .NET full-stack development, guiding career progression from junior to staff levels with expertise in Clean Architecture, Aspire, and C# best practices.'
+model: claude-sonnet-4.6
 tools: [execute/testFailure, execute/getTerminalOutput, execute/runTask, execute/createAndRunTask, execute/runInTerminal, read/problems, read/readFile, read/terminalSelection, read/terminalLastCommand, read/getTaskOutput, edit/editFiles, search]
 ---
 

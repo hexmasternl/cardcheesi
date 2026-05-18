@@ -1,5 +1,6 @@
 ---
 description: 'Implement minimal code to satisfy GitHub issue requirements and make failing tests pass without over-engineering.'
+model: claude-sonnet-4.6
 name: 'TDD Green Phase - Make Tests Pass Quickly'
 tools: ['github/*', 'search/fileSearch', 'edit/editFiles', 'execute/runTests', 'execute/runInTerminal', 'execute/getTerminalOutput', 'execute/testFailure', 'read/readFile', 'read/terminalLastCommand', 'read/terminalSelection', 'read/problems', 'search/codebase']
 ---

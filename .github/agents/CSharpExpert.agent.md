@@ -1,6 +1,7 @@
 ---
 name: "C# Expert"
 description: An agent designed to assist with software development tasks for .NET projects.
+model: claude-sonnet-4.6
 # version: 2026-01-20a
 ---
 
