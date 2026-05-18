@@ -10,7 +10,8 @@ namespace CardCheesi.Game.Services;
 /// <summary>Manages SSE connections for a game, including presence tracking and keep-alive pings.</summary>
 public sealed class SseGameEventService(
     ISseConnectionManager connectionManager,
-    IPlayerPresenceTracker presenceTracker) : ISseGameEventService
+    IPlayerPresenceTracker presenceTracker,
+    IGameRepository gameRepository) : ISseGameEventService
 {
     public async Task StreamEventsAsync(
         string gameCode,
@@ -45,7 +46,9 @@ public sealed class SseGameEventService(
 
         if (game.Status == GameStatus.InProgress && game.Turn?.ActivePlayerId == playerId)
         {
-            var yourTurnPayload = JsonSerializer.Serialize(new { canDispose = false });
+            var gameState = await gameRepository.GetByCodeAsync(gameCode, ct);
+            bool canDispose = gameState is not null && !gameState.HasPlayableCards(playerId);
+            var yourTurnPayload = JsonSerializer.Serialize(new { canDispose });
             await WriteSseEventAsync(response, new SseEvent("your-turn", yourTurnPayload), ct);
         }
 
@@ -82,3 +85,4 @@ public sealed class SseGameEventService(
     private static Task WriteSseEventAsync(HttpResponse response, SseEvent sseEvent, CancellationToken ct)
         => response.WriteAsync($"event: {sseEvent.EventType}\ndata: {sseEvent.Data}\n\n", ct);
 }
+

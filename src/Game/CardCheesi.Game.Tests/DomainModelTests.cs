@@ -9,38 +9,6 @@ public sealed class GameStateTests
     private const string TestCode = "TESTCD";
 
     [Fact]
-    public void PlayCard_ThrowsNotImplementedException()
-    {
-        var state = GameFactory.CreateWaiting("Alice", TestCode);
-
-        Assert.Throws<NotImplementedException>(() => state.PlayCard(Guid.NewGuid(), AnyCard));
-    }
-
-    [Fact]
-    public void MakeMove_ThrowsNotImplementedException()
-    {
-        var state = GameFactory.CreateWaiting("Alice", TestCode);
-
-        Assert.Throws<NotImplementedException>(() => state.MakeMove(Guid.NewGuid(), 1));
-    }
-
-    [Fact]
-    public void IGameState_PlayCard_ThrowsNotImplementedException()
-    {
-        IGameState state = GameFactory.CreateWaiting("Alice", TestCode);
-
-        Assert.Throws<NotImplementedException>(() => state.PlayCard(Guid.NewGuid(), AnyCard));
-    }
-
-    [Fact]
-    public void IGameState_MakeMove_ThrowsNotImplementedException()
-    {
-        IGameState state = GameFactory.CreateWaiting("Alice", TestCode);
-
-        Assert.Throws<NotImplementedException>(() => state.MakeMove(Guid.NewGuid(), 1));
-    }
-
-    [Fact]
     public void IGameState_AddPlayer_AddsPlayerViaInterface()
     {
         IGameState state = GameFactory.CreateWaiting("Alice", TestCode);

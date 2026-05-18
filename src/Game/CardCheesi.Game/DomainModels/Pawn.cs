@@ -6,4 +6,5 @@ public record Pawn(
     Guid Id,
     Guid OwnerId,
     PawnStatus Status,
-    PawnLocation Location) : IPawn;
+    PawnLocation Location,
+    bool IsProtected = false) : IPawn;

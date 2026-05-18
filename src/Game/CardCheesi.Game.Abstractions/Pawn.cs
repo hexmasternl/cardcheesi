@@ -6,4 +6,5 @@ public interface IPawn
     Guid OwnerId { get; }
     PawnStatus Status { get; }
     PawnLocation Location { get; }
+    bool IsProtected { get; }
 }
