@@ -16,9 +16,8 @@ The `3dmodels/board.blend` file is the Blender source for the game board. A pre-
 - Consistent with the CardCheesi theme (primary `#009ccc`, dark background, PrimeNG components)
 
 **Non-Goals:**
-- Real-time updates (WebSocket/SignalR) — polling or manual refresh only for now
-- Card play interactions or move logic — display only
-- 3D re-rendering in the browser (no Three.js); a static pre-rendered image is sufficient
+- 3D re-rendering in the browser (no Three.js); a static pre-rendered image is sufficient for the board background
+- WebSocket-based real-time updates — SSE (Server-Sent Events) is already in place
 
 ## Decisions
 
@@ -28,9 +27,9 @@ The `3dmodels/board.blend` file is the Blender source for the game board. A pre-
 **Alternative considered:** Three.js with OrbitControls — deferred to a future iteration.
 
 ### 2. Game state fetching strategy
-**Decision:** Fetch once on component init via `HttpClient`; expose a manual refresh button.  
-**Rationale:** Real-time play requires WebSocket/SSE infrastructure not yet in place. A simple HTTP `GET` on load is sufficient to display the current state and lets real-time sync be layered in later without changing the component contract.  
-**Alternative considered:** Server-Sent Events — deferred.
+**Decision:** Fetch on component init and on every `game-updated` SSE event via `HttpClient`.  
+**Rationale:** The `SseService` already emits a `lastGameUpdated` signal each time the server broadcasts `game-updated`. `GamePage` uses an Angular `effect()` to call `fetchGame()` whenever that counter increments. This makes state refresh automatic and real-time after any move or dispose action.  
+**Alternative considered:** Polling interval — rejected; SSE push is more efficient and already in place.
 
 ### 3. Component structure
 **Decision:** A single `GamePage` container component at `src/app/pages/game/game-page.ts` with inline sub-components (`GameBoardComponent`, `PlayerHandComponent`, `GameStatusComponent`) co-located in `src/app/pages/game/`.  
@@ -41,9 +40,8 @@ The `3dmodels/board.blend` file is the Blender source for the game board. A pre-
 **Rationale:** The repository already exposes this method. No new infrastructure needed.
 
 ### 5. Chat overlay persistence
-**Decision:** Chat messages are persisted in a dedicated `ChatMessages` table in PostgreSQL; fetched via `GET /api/games/{code}/chat` and sent via `POST /api/games/{code}/chat`.  
-**Rationale:** Storing chat server-side means messages survive browser refreshes and are visible to all players. Using the existing Postgres connection avoids a new dependency. Real-time delivery is deferred — chat updates piggyback on the existing game-state refresh cycle.  
-**Alternative considered:** localStorage-only — rejected because messages would not be shared across players.
+**Decision:** Chat messages are delivered via SSE through the dedicated `CardCheesi.Chat.Api` service. The frontend `SseService` connects to `/api/chat/{code}/events` and accumulates `chat-message` events into a `chatMessages` signal. Sending a message calls `POST /api/chat/{code}`.  
+**Rationale:** The Chat API is a separate Aspire-managed service (`/api/chat/**` is YARP-proxied to `chatApi`). SSE delivery avoids polling, and the chat events arrive alongside game events via two parallel `EventSource` connections in `SseService`.
 
 ### 6. Game control drawer — local player identity
 **Decision:** The local player's `playerId` (returned by `POST /games` and `POST /games/{code}/join`) is stored in `localStorage` keyed by game code (`cardcheesi_player_{gameCode}`). The drawer reads this value to decide whether it is the local player's turn.  
@@ -59,8 +57,15 @@ The `3dmodels/board.blend` file is the Blender source for the game board. A pre-
 **Decision:** When a Seven is played with two pawns selected, a single counter control is shown for pawn A (1–6 range); pawn B's steps are auto-calculated as `7 − A`.  
 **Rationale:** Eliminates the need for the user to manually balance two counters; a single slider/stepper is sufficient and intuitive.
 
+### 9. SSE broadcast after move / dispose
+**Decision:** `MakeMoveHandler` and `DisposeHandHandler` each broadcast two SSE events after persisting the new state: (1) `game-updated` with `{}` payload — triggers all connected clients to re-fetch game state; (2) `your-turn` with `{ activePlayerId, canDispose }` — signals the next player to open the HUD.  
+**Rationale:** All clients subscribe to `/api/games/{code}/events` via `EventSource`. Broadcasting `game-updated` after each mutation keeps every player's view in sync without polling. The separate `your-turn` event lets the HUD expand automatically for the next player without requiring them to re-fetch first.
+
+### 10. Pawn position animation
+**Decision:** When a `game-updated` event arrives, the frontend re-fetches the game state and passes the new positions to `GameBoardComponent`. `PawnLayer` maintains a `Map<string, SpawnedPawn>` registry keyed by pawn ID. On subsequent updates `movePawns()` reuses existing mesh instances and animates each pawn's `position` property from its current coordinates to the new target using `Animation.CreateAndStartAnimation()` at 30 fps over 15 frames (500 ms).  
+**Rationale:** Smooth movement (rather than teleportation) gives clear visual feedback about which pawns moved and how far. Reusing mesh instances via the registry avoids unnecessary dispose/respawn cycles and keeps ActionManagers intact across moves. The 15-frame duration is long enough to be visible but short enough not to impede gameplay flow.
+
 ## Risks / Trade-offs
 
 - **3D image must be exported manually** — The `.blend` file exists but a rendered PNG is not yet in `src/assets/`. The board render must be created and committed before the frontend task completes. → Mitigation: document the export step in tasks; use a placeholder image until the render is ready.
-- **Stale game state** — Without real-time updates, the displayed state may lag. → Mitigation: add a visible "Refresh" action; acceptable for the current development stage.
 - **Route guard missing** — `/game/:gameCode` with a non-existent code returns a 404 from the API. → Mitigation: show a user-friendly error state in the component when the API returns 404.
