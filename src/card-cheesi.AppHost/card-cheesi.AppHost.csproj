@@ -14,6 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Chat\CardCheesi.Chat.Api\CardCheesi.Chat.Api.csproj" />
     <ProjectReference Include="..\Game\CardCheesi.Game.Api\CardCheesi.Game.Api.csproj" />
     <ProjectReference Include="..\Players\CardCheesi.Players.Api\CardCheesi.Players.Api.csproj" />
   </ItemGroup>

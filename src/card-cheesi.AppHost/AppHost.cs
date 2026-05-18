@@ -19,17 +19,21 @@ var gameApi = builder.AddProject<Projects.CardCheesi_Game_Api>("cardcheesi-game-
     .WaitFor(gamedb)
     .WithEnvironment("Cors__AllowedOrigin", frontend.GetEndpoint("http"));
 
+var chatApi = builder.AddProject<Projects.CardCheesi_Chat_Api>("cardcheesi-chat-api")
+    .WithReference(gamedb)
+    .WaitFor(gamedb)
+    .WithEnvironment("Cors__AllowedOrigin", frontend.GetEndpoint("http"));
+
 var gateway = builder.AddYarp("gateway")
     .WithConfiguration(yarp =>
     {
         yarp.AddRoute("/api/players/{**catch-all}", playersApi.GetEndpoint("http"));
-
-        yarp.AddRoute("/api/chat/{**catch-all}", gameApi.GetEndpoint("http"));
-
+        yarp.AddRoute("/api/chat/{**catch-all}", chatApi.GetEndpoint("http"));
         yarp.AddRoute("/api/games/{**catch-all}", gameApi.GetEndpoint("http"));
     })
     .WaitFor(playersApi)
-    .WaitFor(gameApi);
+    .WaitFor(gameApi)
+    .WaitFor(chatApi);
 
 frontend
     .WithEnvironment("API_URL", gateway.GetEndpoint("http"))

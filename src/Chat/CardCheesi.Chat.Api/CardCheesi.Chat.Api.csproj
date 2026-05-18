@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -7,15 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.7" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Aspire\CardCheesi.Aspire.ServiceDefaults\CardCheesi.Aspire.ServiceDefaults.csproj" />
     <ProjectReference Include="..\..\Core\CardCheesi.Core\CardCheesi.Core.csproj" />
+    <ProjectReference Include="..\..\Game\CardCheesi.Game\CardCheesi.Game.csproj" />
     <ProjectReference Include="..\CardCheesi.Chat\CardCheesi.Chat.csproj" />
   </ItemGroup>
 

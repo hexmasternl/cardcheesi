@@ -1,3 +1,3 @@
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("CardCheesi.Game.Tests")]
+[assembly: InternalsVisibleTo("CardCheesi.Players.Tests")]

@@ -26,7 +26,8 @@ export type SseEventType = 'player-status' | 'player-joined' | 'your-turn' | 'ch
 
 @Injectable({ providedIn: 'root' })
 export class SseService {
-  private eventSource: EventSource | null = null;
+  private gameEventSource: EventSource | null = null;
+  private chatEventSource: EventSource | null = null;
 
   readonly lastPlayerStatus = signal<PlayerStatusEvent | null>(null);
   readonly lastPlayerJoined = signal<PlayerJoinedEvent | null>(null);
@@ -37,14 +38,15 @@ export class SseService {
   connect(gameCode: string, playerId: string): void {
     this.disconnect();
 
-    const url = `/api/games/${gameCode}/events?playerId=${encodeURIComponent(playerId)}`;
-    this.eventSource = new EventSource(url);
+    const pid = encodeURIComponent(playerId);
 
-    this.eventSource.onopen = () => {
+    this.gameEventSource = new EventSource(`/api/games/${gameCode}/events?playerId=${pid}`);
+
+    this.gameEventSource.onopen = () => {
       this.connectionError.set(false);
     };
 
-    this.eventSource.addEventListener('player-status', (event: MessageEvent) => {
+    this.gameEventSource.addEventListener('player-status', (event: MessageEvent) => {
       try {
         const data = JSON.parse(event.data) as PlayerStatusEvent;
         this.lastPlayerStatus.set(data);
@@ -54,7 +56,7 @@ export class SseService {
       }
     });
 
-    this.eventSource.addEventListener('player-joined', (event: MessageEvent) => {
+    this.gameEventSource.addEventListener('player-joined', (event: MessageEvent) => {
       try {
         const data = JSON.parse(event.data) as PlayerJoinedEvent;
         this.lastPlayerJoined.set(data);
@@ -64,7 +66,7 @@ export class SseService {
       }
     });
 
-    this.eventSource.addEventListener('your-turn', (event: MessageEvent) => {
+    this.gameEventSource.addEventListener('your-turn', (event: MessageEvent) => {
       try {
         const data = JSON.parse(event.data) as YourTurnEvent;
         this.lastYourTurn.set(data);
@@ -74,7 +76,13 @@ export class SseService {
       }
     });
 
-    this.eventSource.addEventListener('chat-message', (event: MessageEvent) => {
+    this.gameEventSource.onerror = () => {
+      this.connectionError.set(true);
+    };
+
+    this.chatEventSource = new EventSource(`/api/chat/${gameCode}/events?playerId=${pid}`);
+
+    this.chatEventSource.addEventListener('chat-message', (event: MessageEvent) => {
       try {
         const data = JSON.parse(event.data) as ChatMessageEvent;
         this.chatMessages.update((msgs) => [...msgs, data]);
@@ -84,15 +92,19 @@ export class SseService {
       }
     });
 
-    this.eventSource.onerror = () => {
+    this.chatEventSource.onerror = () => {
       this.connectionError.set(true);
     };
   }
 
   disconnect(): void {
-    if (this.eventSource) {
-      this.eventSource.close();
-      this.eventSource = null;
+    if (this.gameEventSource) {
+      this.gameEventSource.close();
+      this.gameEventSource = null;
+    }
+    if (this.chatEventSource) {
+      this.chatEventSource.close();
+      this.chatEventSource = null;
     }
     this.lastPlayerJoined.set(null);
     this.lastYourTurn.set(null);

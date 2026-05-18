@@ -1,6 +1,8 @@
+using CardCheesi.Chat;
+using CardCheesi.Chat.Api;
+using CardCheesi.Chat.Api.Endpoints;
 using CardCheesi.Game;
-using CardCheesi.Game.Api;
-using CardCheesi.Game.Api.Endpoints.Games;
+using CardCheesi.Game.Abstractions;
 using CardCheesi.Game.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,13 +11,14 @@ builder.AddServiceDefaults();
 builder.AddCorsDefaults();
 builder.AddJwtBearerAuthentication();
 
-// Skip Npgsql registration in test environments to avoid real DB connections
 if (!builder.Environment.IsEnvironment("Testing"))
 {
     builder.AddNpgsqlDbContext<AppDbContext>("gamedb");
 }
 
-builder.Services.AddGameModule();
+builder.Services.AddScoped<IGameRepository, GameRepository>();
+builder.Services.AddSingleton<ISseConnectionManager, SseConnectionManager>();
+builder.Services.AddChatModule();
 
 builder.Services.AddOpenApi(options =>
 {
@@ -56,7 +59,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 var api = app.MapGroup("/api");
-api.MapGameEndpoints();
+api.MapChatEndpoints();
 
 app.Run();
 
