@@ -66,7 +66,7 @@ public sealed class MakeMoveHandlerTests
     public async Task Handle_JackMissingSecondPawn_ThrowsDomainException()
     {
         var (game, player, pawn) = GameStateFactory.CreateInProgress(
-            cards: [new Card(CardSuit.Clubs, CardRank.Jack)]);
+            cards: [new Card(CardSuit.Clubs, CardRank.Jack), new Card(CardSuit.Hearts, CardRank.Two)]);
         var mockRepo = new Mock<IGameRepository>();
         mockRepo.Setup(r => r.GetByCodeAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(game);
@@ -85,6 +85,7 @@ public sealed class MakeMoveHandlerTests
     [Fact]
     public async Task Handle_ValidMove_SavesGameAndBroadcastsTwoSseEvents()
     {
+        // 2 cards in hand so after playing one, hand is not empty → AdvanceTurn just moves turn
         var (game, player, pawn) = GameStateFactory.CreateInProgress(boardPosition: 5);
         var mockRepo = new Mock<IGameRepository>();
         mockRepo.Setup(r => r.GetByCodeAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))

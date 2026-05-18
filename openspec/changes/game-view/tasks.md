@@ -35,8 +35,8 @@
 
 - [x] 6.1 `POST /games/{code}/move` endpoint implemented in `GameEndpoints.cs`; validates turn, applies move via `MakeMoveHandler`, broadcasts `game-updated` + `your-turn` SSE, returns `204`
 - [x] 6.2 `POST /games/{code}/dispose` endpoint implemented in `GameEndpoints.cs`; validates turn, disposes hand via `DisposeHandHandler`, broadcasts `game-updated` + `your-turn` SSE, returns `204`
-- [ ] 6.3 Add unit tests for `MakeMoveHandler`: game-not-found → `NotFoundException`; not-in-progress → `DomainException`; out-of-turn → `DomainException`; Jack missing second pawn → `DomainException`; valid move saves and broadcasts two SSE events
-- [ ] 6.4 Add unit tests for `DisposeHandHandler`: game-not-found → `NotFoundException`; not-in-progress → `DomainException`; out-of-turn → `DomainException`; has-playable-cards → `DomainException`; valid dispose saves and broadcasts two SSE events
+- [x] 6.3 Add unit tests for `MakeMoveHandler`: game-not-found → `NotFoundException`; not-in-progress → `DomainException`; out-of-turn → `DomainException`; Jack missing second pawn → `DomainException`; valid move saves and broadcasts two SSE events
+- [x] 6.4 Add unit tests for `DisposeHandHandler`: game-not-found → `NotFoundException`; not-in-progress → `DomainException`; out-of-turn → `DomainException`; has-playable-cards → `DomainException`; valid dispose saves and broadcasts two SSE events
 
 ## 7. Frontend — Chat overlay component
 

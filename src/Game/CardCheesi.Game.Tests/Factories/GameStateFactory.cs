@@ -15,7 +15,8 @@ internal static class GameStateFactory
         List<Player>? players = null,
         List<Team>? teams = null,
         TurnState? turn = null,
-        IReadOnlyList<PlayerHand>? hands = null)
+        IReadOnlyList<PlayerHand>? hands = null,
+        Deck? deck = null)
     {
         return new GameState(
             Id: id ?? Guid.NewGuid(),
@@ -24,13 +25,14 @@ internal static class GameStateFactory
             Teams: teams ?? [],
             Players: players ?? [],
             Turn: turn,
-            Deck: null,
+            Deck: deck,
             Hands: hands);
     }
 
     /// <summary>
     /// Creates a game state that is in-progress with a single player whose turn it is,
     /// holding the supplied hand and having one pawn at the given board position.
+    /// Includes a standard deck so that <see cref="GameState.AdvanceTurn"/> can deal the next round.
     /// </summary>
     public static (GameState Game, Player Player, Pawn Pawn) CreateInProgress(
         Guid? playerId = null,
@@ -41,13 +43,16 @@ internal static class GameStateFactory
         var pawnId = Guid.NewGuid();
         var pawn = new Pawn(pawnId, pid, PawnStatus.InPlay, new BoardLocation(boardPosition), false);
         var player = new Player(pid, _faker.Internet.UserName(), [pawn]);
-        var hand = new PlayerHand(pid, (cards ?? [new Card(CardSuit.Clubs, CardRank.Two)]).AsReadOnly());
+        var defaultCards = cards ?? [new Card(CardSuit.Clubs, CardRank.Two), new Card(CardSuit.Hearts, CardRank.Three)];
+        var hand = new PlayerHand(pid, defaultCards.AsReadOnly());
         var turn = new TurnState(pid, pid, 1);
+        var deck = DomainModels.Deck.Standard();
         var game = Create(
             status: GameStatus.InProgress,
             players: [player],
             turn: turn,
-            hands: [hand]);
+            hands: [hand],
+            deck: deck);
         return (game, player, pawn);
     }
 }

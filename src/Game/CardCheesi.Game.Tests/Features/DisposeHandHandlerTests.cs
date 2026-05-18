@@ -5,7 +5,6 @@ using CardCheesi.Game.DomainModels;
 using CardCheesi.Game.Features.DisposeHand;
 using CardCheesi.Game.Tests.Factories;
 using Moq;
-
 namespace CardCheesi.Game.Tests.Features;
 
 public sealed class DisposeHandHandlerTests
@@ -86,11 +85,13 @@ public sealed class DisposeHandHandlerTests
         var player = new Player(playerId, "Alice", pawns.AsReadOnly());
         var hand = new PlayerHand(playerId, [new Card(CardSuit.Clubs, CardRank.Two)]);
         var turn = new TurnState(playerId, playerId, 1);
+        var deck = DomainModels.Deck.Standard();
         var game = GameStateFactory.Create(
             status: GameStatus.InProgress,
             players: [player],
             turn: turn,
-            hands: [hand]);
+            hands: [hand],
+            deck: deck);
 
         var mockRepo = new Mock<IGameRepository>();
         mockRepo.Setup(r => r.GetByCodeAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
